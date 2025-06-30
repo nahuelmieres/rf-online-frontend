@@ -1,27 +1,32 @@
 import React, { useEffect, useState } from 'react';
 
 const Planes = () => {
-  const [planes, setPlanes] = useState([]);
+  const [planificacion, setPlanificacion] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const obtenerPlanes = async () => {
+    const obtenerPlanificacion = async () => {
       try {
-        const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3000/api/planificaciones", {
+        const token = localStorage.getItem('token');
+
+        const res = await fetch('http://localhost:3000/api/usuarios/perfil', {
           headers: {
-            "Authorization": `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data.msg || "Error al obtener planificaciones");
+        // Verifico si la respuesta fue exitosa
+        if (!res.ok) {
+          throw new Error(data.mensaje || 'Error al obtener el perfil');
+        }
 
-        // Filtrar solo los planes activos
-        const activos = data.filter(plan => plan.estadoPago);
-        setPlanes(activos);
+        // Me protejo ante posibles errores de estructura
+        const plan = data?.planificacion || null;
+        setPlanificacion(plan);
+
       } catch (err) {
         setError(err.message);
       } finally {
@@ -29,29 +34,34 @@ const Planes = () => {
       }
     };
 
-    obtenerPlanes();
+    obtenerPlanificacion();
   }, []);
 
-  if (cargando) return <p className="p-4">Cargando planes...</p>;
-  if (error) return <p className="text-red-600 p-4">Error: {error}</p>;
+  if (cargando) return <p className="text-center mt-10">Cargando planificación...</p>;
+  if (error) return <p className="text-center text-red-600 mt-10">{error}</p>;
 
   return (
-    <section className="max-w-4xl mx-auto px-4 py-6">
-      <h2 className="text-2xl font-bold mb-4 text-orange-600">Tus Planes Activos</h2>
-      {planes.length === 0 ? (
+    <section className="max-w-4xl mx-auto px-4 py-8">
+      <h2 className="text-2xl font-bold mb-6 text-orange-600">Tus Planes Activos</h2>
+
+      {!planificacion ? (
         <p className="text-gray-600">No tenés planes activos por el momento.</p>
       ) : (
-        <ul className="space-y-4">
-          {planes.map(plan => (
-            <li key={plan._id} className="p-4 border rounded shadow bg-white">
-              <h3 className="font-semibold text-lg text-orange-500">{plan.nombre}</h3>
-              <p className="text-sm text-gray-700">
-                <strong>Inicio:</strong> {new Date(plan.fechaInicio).toLocaleDateString()}<br />
-                <strong>Duración:</strong> {plan.semanas.length} semanas
-              </p>
-            </li>
-          ))}
-        </ul>
+        <div className="bg-white shadow-lg rounded-xl p-6 border border-gray-200">
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">
+            {planificacion.titulo}
+          </h3>
+          <p className="text-gray-600 mb-2">{planificacion.descripcion}</p>
+          <p className="text-sm text-gray-500 mb-4">Tipo: {planificacion.tipo}</p>
+
+          {planificacion.semanas?.length > 0 ? (
+            <button className="bg-orange-600 hover:bg-orange-700 text-white text-sm py-2 px-4 rounded">
+              Ver Semanas
+            </button>
+          ) : (
+            <p className="text-gray-500 text-sm italic">Aún no hay semanas asignadas</p>
+          )}
+        </div>
       )}
     </section>
   );
