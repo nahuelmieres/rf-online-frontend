@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Sun, Moon, Menu, X, Home, Dumbbell, Users, UserCircle, LogOut } from 'lucide-react';
 
 const Navbar = () => {
   const { usuario, logout } = useAuth();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
-    // Verifica el tema guardado o el preference del sistema
     return localStorage.getItem('theme') === 'dark' || 
            (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'));
   });
@@ -26,122 +26,132 @@ const Navbar = () => {
     setDarkMode(prev => !prev);
   };
 
-  if (!usuario) return null;
-
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
+  if (!usuario) return null;
+
+  // Componente auxiliar para items de navegación
+  const NavItem = ({ to, icon, text }) => (
+    <li>
+      <Link to={to} className="flex items-center gap-1.5 hover:text-primary-light dark:hover:text-primary-dark transition">
+        {icon}
+        <span>{text}</span>
+      </Link>
+    </li>
+  );
+
+  // Componente auxiliar para items mobile
+  const MobileNavItem = ({ to, icon, text, onClick }) => (
+    <li className="border-b border-gray-700 last:border-0">
+      <Link 
+        to={to} 
+        onClick={onClick}
+        className="flex items-center gap-2 py-3 px-2 hover:text-primary-light dark:hover:text-primary-dark"
+      >
+        {icon}
+        <span>{text}</span>
+      </Link>
+    </li>
+  );
+
   return (
-    <header className="bg-black dark:bg-gray-900 text-white">
+    <header className="bg-gym-black dark:bg-gray-850 border-b border-gray-200 dark:border-gray-700">
       <nav className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-        <h1 className="text-xl font-bold tracking-wider text-orange-500 dark:text-orange-400">
-          <Link to="/">RF Online</Link>
+        <h1 className="text-xl font-bold tracking-wider text-gym-orange dark:text-primary-dark">
+          <Link to="/" className="flex items-center gap-2">
+            <Dumbbell className="w-5 h-5" />
+            <span>RF Online</span>
+          </Link>
         </h1>
 
         <div className="flex items-center gap-4">
           {/* Botón Dark Mode */}
           <button
             onClick={toggleDarkMode}
-            className="hidden md:flex items-center gap-1 text-sm px-3 py-1 border border-white rounded-full hover:bg-white hover:text-black transition"
-            aria-label={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+            aria-label={darkMode ? 'Modo claro' : 'Modo oscuro'}
           >
             {darkMode ? (
-              <span className="flex items-center gap-1">
-                <span>☀️</span>
-                <span className="hidden lg:inline">Claro</span>
-              </span>
+              <Sun className="w-5 h-5 text-yellow-300" />
             ) : (
-              <span className="flex items-center gap-1">
-                <span>🌙</span>
-                <span className="hidden lg:inline">Oscuro</span>
-              </span>
+              <Moon className="w-5 h-5 text-blue-400" />
             )}
           </button>
 
-          {/* Menú hamburguesa para mobile */}
+          {/* Menú hamburguesa */}
           <button
-            className="md:hidden"
+            className="md:hidden p-1"
             onClick={() => setMenuAbierto(!menuAbierto)}
-            aria-label="Menú"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              {menuAbierto ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
+            {menuAbierto ? (
+              <X className="w-6 h-6" />
+            ) : (
+              <Menu className="w-6 h-6" />
+            )}
           </button>
         </div>
 
         {/* Navegación desktop */}
-        <ul className="hidden md:flex gap-6 text-sm font-medium items-center">
-          <li><Link to="/" className="hover:text-orange-500 dark:hover:text-orange-400">Inicio</Link></li>
-          <li><Link to="/planes" className="hover:text-orange-500 dark:hover:text-orange-400">Planes</Link></li>
-          <li><Link to="/entrenadores" className="hover:text-orange-500 dark:hover:text-orange-400">Entrenadores</Link></li>
-          <li><Link to="/cuenta" className="hover:text-orange-500 dark:hover:text-orange-400">Mi cuenta</Link></li>
+        <ul className="hidden md:flex gap-6 items-center">
+          <NavItem to="/" icon={<Home size={18} />} text="Inicio" />
+          <NavItem to="/planes" icon={<Dumbbell size={18} />} text="Mi Plan" />
+          <NavItem to="/entrenadores" icon={<Users size={18} />} text="Entrenadores" />
+          <NavItem to="/cuenta" icon={<UserCircle size={18} />} text="Mi cuenta" />
           <li>
             <button
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs"
+              className="flex items-center gap-1 text-sm bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded"
             >
-              Cerrar sesión
+              <LogOut size={16} />
+              <span>Salir</span>
             </button>
           </li>
         </ul>
       </nav>
 
-      {/* Navegación mobile */}
+      {/* Menú mobile */}
       {menuAbierto && (
-        <ul className="md:hidden px-4 pb-4 flex flex-col gap-2 text-sm font-medium bg-black dark:bg-gray-900">
-          <li>
-            <Link to="/" onClick={() => setMenuAbierto(false)} className="block py-2 hover:text-orange-500 dark:hover:text-orange-400">
-              Inicio
-            </Link>
-          </li>
-          <li>
-            <Link to="/planes" onClick={() => setMenuAbierto(false)} className="block py-2 hover:text-orange-500 dark:hover:text-orange-400">
-              Planes
-            </Link>
-          </li>
-          <li>
-            <Link to="/entrenadores" onClick={() => setMenuAbierto(false)} className="block py-2 hover:text-orange-500 dark:hover:text-orange-400">
-              Entrenadores
-            </Link>
-          </li>
-          <li>
-            <Link to="/cuenta" onClick={() => setMenuAbierto(false)} className="block py-2 hover:text-orange-500 dark:hover:text-orange-400">
-              Mi cuenta
-            </Link>
-          </li>
-          <li className="pt-2">
+        <div className="md:hidden px-4 pb-4 bg-gym-black dark:bg-gray-850 border-t border-gray-700">
+          <MobileNavItem 
+            to="/" 
+            icon={<Home size={18} />} 
+            text="Inicio" 
+            onClick={() => setMenuAbierto(false)} 
+          />
+          <MobileNavItem 
+            to="/planes" 
+            icon={<Dumbbell size={18} />} 
+            text="Planes" 
+            onClick={() => setMenuAbierto(false)} 
+          />
+          <MobileNavItem 
+            to="/entrenadores" 
+            icon={<Users size={18} />} 
+            text="Entrenadores" 
+            onClick={() => setMenuAbierto(false)} 
+          />
+          <MobileNavItem 
+            to="/cuenta" 
+            icon={<UserCircle size={18} />} 
+            text="Mi cuenta" 
+            onClick={() => setMenuAbierto(false)} 
+          />
+          <li className="mt-2 pt-2 border-t border-gray-700">
             <button
               onClick={() => {
                 handleLogout();
                 setMenuAbierto(false);
               }}
-              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs w-full text-center"
+              className="flex items-center justify-center gap-2 w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded"
             >
-              Cerrar sesión
+              <LogOut size={16} />
+              <span>Cerrar sesión</span>
             </button>
           </li>
-          {/* Dark Mode en mobile */}
-          <li className="pt-2">
-            <button
-              onClick={toggleDarkMode}
-              className="flex items-center gap-2 text-sm px-3 py-1 border border-white rounded-full hover:bg-white hover:text-black w-full justify-center"
-            >
-              {darkMode ? '☀️ Modo Claro' : '🌙 Modo Oscuro'}
-            </button>
-          </li>
-        </ul>
+        </div>
       )}
     </header>
   );

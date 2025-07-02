@@ -1,8 +1,19 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   body {
-    @apply font-sans;
+    @apply font-sans bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200;
+  }
+  h1, h2, h3 {
+    @apply text-gym-black dark:text-white;
+  }
+  a {
+    @apply transition-colors duration-200;
+  }
+  /* Estilo para tarjetas */
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700;
   }
 }
