@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dumbbell, Calendar, AlertTriangle, Loader2, ChevronRight, Plus } from 'lucide-react';
+import { Dumbbell, Calendar, AlertTriangle, Loader2, Plus, Zap, ZapOff, Coffee } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Planes = () => {
@@ -13,21 +13,44 @@ const Planes = () => {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('No estás autenticado');
 
-        const res = await fetch('http://localhost:3000/api/usuarios/perfil', {
+        // Primero obtenemos el perfil para saber qué planificación tiene el usuario
+        const resPerfil = await fetch('http://localhost:3000/api/usuarios/perfil', {
           headers: { 
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         });
 
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(errorData.message || 'Error al obtener el perfil');
+        if (!resPerfil.ok) {
+          throw new Error('Error al obtener el perfil');
         }
 
-        const { data } = await res.json();
-        console.log('Datos recibidos:', data); // Para debug
-        setPlanData(data);
+        const { data: perfilData } = await resPerfil.json();
+        
+        // Si tiene planificación, obtenemos los datos completos
+        if (perfilData.planificacion) {
+          const resPlan = await fetch(`http://localhost:3000/api/planificaciones/${perfilData.planificacion.id}`, {
+            headers: { 
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!resPlan.ok) {
+            throw new Error('Error al obtener la planificación');
+          }
+
+          const { data: planificacionData } = await resPlan.json();
+          setPlanData({
+            usuario: perfilData.usuario,
+            planificacion: planificacionData
+          });
+        } else {
+          setPlanData({
+            usuario: perfilData.usuario,
+            planificacion: null
+          });
+        }
 
       } catch (err) {
         console.error('Error:', err);
@@ -72,7 +95,7 @@ const Planes = () => {
             Tu Plan de Entrenamiento
           </h2>
         </div>
-        {usuario?.rol === 'admin' && (
+        {(usuario?.rol === 'admin' || usuario?.rol === 'coach') && (
           <Link 
             to="/crear-plan"
             className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition"
@@ -96,75 +119,112 @@ const Planes = () => {
           </Link>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Resumen del Plan */}
           <div className="card p-6">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
-                  {planificacion.titulo}
-                </h3>
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-xs px-3 py-1 rounded-full capitalize">
-                    {planificacion.tipo}
-                  </span>
-                  <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                    <Calendar className="w-4 h-4" />
-                    <span>{planificacion.semanas?.length || 0} semanas</span>
-                  </div>
-                </div>
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
+              {planificacion.titulo}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">{planificacion.descripcion}</p>
+            <div className="flex items-center gap-3 mt-3">
+              <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-xs px-3 py-1 rounded-full capitalize">
+                {planificacion.tipo}
+              </span>
+              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <Calendar className="w-4 h-4" />
+                <span>{planificacion.totalSemanas} semanas • {planificacion.totalBloques} rutinas • {planificacion.totalDescansos} descansos</span>
               </div>
-              <Link
-                to={`/mi-plan`}
-                className="flex items-center gap-1 text-orange-500 dark:text-orange-400 hover:text-orange-600 dark:hover:text-orange-300 transition"
-              >
-                <span>Ver detalles completos</span>
-                <ChevronRight className="w-4 h-4" />
-              </Link>
             </div>
           </div>
 
           {/* Listado de Semanas */}
           {planificacion.semanas?.map((semana) => (
             <div key={semana.numero} className="card p-6">
-              <h4 className="text-lg font-medium text-gray-800 dark:text-white mb-4">
+              <h4 className="text-lg font-medium text-gray-800 dark:text-white mb-6">
                 Semana {semana.numero}
               </h4>
 
-              {semana.bloques?.map((bloque) => (
-                <div key={bloque.id} className="mb-6 last:mb-0">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="text-sm font-medium text-orange-500 dark:text-orange-400">
-                      {bloque.tipo === 'ejercicios' ? 'Rutina de ejercicios' : 'Notas'}
-                    </span>
-                  </div>
-                  
-                  {bloque.tipo === 'ejercicios' ? (
-                    <div className="space-y-3">
-                      {bloque.contenido?.map((ejercicio, index) => (
-                        <div key={index} className="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                          <h5 className="font-medium text-gray-800 dark:text-white">{ejercicio.nombre}</h5>
-                          <div className="flex flex-wrap gap-4 mt-2">
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              Series: {ejercicio.series}
-                            </span>
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              Reps: {ejercicio.repeticiones}
-                            </span>
-                            <span className="text-sm text-gray-600 dark:text-gray-400">
-                              Peso: {ejercicio.peso}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
+              <div className="space-y-6">
+                {semana.dias?.map((dia) => (
+                  <div key={dia._id} className="border-b pb-6 last:border-b-0 last:pb-0">
+                    <div className="flex items-center gap-3 mb-3">
+                      <h5 className="text-md font-medium text-gray-800 dark:text-white">
+                        {dia.nombre}
+                      </h5>
+                      {dia.descanso && (
+                        <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                          <Coffee className="w-4 h-4" />
+                          Día de descanso
+                        </span>
+                      )}
                     </div>
-                  ) : (
-                    <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line">
-                      {bloque.contenido}
-                    </p>
-                  )}
-                </div>
-              ))}
+                    
+                    {!dia.descanso && dia.bloquesPoblados?.length > 0 ? (
+                      <div className="space-y-4">
+                        {dia.bloquesPoblados.map((bloque) => (
+                          <div key={bloque._id} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Zap className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+                              <span className="font-medium text-orange-500 dark:text-orange-400">
+                                {bloque.tipo === 'ejercicios' ? 'Rutina de ejercicios' : 'Notas'}
+                              </span>
+                            </div>
+                            
+                            {bloque.tipo === 'ejercicios' ? (
+                              <div className="space-y-3">
+                                {bloque.ejercicios?.map((ejercicio, index) => (
+                                  <div key={index} className="p-3 bg-white dark:bg-gray-700 rounded">
+                                    <div className="flex items-start gap-3">
+                                      <div className="flex-1">
+                                        <h6 className="font-medium text-gray-800 dark:text-white">{ejercicio.nombre}</h6>
+                                        <div className="flex flex-wrap gap-4 mt-2">
+                                          <span className="text-sm text-gray-600 dark:text-gray-300">
+                                            Series: {ejercicio.series}
+                                          </span>
+                                          <span className="text-sm text-gray-600 dark:text-gray-300">
+                                            Reps: {ejercicio.repeticiones}
+                                          </span>
+                                          {ejercicio.peso && (
+                                            <span className="text-sm text-gray-600 dark:text-gray-300">
+                                              Peso: {ejercicio.peso}
+                                            </span>
+                                          )}
+                                        </div>
+                                      </div>
+                                      {ejercicio.linkVideo && (
+                                        <a 
+                                          href={ejercicio.linkVideo} 
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                          className="text-orange-500 hover:text-orange-600 dark:hover:text-orange-400"
+                                        >
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                                          </svg>
+                                        </a>
+                                      )}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line">
+                                {bloque.contenidoTexto}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : !dia.descanso ? (
+                      <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                        <ZapOff className="w-4 h-4" />
+                        <span>No hay ejercicios asignados</span>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
