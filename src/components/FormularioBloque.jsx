@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Plus, X } from 'lucide-react';
+import ReactTagInput from '@pathofdev/react-tag-input';
+import '@pathofdev/react-tag-input/build/index.css';
 
 const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
   const [nombre, setNombre] = useState('');
+  const [tags, setTags] = useState([]);
   const [tipo, setTipo] = useState('ejercicios');
   const [contenidoTexto, setContenidoTexto] = useState('');
   const [ejercicios, setEjercicios] = useState([
     { nombre: '', series: 3, repeticiones: '8-10', peso: '', linkVideo: '' }
   ]);
 
-  // Inicializar con datos del bloque si estamos editando
+  // Precargo datos si estoy editando
   useEffect(() => {
     if (bloque) {
       setNombre(bloque.nombre);
+      setTags(bloque.tags || []);
       setTipo(bloque.tipo);
       if (bloque.tipo === 'texto') {
         setContenidoTexto(bloque.contenidoTexto);
@@ -29,14 +33,10 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
   };
 
   const agregarEjercicio = () => {
-    setEjercicios([
-      ...ejercicios,
-      { nombre: '', series: 3, repeticiones: '8-10', peso: '', linkVideo: '' }
-    ]);
+    setEjercicios([...ejercicios, { nombre: '', series: 3, repeticiones: '8-10', peso: '', linkVideo: '' }]);
   };
 
   const eliminarEjercicio = (index) => {
-    if (ejercicios.length <= 1) return;
     const newEjercicios = [...ejercicios];
     newEjercicios.splice(index, 1);
     setEjercicios(newEjercicios);
@@ -44,19 +44,15 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
     const bloqueData = {
       nombre,
+      tags,
       tipo,
-      ...(tipo === 'texto' 
-        ? { contenidoTexto } 
+      ...(tipo === 'texto'
+        ? { contenidoTexto }
         : { ejercicios: ejercicios.filter(e => e.nombre.trim() !== '') })
     };
-
-    if (bloque) {
-      bloqueData._id = bloque._id;
-    }
-
+    if (bloque) bloqueData._id = bloque._id;
     onSubmit(bloqueData);
   };
 
@@ -74,6 +70,20 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
           className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:text-white"
           required
         />
+      </div>
+
+      {/* Etiquetas */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          Etiquetas
+        </label>
+        <div className="react-tag-input-wrapper">
+          <ReactTagInput
+            tags={tags}
+            onChange={setTags}
+            placeholder="Escribí y presioná enter..."
+          />
+        </div>
       </div>
 
       {/* Tipo de bloque */}
@@ -110,7 +120,7 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Ejercicios
           </label>
-          
+
           {ejercicios.map((ejercicio, index) => (
             <div key={index} className="p-3 border border-gray-200 dark:border-gray-700 rounded-md">
               <div className="flex justify-between items-center mb-2">
@@ -125,7 +135,7 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
                   </button>
                 )}
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Nombre</label>
@@ -137,7 +147,7 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Series</label>
                   <input
@@ -149,7 +159,7 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Repeticiones</label>
                   <input
@@ -160,7 +170,7 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
                     required
                   />
                 </div>
-                
+
                 <div>
                   <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Peso (opcional)</label>
                   <input
@@ -170,7 +180,7 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
                     className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded focus:outline-none focus:ring-1 focus:ring-orange-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
-                
+
                 <div className="md:col-span-2">
                   <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">Link de video (opcional)</label>
                   <input
@@ -184,7 +194,7 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
               </div>
             </div>
           ))}
-          
+
           <button
             type="button"
             onClick={agregarEjercicio}
@@ -210,7 +220,7 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
             </button>
           )}
         </div>
-        
+
         <div className="space-x-3">
           <button
             type="button"

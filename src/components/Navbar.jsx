@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Sun, Moon, Menu, X, Home, Dumbbell, Users, UserCircle, LogOut } from 'lucide-react';
+import { Sun, Moon, Menu, X, Home, Dumbbell, Users, UserCircle, LogOut, Settings, UserCog, ClipboardList } from 'lucide-react';
 
 const Navbar = () => {
   const { usuario, logout } = useAuth();
@@ -10,6 +10,7 @@ const Navbar = () => {
     return localStorage.getItem('theme') === 'dark' || 
            (window.matchMedia('(prefers-color-scheme: dark)').matches && !localStorage.getItem('theme'));
   });
+  const [submenuAbierto, setSubmenuAbierto] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,34 +32,52 @@ const Navbar = () => {
     navigate('/login');
   };
 
+  const esAdmin = usuario?.rol === 'admin';
+  const esCoach = usuario?.rol === 'coach';
+  const mostrarGestion = esAdmin || esCoach;
+
   if (!usuario) return null;
 
   // Componente auxiliar para items de navegación
-  const NavItem = ({ to, icon, text }) => (
-    <li>
-      <Link to={to} className="flex items-center gap-1.5 hover:text-primary-light dark:hover:text-primary-dark transition">
+  const NavItem = ({ to, icon, text, children }) => (
+    <li className="relative group">
+      <Link 
+        to={to} 
+        className={`flex items-center gap-1.5 text-gray-100 hover:text-primary-light dark:text-gray-300 dark:hover:text-primary-dark transition ${!to && 'cursor-pointer'}`}
+      >
         {icon}
         <span>{text}</span>
+        {children && <span className="ml-1">▼</span>}
       </Link>
+      {children && (
+        <div className="absolute left-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          {children}
+        </div>
+      )}
     </li>
   );
 
   // Componente auxiliar para items mobile
-  const MobileNavItem = ({ to, icon, text, onClick }) => (
+  const MobileNavItem = ({ to, icon, text, onClick, children }) => (
     <li className="border-b border-gray-700 last:border-0">
       <Link 
         to={to} 
         onClick={onClick}
-        className="flex items-center gap-2 py-3 px-2 hover:text-primary-light dark:hover:text-primary-dark"
+        className="flex items-center gap-2 py-3 px-2 text-gray-100 hover:text-primary-light dark:text-gray-300 dark:hover:text-primary-dark"
       >
         {icon}
         <span>{text}</span>
       </Link>
+      {children && (
+        <div className="pl-6">
+          {children}
+        </div>
+      )}
     </li>
   );
 
   return (
-    <header className="bg-gym-black dark:bg-gray-850 border-b border-gray-200 dark:border-gray-700">
+    <header className="bg-gray-800 dark:bg-gray-850 border-b border-gray-700">
       <nav className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
         <h1 className="text-xl font-bold tracking-wider text-gym-orange dark:text-primary-dark">
           <Link to="/" className="flex items-center gap-2">
@@ -71,7 +90,7 @@ const Navbar = () => {
           {/* Botón Dark Mode */}
           <button
             onClick={toggleDarkMode}
-            className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+            className="p-2 rounded-full hover:bg-gray-700 dark:hover:bg-gray-700 transition"
             aria-label={darkMode ? 'Modo claro' : 'Modo oscuro'}
           >
             {darkMode ? (
@@ -83,7 +102,7 @@ const Navbar = () => {
 
           {/* Menú hamburguesa */}
           <button
-            className="md:hidden p-1"
+            className="md:hidden p-1 text-gray-100 dark:text-gray-300"
             onClick={() => setMenuAbierto(!menuAbierto)}
           >
             {menuAbierto ? (
@@ -99,11 +118,42 @@ const Navbar = () => {
           <NavItem to="/" icon={<Home size={18} />} text="Inicio" />
           <NavItem to="/planes" icon={<Dumbbell size={18} />} text="Mi Plan" />
           <NavItem to="/entrenadores" icon={<Users size={18} />} text="Entrenadores" />
+          
+          {mostrarGestion && (
+            <NavItem 
+              icon={<Settings size={18} />} 
+              text="Gestión"
+            >
+              <div className="py-1">
+                {esAdmin && (
+                  <Link
+                    to="/gestion/usuarios"
+                    className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  >
+                    <div className="flex items-center gap-2">
+                      <UserCog size={16} />
+                      <span>Administrar Usuarios</span>
+                    </div>
+                  </Link>
+                )}
+                <Link
+                  to="/gestion/planificaciones"
+                  className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  <div className="flex items-center gap-2">
+                    <ClipboardList size={16} />
+                    <span>Asignar Planificaciones</span>
+                  </div>
+                </Link>
+              </div>
+            </NavItem>
+          )}
+
           <NavItem to="/cuenta" icon={<UserCircle size={18} />} text="Mi cuenta" />
           <li>
             <button
               onClick={handleLogout}
-              className="flex items-center gap-1 text-sm bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded"
+              className="flex items-center gap-1 text-sm bg-red-500 hover:bg-red-600 px-3 py-1.5 rounded text-white"
             >
               <LogOut size={16} />
               <span>Salir</span>
@@ -114,7 +164,7 @@ const Navbar = () => {
 
       {/* Menú mobile */}
       {menuAbierto && (
-        <div className="md:hidden px-4 pb-4 bg-gym-black dark:bg-gray-850 border-t border-gray-700">
+        <div className="md:hidden px-4 pb-4 bg-gray-800 dark:bg-gray-850 border-t border-gray-700">
           <MobileNavItem 
             to="/" 
             icon={<Home size={18} />} 
@@ -133,6 +183,34 @@ const Navbar = () => {
             text="Entrenadores" 
             onClick={() => setMenuAbierto(false)} 
           />
+          
+          {mostrarGestion && (
+            <MobileNavItem 
+              icon={<Settings size={18} />} 
+              text="Gestión"
+              onClick={() => setSubmenuAbierto(!submenuAbierto)}
+            >
+              {submenuAbierto && (
+                <>
+                  {esAdmin && (
+                    <MobileNavItem 
+                      to="/gestion/usuarios" 
+                      icon={<UserCog size={16} />} 
+                      text="Administrar Usuarios" 
+                      onClick={() => setMenuAbierto(false)}
+                    />
+                  )}
+                  <MobileNavItem 
+                    to="/gestion/planificaciones" 
+                    icon={<ClipboardList size={16} />} 
+                    text="Asignar Planificaciones" 
+                    onClick={() => setMenuAbierto(false)}
+                  />
+                </>
+              )}
+            </MobileNavItem>
+          )}
+
           <MobileNavItem 
             to="/cuenta" 
             icon={<UserCircle size={18} />} 

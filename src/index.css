@@ -6,20 +6,31 @@
   body {
     @apply font-sans bg-background-light dark:bg-background-dark text-gray-800 dark:text-gray-200;
   }
-  h1, h2, h3 {
+
+  h1,
+  h2,
+  h3 {
     @apply text-gym-black dark:text-white;
   }
+
   a {
     @apply transition-colors duration-200;
   }
+
   /* Estilo para tarjetas */
   .card {
     @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 dark:border-gray-700;
   }
 }
+
 @keyframes progress {
-  from { width: 100%; }
-  to { width: 0%; }
+  from {
+    width: 100%;
+  }
+
+  to {
+    width: 0%;
+  }
 }
 
 @keyframes fade-in-up {
@@ -27,6 +38,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -39,13 +51,27 @@
 
 /* Animaciones para notificación centrada */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-20px); }
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
 }
 
 .notificacion-entrada {
@@ -54,4 +80,46 @@
 
 .notificacion-salida {
   animation: fadeOut 0.3s ease-in forwards;
+}
+
+/* Light Mode (valores por defecto) */
+.react-tag-input {
+  background-color: #fff;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.react-tag-input__tag {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.react-tag-input__tag__remove {
+  background: #e5e7eb;
+}
+
+/* Dark Mode */
+.dark .react-tag-input {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark .react-tag-input__tag {
+  background: #4b5563;
+  color: #f9fafb;
+}
+
+.dark .react-tag-input__tag__remove {
+  background: #6b7280;
+  color: #f9fafb;
+}
+
+.dark .react-tag-input__input {
+  color: #f3f4f6;
+  background-color: transparent;
+
+  ::placeholder {
+    color: #9ca3af;
+  }
 }

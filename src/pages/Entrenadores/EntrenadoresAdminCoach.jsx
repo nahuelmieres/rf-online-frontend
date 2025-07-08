@@ -3,7 +3,6 @@ import { Plus, Dumbbell, Edit, Trash2, Check, Search } from 'lucide-react';
 import { toast } from 'react-toastify';
 import useAuth from '../../hooks/useAuth';
 import Loader from '../../components/Loader';
-import BloqueCard from '../../components/BloqueCard';
 import Modal from '../../components/Modal';
 import FormularioBloque from '../../components/FormularioBloque';
 import ErrorBoundary from '../../components/ErrorBoundary';
@@ -30,7 +29,9 @@ const EntrenadoresAdminCoach = () => {
     mensaje: '',
     tiempo: 5000
   });
+  const [creandoBloque, setCreandoBloque] = useState(false);
 
+  // Muestro una notificación al usuario
   const mostrarNotificacion = (tipo, titulo, mensaje, tiempo = 5000) => {
     setNotificacion({
       mostrar: true,
@@ -41,12 +42,12 @@ const EntrenadoresAdminCoach = () => {
     });
   };
 
-  // Obtener todas las Planificaciones
+  // Obtengo todas las planificaciones del usuario
   const obtenerPlanificaciones = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error('Token no encontrado');
+        throw new Error('No encuentro el token de autenticación');
       }
 
       const res = await fetch(`${API_URL}/api/planificaciones`, {
@@ -59,25 +60,25 @@ const EntrenadoresAdminCoach = () => {
         throw new Error(`Error ${res.status} al obtener planificaciones`);
       }
 
-      // La respuesta es directamente el array de planificaciones
       const planificaciones = await res.json();
-      console.log('Planificaciones obtenidas:', planificaciones);
-
       return Array.isArray(planificaciones) ? planificaciones : [];
     } catch (error) {
-      console.error('Error en obtenerPlanificaciones:', error);
-      toast.error(error.message);
+      console.error('Error al obtener planificaciones:', error);
+      mostrarNotificacion(
+        'error',
+        'Error al cargar',
+        error.message || 'No puedo cargar las planificaciones'
+      );
       return [];
     }
   }, [API_URL]);
 
-
-  // Obtener todos los bloques
+  // Obtengo todos los bloques de entrenamiento
   const obtenerBloques = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error('Token no encontrado');
+        throw new Error('No encuentro el token de autenticación');
       }
 
       const res = await fetch(`${API_URL}/api/bloques`, {
@@ -87,7 +88,7 @@ const EntrenadoresAdminCoach = () => {
       });
 
       if (res.status === 401) {
-        throw new Error('Sesión expirada, por favor vuelve a iniciar sesión');
+        throw new Error('La sesión expiró, por favor inicia sesión nuevamente');
       }
 
       if (!res.ok) {
@@ -97,30 +98,38 @@ const EntrenadoresAdminCoach = () => {
       const { data } = await res.json();
       return Array.isArray(data) ? data : [];
     } catch (error) {
-      console.error('Error en obtenerBloques:', error);
+      console.error('Error al obtener bloques:', error);
       throw error;
     }
   }, [API_URL]);
 
-  // Cargar datos con validación
+  // Cargo los datos necesarios para el componente
   const cargarDatos = useCallback(async () => {
     try {
       setCargando(true);
       setError(null);
 
       if (!isAuthenticated) {
-        throw new Error('Debes iniciar sesión para acceder a esta página');
+        throw new Error('Necesitas iniciar sesión para acceder a esta página');
       }
 
       const [bloquesData, planificacionesData] = await Promise.all([
         obtenerBloques().catch(e => {
           console.error("Error cargando bloques:", e);
-          toast.error(e.message);
+          mostrarNotificacion(
+            'error',
+            'Error al cargar',
+            e.message || 'No puedo cargar los bloques'
+          );
           return [];
         }),
         obtenerPlanificaciones().catch(e => {
           console.error("Error cargando planificaciones:", e);
-          toast.error(e.message);
+          mostrarNotificacion(
+            'error',
+            'Error al cargar',
+            e.message || 'No puedo cargar las planificaciones'
+          );
           return [];
         })
       ]);
@@ -128,7 +137,7 @@ const EntrenadoresAdminCoach = () => {
       setBloques(Array.isArray(bloquesData) ? bloquesData : []);
       setPlanificaciones(Array.isArray(planificacionesData) ? planificacionesData : []);
     } catch (err) {
-      console.error("Error en cargarDatos:", err);
+      console.error("Error al cargar datos:", err);
       setError(err.message || 'Error al cargar datos');
     } finally {
       setCargando(false);
@@ -141,30 +150,34 @@ const EntrenadoresAdminCoach = () => {
     }
   }, [isAuthenticated, cargarDatos]);
 
-  // Filtrar bloques
+  // Filtro los bloques según el criterio de búsqueda
   const bloquesFiltrados = useMemo(() => {
     return bloques.filter(bloque => {
-      const nombre = bloque?.nombre || '';
-      const tipo = bloque?.tipo || '';
-      const ejercicios = Array.isArray(bloque?.ejercicios) ? bloque.ejercicios : [];
+      if (!bloque || typeof bloque !== 'object') return false;
+      
+      const nombre = bloque.nombre || '';
+      const tipo = bloque.tipo || '';
+      const ejercicios = Array.isArray(bloque.ejercicios) ? bloque.ejercicios : [];
 
       return (
         nombre.toLowerCase().includes((filtro || '').toLowerCase()) ||
         (tipo === 'ejercicios' &&
-          ejercicios.some(e =>
-            (e?.nombre || '').toLowerCase().includes((filtro || '').toLowerCase())
-          )
-        ));
+          ejercicios.some(e => 
+            e && 
+            typeof e === 'object' && 
+            (e.nombre || '').toLowerCase().includes((filtro || '').toLowerCase())
+        )
+      ));
     });
   }, [bloques, filtro]);
 
-  // Verificar si es creador
+  // Verifico si el usuario es el creador del bloque
   const esCreador = useCallback((bloque) => {
     if (!bloque || !bloque.creadoPor || !user) return false;
     return bloque.creadoPor === user.id || user.rol === 'admin';
   }, [user]);
 
-  // Toggle selección
+  // Manejo la selección/deselección de bloques
   const toggleSeleccion = useCallback((id) => {
     if (!id) return;
     setSeleccionados(prev =>
@@ -174,13 +187,36 @@ const EntrenadoresAdminCoach = () => {
     );
   }, []);
 
-  // Crear nuevo bloque
+  // Creo un nuevo bloque de entrenamiento
   const crearBloque = async (bloqueData) => {
     try {
+      setCreandoBloque(true);
       const token = localStorage.getItem('token');
       if (!token) {
-        throw new Error('Token no encontrado');
+        mostrarNotificacion(
+          'error',
+          'Error de autenticación',
+          'Necesitas iniciar sesión para realizar esta acción',
+          8000
+        );
+        return;
       }
+
+      // Valido y formateo los datos del bloque
+      const bloqueValidado = {
+        nombre: bloqueData.nombre?.trim() || 'Nuevo bloque',
+        tipo: bloqueData.tipo || 'ejercicios',
+        ejercicios: (Array.isArray(bloqueData.ejercicios) 
+          ? bloqueData.ejercicios.filter(e => e).map(e => ({
+              nombre: e.nombre?.trim() || 'Ejercicio sin nombre',
+              series: parseInt(e.series) || 0,
+              repeticiones: e.repeticiones?.toString() || '0',
+              ...(e.peso && { peso: e.peso.toString() }),
+              ...(e.linkVideo && { linkVideo: e.linkVideo.toString() })
+            }))
+          : []),
+        creadoPor: user.id
+      };
 
       const res = await fetch(`${API_URL}/api/bloques`, {
         method: 'POST',
@@ -188,29 +224,63 @@ const EntrenadoresAdminCoach = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          ...bloqueData,
-          creadoPor: user.id
-        })
+        body: JSON.stringify(bloqueValidado)
       });
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Error al crear bloque');
+      // Manejo la respuesta del servidor
+      const responseData = await res.text();
+      let data;
+      
+      try {
+        data = responseData ? JSON.parse(responseData) : {};
+      } catch (e) {
+        console.error('Error al parsear JSON:', e);
+        throw new Error('Formato de respuesta inválido del servidor');
       }
 
-      const { data } = await res.json();
-      setBloques(prev => [...prev, data]);
-      toast.success('Bloque creado con éxito');
+      if (!res.ok) {
+        throw new Error(data.message || `Error ${res.status} al crear bloque`);
+      }
+
+      // Preparo el nuevo bloque para el estado
+      const nuevoBloque = {
+        ...(data.data || data),
+        _id: data.data?._id || data._id || Math.random().toString(36).substring(2),
+        nombre: data.data?.nombre || data.nombre || 'Nuevo bloque',
+        ejercicios: Array.isArray(data.data?.ejercicios) 
+          ? data.data.ejercicios 
+          : Array.isArray(data.ejercicios) 
+            ? data.ejercicios 
+            : []
+      };
+
+      setBloques(prev => [...prev, nuevoBloque]);
+      
+      mostrarNotificacion(
+        'success',
+        'Bloque creado',
+        `"${nuevoBloque.nombre}" fue creado exitosamente`
+      );
       setMostrarModal(false);
+      
+      // Actualizo la lista de bloques para asegurar consistencia
+      const bloquesActualizados = await obtenerBloques();
+      setBloques(bloquesActualizados);
+
     } catch (err) {
-      console.error('Error en crearBloque:', err);
-      toast.error(err.message);
+      console.error('Error al crear bloque:', err);
+      mostrarNotificacion(
+        'error',
+        'Error al crear',
+        err.message || 'No puedo crear el bloque',
+        8000
+      );
+    } finally {
+      setCreandoBloque(false);
     }
   };
 
-  // Actualizar bloque
-  // Actualizar bloque
+  // Actualizo un bloque existente
   const actualizarBloque = async (bloqueData) => {
     try {
       const token = localStorage.getItem('token');
@@ -218,7 +288,7 @@ const EntrenadoresAdminCoach = () => {
         mostrarNotificacion(
           'error',
           'Error de autenticación',
-          'Debes iniciar sesión para realizar esta acción',
+          'Necesitas iniciar sesión para realizar esta acción',
           8000
         );
         return;
@@ -239,7 +309,10 @@ const EntrenadoresAdminCoach = () => {
       }
 
       const { data } = await res.json();
-      setBloques(prev => prev.map(b => b._id === data._id ? data : b));
+      setBloques(prev => prev.map(b => b._id === data._id ? {
+        ...data,
+        ejercicios: Array.isArray(data.ejercicios) ? data.ejercicios : []
+      } : b));
 
       mostrarNotificacion(
         'success',
@@ -250,17 +323,17 @@ const EntrenadoresAdminCoach = () => {
       setModoEdicion(null);
       setMostrarModal(false);
     } catch (err) {
-      console.error('Error en actualizarBloque:', err);
+      console.error('Error al actualizar bloque:', err);
       mostrarNotificacion(
         'error',
         'Error al actualizar',
-        err.message || 'No se pudieron guardar los cambios',
+        err.message || 'No puedo guardar los cambios',
         8000
       );
     }
   };
 
-  // Eliminar bloque
+  // Elimino un bloque existente
   const eliminarBloque = async (id) => {
     try {
       const token = localStorage.getItem('token');
@@ -268,13 +341,12 @@ const EntrenadoresAdminCoach = () => {
         mostrarNotificacion(
           'error',
           'Error de autenticación',
-          'Debes iniciar sesión para realizar esta acción',
+          'Necesitas iniciar sesión para realizar esta acción',
           8000
         );
         return;
       }
 
-      // Confirmación antes de eliminar
       const confirmar = window.confirm('¿Estás seguro de que deseas eliminar este bloque permanentemente?');
       if (!confirmar) return;
 
@@ -290,7 +362,6 @@ const EntrenadoresAdminCoach = () => {
         throw new Error(errorData.message || 'Error al eliminar bloque');
       }
 
-      // Obtener nombre antes de eliminar para el mensaje
       const bloqueAEliminar = bloques.find(b => b._id === id);
       const nombreBloque = bloqueAEliminar?.nombre || 'Bloque';
 
@@ -307,19 +378,18 @@ const EntrenadoresAdminCoach = () => {
         setMostrarModal(false);
       }
     } catch (err) {
-      console.error('Error en eliminarBloque:', err);
+      console.error('Error al eliminar bloque:', err);
       mostrarNotificacion(
         'error',
         'Error al eliminar',
-        err.message || 'No se pudo eliminar el bloque',
+        err.message || 'No puedo eliminar el bloque',
         8000
       );
     }
   };
 
-  // Asigno los bloques a la planificación
+  // Asigno bloques a una planificación específica
   const asignarBloquesAPlanificacion = async () => {
-    // Validación inicial
     if (!planificacionSeleccionada) {
       mostrarNotificacion(
         'error',
@@ -342,17 +412,15 @@ const EntrenadoresAdminCoach = () => {
 
     try {
       const token = localStorage.getItem('token');
-      if (!token) throw new Error('Debes iniciar sesión');
+      if (!token) throw new Error('Necesitas iniciar sesión');
 
-      // Mostrar notificación de carga
       mostrarNotificacion(
         'info',
         'Procesando',
         `Asignando ${seleccionados.length} bloque(s)...`,
-        0 // Sin auto-cierre
+        0
       );
 
-      // Asignar cada bloque individualmente
       let asignacionesExitosas = 0;
       const errores = [];
 
@@ -387,7 +455,6 @@ const EntrenadoresAdminCoach = () => {
         }
       }
 
-      // Actualizar estado
       const [nuevosBloques, nuevasPlanificaciones] = await Promise.all([
         obtenerBloques(),
         obtenerPlanificaciones()
@@ -397,7 +464,6 @@ const EntrenadoresAdminCoach = () => {
       setPlanificaciones(nuevasPlanificaciones);
       setSeleccionados([]);
 
-      // Mostrar resultado
       if (errores.length === 0) {
         mostrarNotificacion(
           'success',
@@ -431,7 +497,6 @@ const EntrenadoresAdminCoach = () => {
     }
   };
 
-
   if (!isAuthenticated) {
     return (
       <div className="max-w-6xl mx-auto px-4 py-8">
@@ -440,7 +505,7 @@ const EntrenadoresAdminCoach = () => {
             Autenticación requerida
           </h2>
           <p className="text-yellow-700 dark:text-yellow-300 mb-4">
-            Debes iniciar sesión para acceder a esta página
+            Necesitas iniciar sesión para acceder a esta página
           </p>
         </div>
       </div>
@@ -507,45 +572,65 @@ const EntrenadoresAdminCoach = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {bloquesFiltrados.map(bloque => (
-                <div
-                  key={bloque._id}
-                  className={`p-4 rounded-lg border transition-all cursor-pointer ${seleccionados.includes(bloque._id)
-                    ? 'bg-orange-50 border-orange-300 dark:bg-orange-900/20 dark:border-orange-700'
-                    : 'bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-700'
+              {bloquesFiltrados.map(bloque => {
+                if (!bloque || !bloque._id) return null;
+                
+                const ejercicios = Array.isArray(bloque.ejercicios) ? bloque.ejercicios : [];
+                const esTipoEjercicios = bloque.tipo === 'ejercicios';
+
+                return (
+                  <div
+                    key={bloque._id}
+                    className={`p-4 rounded-lg border transition-all cursor-pointer ${
+                      seleccionados.includes(bloque._id)
+                        ? 'bg-orange-50 border-orange-300 dark:bg-orange-900/20 dark:border-orange-700'
+                        : 'bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-700'
                     }`}
-                  onClick={() => toggleSeleccion(bloque._id)}
-                >
-                  <h3 className="font-medium text-gray-900 dark:text-white">{bloque.nombre}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                    {bloque.tipo === 'ejercicios'
-                      ? `${bloque.ejercicios?.length || 0} ejercicios`
-                      : 'Notas/Instrucciones'}
-                  </p>
-                  {bloque.tipo === 'ejercicios' && (
-                    <div className="mt-2 space-y-1">
-                      {bloque.ejercicios.slice(0, 3).map((ej, index) => (
-                        <p key={index} className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                          • {ej.nombre} ({ej.series}x{ej.repeticiones})
-                        </p>
-                      ))}
-                      {bloque.ejercicios.length > 3 && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400">+{bloque.ejercicios.length - 3} más...</p>
-                      )}
-                    </div>
-                  )}
-                  {!esCreador(bloque) && bloque.creadoPor?.nombre && (
-                    <p className="text-xs text-blue-500 dark:text-blue-400 mt-2">
-                      Creado por: {bloque.creadoPor.nombre}
+                    onClick={() => toggleSeleccion(bloque._id)}
+                  >
+                    <h3 className="font-medium text-gray-900 dark:text-white">
+                      {bloque.titulo || 'Bloque sin nombre'}
+                    </h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                      {esTipoEjercicios 
+                        ? `${ejercicios.length} ejercicios` 
+                        : 'Notas/Instrucciones'}
                     </p>
-                  )}
-                </div>
-              ))}
+                    
+                    {esTipoEjercicios && (
+                      <div className="mt-2 space-y-1">
+                        {ejercicios.slice(0, 3).map((ej, index) => {
+                          if (!ej || typeof ej !== 'object') return null;
+                          return (
+                            <p key={index} className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                              • {ej.nombre || 'Ejercicio sin nombre'} 
+                              {(ej.series && ej.repeticiones) 
+                                ? ` (${ej.series}x${ej.repeticiones})` 
+                                : ''}
+                            </p>
+                          );
+                        })}
+                        {ejercicios.length > 3 && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            +{ejercicios.length - 3} más...
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    
+                    {!esCreador(bloque) && bloque.creadoPor?.nombre && (
+                      <p className="text-xs text-blue-500 dark:text-blue-400 mt-2">
+                        Creado por: {bloque.creadoPor.nombre}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {bloquesFiltrados.length === 0 && (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                {filtro ? 'No se encontraron bloques con ese criterio' : 'No hay bloques disponibles'}
+                {filtro ? 'No encuentro bloques con ese criterio' : 'No hay bloques disponibles'}
               </div>
             )}
           </div>
@@ -622,7 +707,7 @@ const EntrenadoresAdminCoach = () => {
                             <div>
                               <p className="text-sm font-medium text-gray-900 dark:text-white">{bloque.nombre}</p>
                               <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {bloque.ejercicios?.length || 0} ejercicios
+                                {Array.isArray(bloque.ejercicios) ? bloque.ejercicios.length : 0} ejercicios
                               </p>
                             </div>
                             <button
@@ -640,10 +725,11 @@ const EntrenadoresAdminCoach = () => {
                 <button
                   onClick={asignarBloquesAPlanificacion}
                   disabled={!planificacionSeleccionada || seleccionados.length === 0}
-                  className={`w-full mt-4 px-4 py-2 rounded-lg flex items-center justify-center gap-2 ${!planificacionSeleccionada || seleccionados.length === 0
-                    ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                    : 'bg-orange-600 hover:bg-orange-700 text-white'
-                    }`}
+                  className={`w-full mt-4 px-4 py-2 rounded-lg flex items-center justify-center gap-2 ${
+                    !planificacionSeleccionada || seleccionados.length === 0
+                      ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                      : 'bg-orange-600 hover:bg-orange-700 text-white'
+                  }`}
                 >
                   <Check size={18} />
                   Asignar Bloques
@@ -667,8 +753,11 @@ const EntrenadoresAdminCoach = () => {
               eliminarBloque(modoEdicion);
               setMostrarModal(false);
             } : null}
+            isSubmitting={creandoBloque}
           />
         </Modal>
+
+        {/* Notificación centrada */}
         {notificacion.mostrar && (
           <Notificacion
             tipo={notificacion.tipo}

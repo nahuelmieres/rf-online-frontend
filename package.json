@@ -16,6 +16,7 @@
     "@fontsource/inter": "^5.2.6",
     "@fontsource/roboto-mono": "^5.2.6",
     "@heroicons/react": "^2.2.0",
+    "@pathofdev/react-tag-input": "^1.0.7",
     "axios": "^1.10.0",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.525.0",
