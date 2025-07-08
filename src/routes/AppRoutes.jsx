@@ -3,7 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 import Inicio from '../pages/Inicio';
 import Login from "../pages/Login";
 import Planes from '../pages/Planes';
-import Entrenadores from '../pages/Entrenadores';
+import Entrenadores from '../pages/Entrenadores/Entrenadores';
 import Cuenta from '../pages/Cuenta';
 import RutaPrivada from '../components/RutaPrivada';
 
