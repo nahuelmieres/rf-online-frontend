@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
-// Decodifico token JWT (para persistencia)
 const decodeJWT = (token) => {
     try {
         const base64Url = token.split('.')[1];
@@ -16,28 +15,39 @@ export const useAuth = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    // Verifico autenticación al cargar la página
+    // Inicializo la autenticación al cargar el componente
     useEffect(() => {
         const token = localStorage.getItem("token");
-        if (token) {
-            const payload = decodeJWT(token);
-            if (payload?.id) {
-                // Recupero datos básicos del token (evita llamar a api/usuarios/perfil)
-                setUser({
-                    id: payload.id,
-                    email: payload.email,
-                    rol: payload.rol,
-                    nombre: payload.nombre // Añadido para compatibilidad
-                });
-                setIsAuthenticated(true);
-            }
+        if (!token) {
+            setLoading(false);
+            return;
         }
+
+        const payload = decodeJWT(token);
+        if (!payload?.id) {
+            localStorage.removeItem("token");
+            setLoading(false);
+            return;
+        }
+
+        // Verifico posible token expirado
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+            localStorage.removeItem("token");
+            setLoading(false);
+            return;
+        }
+
+        setUser({
+            id: payload.id,
+            email: payload.email,
+            rol: payload.rol,
+            nombre: payload.nombre
+        });
         setLoading(false);
+
     }, []);
 
-    // Función de login
     const login = async (email, password) => {
         try {
             setLoading(true);
@@ -49,16 +59,15 @@ export const useAuth = () => {
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
-
             if (!response.ok) {
-                throw new Error(data.mensaje || "Error en el login");
+                const errorData = await response.json();
+                throw new Error(errorData.mensaje || "Error en el login");
             }
 
-            // Guardo token y datos del usuario
+            const data = await response.json();
             localStorage.setItem("token", data.token);
-            const payload = decodeJWT(data.token);
             
+            const payload = decodeJWT(data.token);
             const userData = {
                 id: payload.id,
                 email: payload.email,
@@ -67,29 +76,26 @@ export const useAuth = () => {
             };
             
             setUser(userData);
-            setIsAuthenticated(true);
-            setLoading(false);
-            
             return userData;
 
         } catch (err) {
             setError(err.message);
-            setLoading(false);
             throw err;
+        } finally {
+            setLoading(false);
         }
     };
 
     const logout = () => {
         localStorage.removeItem("token");
         setUser(null);
-        setIsAuthenticated(false);
     };
 
     return { 
         user, 
-        loading, 
-        error, 
-        isAuthenticated, // Añadido
+        loading,
+        error,
+        isAuthenticated: !!user,
         login, 
         logout 
     };

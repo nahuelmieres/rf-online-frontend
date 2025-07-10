@@ -19,8 +19,8 @@ const Cuenta = () => {
 
         if (!res.ok) throw new Error('Error al obtener el perfil');
         
-        const data = await res.json();
-        setPerfil(data);
+        const { data } = await res.json();
+        setPerfil(data.usuario);
       } catch (error) {
         console.error("Error al obtener el perfil", error);
         setError(error.message);
@@ -87,7 +87,7 @@ const Cuenta = () => {
           </div>
         </div>
 
-        {/* Sección Suscripción */}
+        {/* Sección Suscripción (simplificada como en tu imagen) */}
         <div>
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Suscripción</h2>
           
@@ -117,7 +117,7 @@ const Cuenta = () => {
 
 // Componente auxiliar para items de información
 const InfoItem = ({ icon, label, value, capitalize = false, iconStatus = null }) => (
-  <div className="flex items-start gap-3">
+  <div className="flex items-start gap-3 mb-4">
     <div className="p-1.5 bg-orange-100 dark:bg-orange-900/30 rounded-full">
       {icon}
     </div>

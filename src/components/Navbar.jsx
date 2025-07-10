@@ -38,7 +38,7 @@ const Navbar = () => {
 
   if (!usuario) return null;
 
-  // Componente auxiliar para items de navegación
+  // Componente auxiliar para items de navegación desktop
   const NavItem = ({ to, icon, text, children }) => (
     <li className="relative group">
       <Link 
@@ -57,9 +57,9 @@ const Navbar = () => {
     </li>
   );
 
-  // Componente auxiliar para items mobile
+  // Componente auxiliar para items mobile (versión corregida)
   const MobileNavItem = ({ to, icon, text, onClick, children }) => (
-    <li className="border-b border-gray-700 last:border-0">
+    <div className="border-b border-gray-700 last:border-0">
       <Link 
         to={to} 
         onClick={onClick}
@@ -73,7 +73,7 @@ const Navbar = () => {
           {children}
         </div>
       )}
-    </li>
+    </div>
   );
 
   return (
@@ -185,11 +185,13 @@ const Navbar = () => {
           />
           
           {mostrarGestion && (
-            <MobileNavItem 
-              icon={<Settings size={18} />} 
-              text="Gestión"
-              onClick={() => setSubmenuAbierto(!submenuAbierto)}
-            >
+            <>
+              <MobileNavItem 
+                to="#" 
+                icon={<Settings size={18} />} 
+                text="Gestión"
+                onClick={() => setSubmenuAbierto(!submenuAbierto)}
+              />
               {submenuAbierto && (
                 <>
                   {esAdmin && (
@@ -208,7 +210,7 @@ const Navbar = () => {
                   />
                 </>
               )}
-            </MobileNavItem>
+            </>
           )}
 
           <MobileNavItem 
@@ -217,7 +219,7 @@ const Navbar = () => {
             text="Mi cuenta" 
             onClick={() => setMenuAbierto(false)} 
           />
-          <li className="mt-2 pt-2 border-t border-gray-700">
+          <div className="mt-2 pt-2 border-t border-gray-700">
             <button
               onClick={() => {
                 handleLogout();
@@ -228,7 +230,7 @@ const Navbar = () => {
               <LogOut size={16} />
               <span>Cerrar sesión</span>
             </button>
-          </li>
+          </div>
         </div>
       )}
     </header>
