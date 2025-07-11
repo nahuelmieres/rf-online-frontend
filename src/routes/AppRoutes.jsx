@@ -8,12 +8,14 @@ import Cuenta from '../pages/Cuenta';
 import GestionUsuarios from '../pages/Usuarios/GestionUsuarios';
 import GestionPlanificaciones from '../pages/Planificaciones/GestionPlanificaciones';
 import RutaPrivada from '../components/RutaPrivada';
+import Registro from '../pages/Registro';
 
 const AppRoutes = () => {
     return (
         <Routes>
             {/* Públicas */}
             <Route path="/login" element={<Login />} />
+            <Route path="/registro" element={<Registro />} />
 
             {/* Privadas */}
             <Route element={<RutaPrivada />}>

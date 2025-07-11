@@ -137,7 +137,7 @@ const Login = () => {
         {/* Pie de página */}
         <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           <p>¿No tenes una cuenta?{' '}
-            <a href="#" className="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500">
+            <a href="/registro" className="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500">
               Registrate
             </a>
           </p>
