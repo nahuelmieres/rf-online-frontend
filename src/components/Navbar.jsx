@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { Sun, Moon, Menu, X, Home, Dumbbell, Users, UserCircle, LogOut, Settings, UserCog, ClipboardList } from 'lucide-react';
 
 const Navbar = () => {
-  const { usuario, logout } = useAuth();
+  const { user, logout, loading } = useAuth();
+  const location = useLocation();
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark' || 
@@ -32,11 +33,12 @@ const Navbar = () => {
     navigate('/login');
   };
 
-  const esAdmin = usuario?.rol === 'admin';
-  const esCoach = usuario?.rol === 'coach';
-  const mostrarGestion = esAdmin || esCoach;
+  // No mostrar en rutas públicas
+  if (location.pathname === '/login') return null;
 
-  if (!usuario) return null;
+  const esAdmin = user?.rol === 'admin';
+  const esCoach = user?.rol === 'coach';
+  const mostrarGestion = esAdmin || esCoach;
 
   // Componente auxiliar para items de navegación desktop
   const NavItem = ({ to, icon, text, children }) => (
@@ -57,7 +59,7 @@ const Navbar = () => {
     </li>
   );
 
-  // Componente auxiliar para items mobile (versión corregida)
+  // Componente auxiliar para items mobile
   const MobileNavItem = ({ to, icon, text, onClick, children }) => (
     <div className="border-b border-gray-700 last:border-0">
       <Link 
@@ -68,13 +70,18 @@ const Navbar = () => {
         {icon}
         <span>{text}</span>
       </Link>
-      {children && (
-        <div className="pl-6">
-          {children}
-        </div>
-      )}
+      {children && <div className="pl-6">{children}</div>}
     </div>
   );
+
+  // Si está cargando o no hay usuario, mostrar navbar vacío
+  if (loading || !user) {
+    return (
+      <header className="bg-gray-800 dark:bg-gray-850 border-b border-gray-700 h-16">
+        {/* Navbar vacío con la misma altura */}
+      </header>
+    );
+  }
 
   return (
     <header className="bg-gray-800 dark:bg-gray-850 border-b border-gray-700">
@@ -87,59 +94,39 @@ const Navbar = () => {
         </h1>
 
         <div className="flex items-center gap-4">
-          {/* Botón Dark Mode */}
           <button
             onClick={toggleDarkMode}
             className="p-2 rounded-full hover:bg-gray-700 dark:hover:bg-gray-700 transition"
             aria-label={darkMode ? 'Modo claro' : 'Modo oscuro'}
           >
-            {darkMode ? (
-              <Sun className="w-5 h-5 text-yellow-300" />
-            ) : (
-              <Moon className="w-5 h-5 text-blue-400" />
-            )}
+            {darkMode ? <Sun className="w-5 h-5 text-yellow-300" /> : <Moon className="w-5 h-5 text-blue-400" />}
           </button>
 
-          {/* Menú hamburguesa */}
           <button
             className="md:hidden p-1 text-gray-100 dark:text-gray-300"
             onClick={() => setMenuAbierto(!menuAbierto)}
           >
-            {menuAbierto ? (
-              <X className="w-6 h-6" />
-            ) : (
-              <Menu className="w-6 h-6" />
-            )}
+            {menuAbierto ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
-        {/* Navegación desktop */}
         <ul className="hidden md:flex gap-6 items-center">
           <NavItem to="/" icon={<Home size={18} />} text="Inicio" />
           <NavItem to="/planes" icon={<Dumbbell size={18} />} text="Mi Plan" />
           <NavItem to="/entrenadores" icon={<Users size={18} />} text="Entrenadores" />
           
           {mostrarGestion && (
-            <NavItem 
-              icon={<Settings size={18} />} 
-              text="Gestión"
-            >
+            <NavItem icon={<Settings size={18} />} text="Gestión">
               <div className="py-1">
                 {esAdmin && (
-                  <Link
-                    to="/gestion/usuarios"
-                    className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  >
+                  <Link to="/gestion/usuarios" className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                     <div className="flex items-center gap-2">
                       <UserCog size={16} />
                       <span>Administrar Usuarios</span>
                     </div>
                   </Link>
                 )}
-                <Link
-                  to="/gestion/planificaciones"
-                  className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                >
+                <Link to="/gestion/planificaciones" className="block px-4 py-2 text-sm text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700">
                   <div className="flex items-center gap-2">
                     <ClipboardList size={16} />
                     <span>Asignar Planificaciones</span>
@@ -162,63 +149,27 @@ const Navbar = () => {
         </ul>
       </nav>
 
-      {/* Menú mobile */}
       {menuAbierto && (
         <div className="md:hidden px-4 pb-4 bg-gray-800 dark:bg-gray-850 border-t border-gray-700">
-          <MobileNavItem 
-            to="/" 
-            icon={<Home size={18} />} 
-            text="Inicio" 
-            onClick={() => setMenuAbierto(false)} 
-          />
-          <MobileNavItem 
-            to="/planes" 
-            icon={<Dumbbell size={18} />} 
-            text="Planes" 
-            onClick={() => setMenuAbierto(false)} 
-          />
-          <MobileNavItem 
-            to="/entrenadores" 
-            icon={<Users size={18} />} 
-            text="Entrenadores" 
-            onClick={() => setMenuAbierto(false)} 
-          />
+          <MobileNavItem to="/" icon={<Home size={18} />} text="Inicio" onClick={() => setMenuAbierto(false)} />
+          <MobileNavItem to="/planes" icon={<Dumbbell size={18} />} text="Planes" onClick={() => setMenuAbierto(false)} />
+          <MobileNavItem to="/entrenadores" icon={<Users size={18} />} text="Entrenadores" onClick={() => setMenuAbierto(false)} />
           
           {mostrarGestion && (
             <>
-              <MobileNavItem 
-                to="#" 
-                icon={<Settings size={18} />} 
-                text="Gestión"
-                onClick={() => setSubmenuAbierto(!submenuAbierto)}
-              />
+              <MobileNavItem to="#" icon={<Settings size={18} />} text="Gestión" onClick={() => setSubmenuAbierto(!submenuAbierto)} />
               {submenuAbierto && (
                 <>
                   {esAdmin && (
-                    <MobileNavItem 
-                      to="/gestion/usuarios" 
-                      icon={<UserCog size={16} />} 
-                      text="Administrar Usuarios" 
-                      onClick={() => setMenuAbierto(false)}
-                    />
+                    <MobileNavItem to="/gestion/usuarios" icon={<UserCog size={16} />} text="Administrar Usuarios" onClick={() => setMenuAbierto(false)} />
                   )}
-                  <MobileNavItem 
-                    to="/gestion/planificaciones" 
-                    icon={<ClipboardList size={16} />} 
-                    text="Asignar Planificaciones" 
-                    onClick={() => setMenuAbierto(false)}
-                  />
+                  <MobileNavItem to="/gestion/planificaciones" icon={<ClipboardList size={16} />} text="Asignar Planificaciones" onClick={() => setMenuAbierto(false)} />
                 </>
               )}
             </>
           )}
 
-          <MobileNavItem 
-            to="/cuenta" 
-            icon={<UserCircle size={18} />} 
-            text="Mi cuenta" 
-            onClick={() => setMenuAbierto(false)} 
-          />
+          <MobileNavItem to="/cuenta" icon={<UserCircle size={18} />} text="Mi cuenta" onClick={() => setMenuAbierto(false)} />
           <div className="mt-2 pt-2 border-t border-gray-700">
             <button
               onClick={() => {

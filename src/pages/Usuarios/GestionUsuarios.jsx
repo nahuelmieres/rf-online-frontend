@@ -34,25 +34,25 @@ const GestionUsuarios = () => {
       setCargando(true);
       setError(null);
 
-      // Preparamos los parámetros de consulta
+      // Preparo los parámetros de consulta
       const queryParams = new URLSearchParams({
         page: paginacion.page,
         limit: paginacion.limit,
       });
 
-      // Agregamos búsqueda global (search) si hay filtro
+      // Agrego búsqueda global (search) si hay filtro
       if (filtro && filtro.trim() !== '') {
         queryParams.append('search', filtro.trim()); // Cambiado de 'busqueda' a 'search'
       }
 
-      // Agregamos filtros de rol (el backend espera 'rol')
+      // Agrego filtros de rol (el backend espera 'rol')
       rolesFiltrados.forEach(rol => {
         if (rol && rol.trim() !== '') {
           queryParams.append('rol', rol.trim());
         }
       });
 
-      // Podríamos agregar también filtro por estadoPago si lo necesitamos
+      // Podría agregar también filtro por estadoPago si lo necesitamos
       // queryParams.append('estadoPago', estadoFiltro);
 
       console.log('Parámetros enviados al backend:', queryParams.toString());

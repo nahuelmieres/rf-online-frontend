@@ -6,6 +6,7 @@ import Planes from '../pages/Planes';
 import Entrenadores from '../pages/Entrenadores/Entrenadores';
 import Cuenta from '../pages/Cuenta';
 import GestionUsuarios from '../pages/Usuarios/GestionUsuarios';
+import GestionPlanificaciones from '../pages/Planificaciones/GestionPlanificaciones';
 import RutaPrivada from '../components/RutaPrivada';
 
 const AppRoutes = () => {
@@ -26,6 +27,12 @@ const AppRoutes = () => {
                     path="/gestion/usuarios"
                     element={
                         <GestionUsuarios />
+                    }
+                />
+                <Route
+                    path="/gestion/planificaciones"
+                    element={
+                        <GestionPlanificaciones />
                     }
                 />
             </Route>

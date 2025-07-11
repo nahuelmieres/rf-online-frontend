@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const decodeJWT = (token) => {
     try {
@@ -11,48 +12,55 @@ const decodeJWT = (token) => {
     }
 };
 
+// Almacenamiento global del estado de autenticación
+let globalUser = null;
+let globalListeners = [];
+
+const notifyListeners = () => {
+    globalListeners.forEach(listener => listener(globalUser));
+};
+
 export const useAuth = () => {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(globalUser);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
-    // Inicializo la autenticación al cargar el componente
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            setLoading(false);
-            return;
-        }
+        // Registrar listener
+        globalListeners.push(setUser);
+        
+        // Limpiar al desmontar
+        return () => {
+            globalListeners = globalListeners.filter(l => l !== setUser);
+        };
+    }, []);
 
-        const payload = decodeJWT(token);
-        if (!payload?.id) {
-            localStorage.removeItem("token");
-            setLoading(false);
-            return;
-        }
+    useEffect(() => {
+        const storedToken = localStorage.getItem("token");
+        const rememberMe = localStorage.getItem("rememberMe") === "true";
 
-        // Verifico posible token expirado
-        if (payload.exp && payload.exp * 1000 < Date.now()) {
-            localStorage.removeItem("token");
-            setLoading(false);
-            return;
+        if (storedToken && rememberMe) {
+            const payload = decodeJWT(storedToken);
+            
+            if (payload && payload.exp * 1000 > Date.now()) {
+                const userData = {
+                    id: payload.id,
+                    email: payload.email,
+                    rol: payload.rol,
+                    nombre: payload.nombre
+                };
+                globalUser = userData;
+                notifyListeners();
+            } else {
+                localStorage.removeItem("token");
+            }
         }
-
-        setUser({
-            id: payload.id,
-            email: payload.email,
-            rol: payload.rol,
-            nombre: payload.nombre
-        });
         setLoading(false);
-
     }, []);
 
     const login = async (email, password) => {
+        setLoading(true);
         try {
-            setLoading(true);
-            setError(null);
-            
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/usuarios/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -66,7 +74,7 @@ export const useAuth = () => {
 
             const data = await response.json();
             localStorage.setItem("token", data.token);
-            
+
             const payload = decodeJWT(data.token);
             const userData = {
                 id: payload.id,
@@ -74,13 +82,11 @@ export const useAuth = () => {
                 rol: payload.rol,
                 nombre: payload.nombre
             };
-            
-            setUser(userData);
-            return userData;
 
-        } catch (err) {
-            setError(err.message);
-            throw err;
+            globalUser = userData;
+            notifyListeners();
+            navigate("/");
+            return userData;
         } finally {
             setLoading(false);
         }
@@ -88,16 +94,18 @@ export const useAuth = () => {
 
     const logout = () => {
         localStorage.removeItem("token");
-        setUser(null);
+        localStorage.removeItem("rememberMe");
+        globalUser = null;
+        notifyListeners();
+        navigate("/login");
     };
 
-    return { 
-        user, 
+    return {
+        user,
         loading,
-        error,
         isAuthenticated: !!user,
-        login, 
-        logout 
+        login,
+        logout
     };
 };
 
