@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Loader2, Lock, Mail, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,14 +18,7 @@ const Login = () => {
     setError(null);
 
     try {
-      // Guardar preferencia de "Recordarme"
-      if (rememberMe) {
-        localStorage.setItem("rememberMe", "true");
-      } else {
-        localStorage.removeItem("rememberMe");
-      }
-      
-      await login(email, password);
+      await login(email, password, rememberMe);
     } catch (err) {
       setError(err.message || "Error al iniciar sesión");
     } finally {
@@ -34,7 +29,6 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
       <div className="max-w-md w-full mx-auto p-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
-        {/* Logo y título */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="bg-orange-500 text-white p-3 rounded-full">
@@ -47,7 +41,6 @@ const Login = () => {
           <h2 className="text-xl text-gray-600 dark:text-gray-300">Plataforma de Entrenamiento</h2>
         </div>
 
-        {/* Formulario */}
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
             <div className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-4 py-3 rounded-md flex items-center gap-2">
@@ -72,6 +65,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                autoComplete="email"
               />
             </div>
           </div>
@@ -92,6 +86,7 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
               />
             </div>
           </div>
@@ -134,7 +129,6 @@ const Login = () => {
           </div>
         </form>
 
-        {/* Pie de página */}
         <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
           <p>¿No tenes una cuenta?{' '}
             <a href="/registro" className="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500">

@@ -3,68 +3,72 @@ import { useNavigate } from "react-router-dom";
 
 const decodeJWT = (token) => {
     try {
+        if (!token) return null;
         const base64Url = token.split('.')[1];
+        if (!base64Url) return null;
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        return JSON.parse(atob(base64));
+        const payload = JSON.parse(atob(base64));
+        
+        // Verificar expiración
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+            return null;
+        }
+        return payload;
     } catch (err) {
         console.error("Error decodificando token:", err);
         return null;
     }
 };
 
-// Almacenamiento global del estado de autenticación
-let globalUser = null;
-let globalListeners = [];
-
-const notifyListeners = () => {
-    globalListeners.forEach(listener => listener(globalUser));
-};
-
 export const useAuth = () => {
-    const [user, setUser] = useState(globalUser);
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        // Registrar listener
-        globalListeners.push(setUser);
-        
-        // Limpiar al desmontar
-        return () => {
-            globalListeners = globalListeners.filter(l => l !== setUser);
-        };
-    }, []);
-
-    useEffect(() => {
-        const storedToken = localStorage.getItem("token");
+    // Función para inicializar la autenticación
+    const initializeAuth = () => {
+        const token = localStorage.getItem("token");
         const rememberMe = localStorage.getItem("rememberMe") === "true";
-
-        if (storedToken && rememberMe) {
-            const payload = decodeJWT(storedToken);
-            
-            if (payload && payload.exp * 1000 > Date.now()) {
-                const userData = {
+        
+        if (token && rememberMe) {
+            const payload = decodeJWT(token);
+            if (payload) {
+                setUser({
                     id: payload.id,
                     email: payload.email,
                     rol: payload.rol,
                     nombre: payload.nombre
-                };
-                globalUser = userData;
-                notifyListeners();
-            } else {
-                localStorage.removeItem("token");
+                });
+                setLoading(false);
+                return;
             }
         }
+        setUser(null);
         setLoading(false);
+    };
+
+    // Inicializo al montar
+    useEffect(() => {
+        initializeAuth();
+        
+        // Escucho eventos de almacenamiento para sincronizar entre pestañas
+        const handleStorageChange = (e) => {
+            if (e.key === "token" || e.key === "rememberMe") {
+                initializeAuth();
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
-    const login = async (email, password) => {
+    const login = async (email, password, remember = false) => {
         setLoading(true);
         try {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/api/usuarios/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, password, rememberMe: remember }),
             });
 
             if (!response.ok) {
@@ -74,8 +78,11 @@ export const useAuth = () => {
 
             const data = await response.json();
             localStorage.setItem("token", data.token);
+            localStorage.setItem("rememberMe", remember.toString());
 
             const payload = decodeJWT(data.token);
+            if (!payload) throw new Error("Token inválido");
+
             const userData = {
                 id: payload.id,
                 email: payload.email,
@@ -83,10 +90,12 @@ export const useAuth = () => {
                 nombre: payload.nombre
             };
 
-            globalUser = userData;
-            notifyListeners();
+            setUser(userData);
             navigate("/");
             return userData;
+        } catch (error) {
+            console.error("Login error:", error);
+            throw error;
         } finally {
             setLoading(false);
         }
@@ -95,8 +104,7 @@ export const useAuth = () => {
     const logout = () => {
         localStorage.removeItem("token");
         localStorage.removeItem("rememberMe");
-        globalUser = null;
-        notifyListeners();
+        setUser(null);
         navigate("/login");
     };
 
