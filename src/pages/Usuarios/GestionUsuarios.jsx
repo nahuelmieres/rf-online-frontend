@@ -55,8 +55,6 @@ const GestionUsuarios = () => {
       // Podría agregar también filtro por estadoPago si lo necesitamos
       // queryParams.append('estadoPago', estadoFiltro);
 
-      console.log('Parámetros enviados al backend:', queryParams.toString());
-
       const response = await fetch(`/api/usuarios/clientes?${queryParams.toString()}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,

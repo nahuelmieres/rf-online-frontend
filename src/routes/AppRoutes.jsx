@@ -9,6 +9,8 @@ import GestionUsuarios from '../pages/Usuarios/GestionUsuarios';
 import GestionPlanificaciones from '../pages/Planificaciones/GestionPlanificaciones';
 import RutaPrivada from '../components/RutaPrivada';
 import Registro from '../pages/Registro';
+import CrearPlanificacion from '../pages/Planificaciones/CrearPlanificacion';
+import Suscripcion from '../pages/Pagos/Suscripcion';
 
 const AppRoutes = () => {
     return (
@@ -24,7 +26,7 @@ const AppRoutes = () => {
                 <Route path="/entrenadores" element={<Entrenadores />} />
                 <Route path="/cuenta" element={<Cuenta />} />
 
-                {/* Nueva ruta de gestión - Solo accesible para admin */}
+                {/* Nueva ruta de gestión */}
                 <Route
                     path="/gestion/usuarios"
                     element={
@@ -35,6 +37,18 @@ const AppRoutes = () => {
                     path="/gestion/planificaciones"
                     element={
                         <GestionPlanificaciones />
+                    }
+                />
+                <Route
+                    path="/crear-plan"
+                    element={
+                        <CrearPlanificacion />
+                    }
+                />
+                <Route
+                    path="/suscripcion"
+                    element={
+                        <Suscripcion />
                     }
                 />
             </Route>
