@@ -21,13 +21,13 @@ const GestionPlanificaciones = () => {
 
       const [resUsuarios, resPlanes] = await Promise.all([
         fetch('/api/usuarios/clientes', {
-          headers: { 
+          headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Accept': 'application/json'
           }
         }),
         fetch('/api/planificaciones', {
-          headers: { 
+          headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Accept': 'application/json'
           }
@@ -66,7 +66,7 @@ const GestionPlanificaciones = () => {
         mostrarNotificacion('advertencia', 'Seleccioná una planificación primero');
         return;
       }
-      
+
       setAsignando(true);
 
       const res = await fetch(`/api/usuarios/asignar-plan/${idUsuario}/planificacion/${planSeleccionada}`, {
@@ -122,7 +122,7 @@ const GestionPlanificaciones = () => {
         <div className="inline-flex items-center gap-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-4 py-2 rounded">
           <X size={18} />
           <span>{error}</span>
-          <button 
+          <button
             onClick={obtenerDatos}
             className="ml-2 text-orange-600 dark:text-orange-400 hover:underline"
           >
@@ -136,8 +136,8 @@ const GestionPlanificaciones = () => {
   return (
     <div className="max-w-6xl mx-auto p-6">
       {notificacion && (
-        <Notificacion 
-          tipo={notificacion.tipo} 
+        <Notificacion
+          tipo={notificacion.tipo}
           mensaje={notificacion.mensaje}
           onCerrar={() => setNotificacion(null)}
         />
@@ -164,8 +164,8 @@ const GestionPlanificaciones = () => {
         >
           <option value="">-- Seleccioná una planificación --</option>
           {planificaciones.map(plan => (
-            <option 
-              key={plan._id} 
+            <option
+              key={plan._id}
               value={plan._id}
               className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
             >
@@ -188,11 +188,23 @@ const GestionPlanificaciones = () => {
           </thead>
           <tbody>
             {usuarios.map(usuario => (
-              <tr 
-                key={usuario._id} 
+              <tr
+                key={usuario._id}
                 className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
               >
-                <td className="px-4 py-3 text-gray-800 dark:text-gray-200">{usuario.nombre}</td>
+                <td className="px-4 py-3 text-gray-800 dark:text-gray-200">
+                  <a
+                    href={`/perfil/${usuario._id}`}
+                    className="text-orange-600 dark:text-orange-400 hover:underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {usuario.nombre}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </td>
                 <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{usuario.email}</td>
                 <td className="px-4 py-3">
                   {usuario.planificacion ? (
@@ -210,11 +222,10 @@ const GestionPlanificaciones = () => {
                   <button
                     onClick={() => asignarPlanificacion(usuario._id)}
                     disabled={asignando || !planSeleccionada}
-                    className={`flex items-center gap-1 px-3 py-1 rounded transition-colors ${
-                      asignando || !planSeleccionada
-                        ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-not-allowed'
-                        : 'bg-orange-500 hover:bg-orange-600 text-white'
-                    }`}
+                    className={`flex items-center gap-1 px-3 py-1 rounded transition-colors ${asignando || !planSeleccionada
+                      ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-not-allowed'
+                      : 'bg-orange-500 hover:bg-orange-600 text-white'
+                      }`}
                   >
                     {asignando ? (
                       <>

@@ -11,6 +11,7 @@ import RutaPrivada from '../components/RutaPrivada';
 import Registro from '../pages/Registro';
 import CrearPlanificacion from '../pages/Planificaciones/CrearPlanificacion';
 import Suscripcion from '../pages/Pagos/Suscripcion';
+import PerfilUsuario from '../pages/Usuarios/PerfilUsuario';
 
 const AppRoutes = () => {
     return (
@@ -51,6 +52,8 @@ const AppRoutes = () => {
                         <Suscripcion />
                     }
                 />
+                {/* Nueva ruta dinámica para perfiles */}
+                <Route path="/perfil/:userId" element={<PerfilUsuario />} />
             </Route>
         </Routes>
     );
