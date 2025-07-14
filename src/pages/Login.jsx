@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Loader2, Lock, Mail, X } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const { login } = useAuth();
@@ -10,7 +9,6 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,6 +21,7 @@ const Login = () => {
       setError(err.message || "Error al iniciar sesión");
     } finally {
       setLoading(false);
+      window.location.reload(); 
     }
   };
 
