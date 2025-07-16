@@ -45,12 +45,11 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const bloqueData = {
-      nombre,
-      tags,
-      tipo,
-      ...(tipo === 'texto'
-        ? { contenidoTexto }
-        : { ejercicios: ejercicios.filter(e => e.nombre.trim() !== '') })
+      nombre: nombre,
+      tipo: tipo,
+      contenidoTexto: tipo === 'texto' ? contenidoTexto : '',
+      ejercicios: tipo === 'ejercicios' ? ejercicios : [],
+      etiquetas: tags // <-- AQUÍ ENVIAMOS LAS ETIQUETAS
     };
     if (bloque) bloqueData._id = bloque._id;
     onSubmit(bloqueData);
@@ -61,7 +60,7 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
       {/* Nombre del bloque */}
       <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-          Nombre del bloque
+          Título del bloque
         </label>
         <input
           type="text"
@@ -80,7 +79,7 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
         <div className="react-tag-input-wrapper">
           <ReactTagInput
             tags={tags}
-            onChange={setTags}
+            onChange={(newTags) => setTags(newTags)}
             placeholder="Escribí y presioná enter..."
           />
         </div>

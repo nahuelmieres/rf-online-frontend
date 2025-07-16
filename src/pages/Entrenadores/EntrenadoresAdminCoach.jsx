@@ -154,20 +154,25 @@ const EntrenadoresAdminCoach = () => {
   const bloquesFiltrados = useMemo(() => {
     return bloques.filter(bloque => {
       if (!bloque || typeof bloque !== 'object') return false;
-      
+
       const nombre = bloque.nombre || '';
       const tipo = bloque.tipo || '';
+      const etiquetas = Array.isArray(bloque.etiquetas) ? bloque.etiquetas : [];
       const ejercicios = Array.isArray(bloque.ejercicios) ? bloque.ejercicios : [];
 
+      const filtroLower = (filtro || '').toLowerCase();
+
       return (
-        nombre.toLowerCase().includes((filtro || '').toLowerCase()) ||
+        nombre.toLowerCase().includes(filtroLower) ||
+        etiquetas.some(tag => tag.toLowerCase().includes(filtroLower)) || // búsqueda por etiqueta
         (tipo === 'ejercicios' &&
-          ejercicios.some(e => 
-            e && 
-            typeof e === 'object' && 
-            (e.nombre || '').toLowerCase().includes((filtro || '').toLowerCase())
+          ejercicios.some(e =>
+            e &&
+            typeof e === 'object' &&
+            (e.nombre || '').toLowerCase().includes(filtroLower)
+          )
         )
-      ));
+      );
     });
   }, [bloques, filtro]);
 
@@ -204,19 +209,26 @@ const EntrenadoresAdminCoach = () => {
 
       // Valido y formateo los datos del bloque
       const bloqueValidado = {
-        nombre: bloqueData.nombre?.trim() || 'Nuevo bloque',
+        titulo: bloqueData.nombre?.trim() || 'Nuevo bloque',
         tipo: bloqueData.tipo || 'ejercicios',
-        ejercicios: (Array.isArray(bloqueData.ejercicios) 
-          ? bloqueData.ejercicios.filter(e => e).map(e => ({
+        creadoPor: user.id,
+        ...(bloqueData.tipo === 'texto' && {
+          contenidoTexto: bloqueData.contenidoTexto?.trim() || '',
+        }),
+        ...(bloqueData.tipo === 'ejercicios' && {
+          ejercicios: Array.isArray(bloqueData.ejercicios)
+            ? bloqueData.ejercicios.filter(e => e).map(e => ({
               nombre: e.nombre?.trim() || 'Ejercicio sin nombre',
               series: parseInt(e.series) || 0,
               repeticiones: e.repeticiones?.toString() || '0',
               ...(e.peso && { peso: e.peso.toString() }),
               ...(e.linkVideo && { linkVideo: e.linkVideo.toString() })
             }))
-          : []),
-        creadoPor: user.id
+            : [],
+        }),
+        etiquetas: bloqueData.etiquetas || []
       };
+
 
       const res = await fetch(`${API_URL}/api/bloques`, {
         method: 'POST',
@@ -230,7 +242,7 @@ const EntrenadoresAdminCoach = () => {
       // Manejo la respuesta del servidor
       const responseData = await res.text();
       let data;
-      
+
       try {
         data = responseData ? JSON.parse(responseData) : {};
       } catch (e) {
@@ -247,22 +259,22 @@ const EntrenadoresAdminCoach = () => {
         ...(data.data || data),
         _id: data.data?._id || data._id || Math.random().toString(36).substring(2),
         nombre: data.data?.nombre || data.nombre || 'Nuevo bloque',
-        ejercicios: Array.isArray(data.data?.ejercicios) 
-          ? data.data.ejercicios 
-          : Array.isArray(data.ejercicios) 
-            ? data.ejercicios 
+        ejercicios: Array.isArray(data.data?.ejercicios)
+          ? data.data.ejercicios
+          : Array.isArray(data.ejercicios)
+            ? data.ejercicios
             : []
       };
 
       setBloques(prev => [...prev, nuevoBloque]);
-      
+
       mostrarNotificacion(
         'success',
         'Bloque creado',
         `"${nuevoBloque.nombre}" fue creado exitosamente`
       );
       setMostrarModal(false);
-      
+
       // Actualizo la lista de bloques para asegurar consistencia
       const bloquesActualizados = await obtenerBloques();
       setBloques(bloquesActualizados);
@@ -574,38 +586,37 @@ const EntrenadoresAdminCoach = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {bloquesFiltrados.map(bloque => {
                 if (!bloque || !bloque._id) return null;
-                
+
                 const ejercicios = Array.isArray(bloque.ejercicios) ? bloque.ejercicios : [];
                 const esTipoEjercicios = bloque.tipo === 'ejercicios';
 
                 return (
                   <div
                     key={bloque._id}
-                    className={`p-4 rounded-lg border transition-all cursor-pointer ${
-                      seleccionados.includes(bloque._id)
-                        ? 'bg-orange-50 border-orange-300 dark:bg-orange-900/20 dark:border-orange-700'
-                        : 'bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-700'
-                    }`}
+                    className={`p-4 rounded-lg border transition-all cursor-pointer ${seleccionados.includes(bloque._id)
+                      ? 'bg-orange-50 border-orange-300 dark:bg-orange-900/20 dark:border-orange-700'
+                      : 'bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-700'
+                      }`}
                     onClick={() => toggleSeleccion(bloque._id)}
                   >
                     <h3 className="font-medium text-gray-900 dark:text-white">
                       {bloque.titulo || 'Bloque sin nombre'}
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                      {esTipoEjercicios 
-                        ? `${ejercicios.length} ejercicios` 
+                      {esTipoEjercicios
+                        ? `${ejercicios.length} ejercicios`
                         : 'Notas/Instrucciones'}
                     </p>
-                    
+
                     {esTipoEjercicios && (
                       <div className="mt-2 space-y-1">
                         {ejercicios.slice(0, 3).map((ej, index) => {
                           if (!ej || typeof ej !== 'object') return null;
                           return (
                             <p key={index} className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                              • {ej.nombre || 'Ejercicio sin nombre'} 
-                              {(ej.series && ej.repeticiones) 
-                                ? ` (${ej.series}x${ej.repeticiones})` 
+                              • {ej.nombre || 'Ejercicio sin nombre'}
+                              {(ej.series && ej.repeticiones)
+                                ? ` (${ej.series}x${ej.repeticiones})`
                                 : ''}
                             </p>
                           );
@@ -617,7 +628,7 @@ const EntrenadoresAdminCoach = () => {
                         )}
                       </div>
                     )}
-                    
+
                     {!esCreador(bloque) && bloque.creadoPor?.nombre && (
                       <p className="text-xs text-blue-500 dark:text-blue-400 mt-2">
                         Creado por: {bloque.creadoPor.nombre}
@@ -725,11 +736,10 @@ const EntrenadoresAdminCoach = () => {
                 <button
                   onClick={asignarBloquesAPlanificacion}
                   disabled={!planificacionSeleccionada || seleccionados.length === 0}
-                  className={`w-full mt-4 px-4 py-2 rounded-lg flex items-center justify-center gap-2 ${
-                    !planificacionSeleccionada || seleccionados.length === 0
-                      ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                      : 'bg-orange-600 hover:bg-orange-700 text-white'
-                  }`}
+                  className={`w-full mt-4 px-4 py-2 rounded-lg flex items-center justify-center gap-2 ${!planificacionSeleccionada || seleccionados.length === 0
+                    ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                    : 'bg-orange-600 hover:bg-orange-700 text-white'
+                    }`}
                 >
                   <Check size={18} />
                   Asignar Bloques
