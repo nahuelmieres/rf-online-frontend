@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { User, Mail, Shield, CreditCard, Loader2, AlertCircle, CheckCircle2, XCircle } from 'lucide-react';
+import { User, Mail, Shield, CreditCard, Loader2, AlertCircle, CheckCircle2, XCircle, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Cuenta = () => {
@@ -31,6 +31,49 @@ const Cuenta = () => {
 
     fetchPerfil();
   }, []);
+
+  // Función para formatear la fecha
+  const formatDate = (dateString) => {
+    if (!dateString) return 'No definida';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  // Función para verificar el estado de la suscripción basado en fechaVencimiento
+  const getSubscriptionStatus = () => {
+    // Admin/coach siempre tienen acceso
+    if (perfil?.rol === 'admin' || perfil?.rol === 'coach') {
+      return { status: 'Activa', message: 'Acceso completo (staff)' };
+    }
+
+    if (!perfil?.fechaVencimiento) {
+      return { status: 'Inactiva', message: 'Sin suscripción activa' };
+    }
+    
+    const hoy = new Date();
+    const vencimiento = new Date(perfil.fechaVencimiento);
+    const diffTime = vencimiento - hoy;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+    if (diffDays < 0) {
+      return { status: 'Vencida', message: 'Suscripción vencida' };
+    }
+    if (diffDays <= 7) {
+      return { 
+        status: 'Activa', 
+        message: `Vence en ${diffDays} día${diffDays !== 1 ? 's' : ''}` 
+      };
+    }
+    return { status: 'Activa', message: 'Suscripción activa' };
+  };
+
+  // Obtener el estado actual
+  const subscriptionStatus = getSubscriptionStatus();
+  const isActive = subscriptionStatus.status === 'Activa';
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-[300px]">
@@ -87,26 +130,53 @@ const Cuenta = () => {
           </div>
         </div>
 
-        {/* Sección Suscripción (simplificada como en tu imagen) */}
+        {/* Sección Suscripción */}
         <div>
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Suscripción</h2>
           
-          <InfoItem 
-            icon={<CreditCard className="w-5 h-5" />}
-            label="Estado"
-            value={perfil.estadoPago ? "Activo" : "Inactivo"}
-            iconStatus={perfil.estadoPago ? 
-              <CheckCircle2 className="w-5 h-5 text-green-500" /> : 
-              <XCircle className="w-5 h-5 text-red-500" />
-            }
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <InfoItem 
+              icon={<CreditCard className="w-5 h-5" />}
+              label="Estado"
+              value={isActive ? "Activo" : "Inactivo"}
+              iconStatus={isActive ? 
+                <CheckCircle2 className="w-5 h-5 text-green-500" /> : 
+                <XCircle className="w-5 h-5 text-red-500" />
+              }
+            />
 
-          {!perfil.estadoPago && (
+            <InfoItem 
+              icon={<Calendar className="w-5 h-5" />}
+              label="Vencimiento"
+              value={formatDate(perfil.fechaVencimiento)}
+              status={subscriptionStatus.message}
+            />
+          </div>
+
+          {/* Mensaje de estado de suscripción */}
+          <div className={`mt-4 p-3 rounded-md ${
+            !isActive ? 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300' :
+            subscriptionStatus.message.includes('Vence en') ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300' :
+            perfil.rol === 'admin' || perfil.rol === 'coach' ? 'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' :
+            'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+          }`}>
+            {perfil.rol === 'admin' || perfil.rol === 'coach' ? (
+              <p>Tienes acceso completo como {perfil.rol}</p>
+            ) : !isActive ? (
+              <p>No tienes una suscripción activa.</p>
+            ) : subscriptionStatus.message.includes('Vence en') ? (
+              <p>Tu suscripción {subscriptionStatus.message}. ¡No olvides renovarla!</p>
+            ) : (
+              <p>Tu suscripción está activa.</p>
+            )}
+          </div>
+
+          {(perfil.rol === 'cliente' && (!isActive || subscriptionStatus.message.includes('Vence en'))) && (
             <Link
               to="/suscripcion"
               className="inline-block mt-4 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md transition-colors"
             >
-              Activar suscripción
+              {isActive ? 'Renovar suscripción' : 'Activar suscripción'}
             </Link>
           )}
         </div>
@@ -116,7 +186,7 @@ const Cuenta = () => {
 };
 
 // Componente auxiliar para items de información
-const InfoItem = ({ icon, label, value, capitalize = false, iconStatus = null }) => (
+const InfoItem = ({ icon, label, value, capitalize = false, iconStatus = null, status = null }) => (
   <div className="flex items-start gap-3 mb-4">
     <div className="p-1.5 bg-orange-100 dark:bg-orange-900/30 rounded-full">
       {icon}
@@ -127,6 +197,15 @@ const InfoItem = ({ icon, label, value, capitalize = false, iconStatus = null })
         {value}
         {iconStatus && <span className="ml-2">{iconStatus}</span>}
       </p>
+      {status && (
+        <p className={`text-sm mt-1 ${
+          status.includes('Vence en') ? 'text-yellow-500 dark:text-yellow-400' :
+          status === 'Suscripción vencida' || status === 'Sin suscripción activa' ? 'text-red-500 dark:text-red-400' :
+          'text-green-500 dark:text-green-400'
+        }`}>
+          {status}
+        </p>
+      )}
     </div>
   </div>
 );

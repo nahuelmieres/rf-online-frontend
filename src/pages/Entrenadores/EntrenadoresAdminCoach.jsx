@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Plus, Dumbbell, Edit, Trash2, Check, Search } from 'lucide-react';
-import { toast } from 'react-toastify';
 import useAuth from '../../hooks/useAuth';
 import Loader from '../../components/Loader';
 import Modal from '../../components/Modal';
@@ -152,29 +151,33 @@ const EntrenadoresAdminCoach = () => {
 
   // Filtro los bloques según el criterio de búsqueda
   const bloquesFiltrados = useMemo(() => {
+    const palabrasClave = (filtro || '')
+      .toLowerCase()
+      .split(' ')
+      .filter(p => p.trim() !== '');
+
     return bloques.filter(bloque => {
       if (!bloque || typeof bloque !== 'object') return false;
 
-      const nombre = bloque.nombre || '';
+      const nombre = (bloque.nombre || '').toLowerCase();
       const tipo = bloque.tipo || '';
-      const etiquetas = Array.isArray(bloque.etiquetas) ? bloque.etiquetas : [];
+      const etiquetas = Array.isArray(bloque.etiquetas) ? bloque.etiquetas.map(e => e.toLowerCase()) : [];
       const ejercicios = Array.isArray(bloque.ejercicios) ? bloque.ejercicios : [];
 
-      const filtroLower = (filtro || '').toLowerCase();
-
-      return (
-        nombre.toLowerCase().includes(filtroLower) ||
-        etiquetas.some(tag => tag.toLowerCase().includes(filtroLower)) || // búsqueda por etiqueta
+      return palabrasClave.every(palabra =>
+        nombre.includes(palabra) ||
+        etiquetas.some(tag => tag.includes(palabra)) ||
         (tipo === 'ejercicios' &&
-          ejercicios.some(e =>
-            e &&
-            typeof e === 'object' &&
-            (e.nombre || '').toLowerCase().includes(filtroLower)
+          ejercicios.some(ej =>
+            ej &&
+            typeof ej === 'object' &&
+            (ej.nombre || '').toLowerCase().includes(palabra)
           )
         )
       );
     });
   }, [bloques, filtro]);
+
 
   // Verifico si el usuario es el creador del bloque
   const esCreador = useCallback((bloque) => {
@@ -626,8 +629,23 @@ const EntrenadoresAdminCoach = () => {
                             +{ejercicios.length - 3} más...
                           </p>
                         )}
+
+                        {/* Etiquetas */}
+                        {Array.isArray(bloque.etiquetas) && bloque.etiquetas.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {bloque.etiquetas.map((etiqueta, idx) => (
+                              <span
+                                key={idx}
+                                className="inline-block bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-xs px-2 py-0.5 rounded-full"
+                              >
+                                #{etiqueta}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     )}
+
 
                     {!esCreador(bloque) && bloque.creadoPor?.nombre && (
                       <p className="text-xs text-blue-500 dark:text-blue-400 mt-2">
@@ -641,7 +659,7 @@ const EntrenadoresAdminCoach = () => {
 
             {bloquesFiltrados.length === 0 && (
               <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                {filtro ? 'No encuentro bloques con ese criterio' : 'No hay bloques disponibles'}
+                {filtro ? 'No hay bloques con ese criterio' : 'No hay bloques disponibles'}
               </div>
             )}
           </div>

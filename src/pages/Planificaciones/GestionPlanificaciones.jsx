@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Check, X, Loader2 } from 'lucide-react';
+import { Check, X, Loader2, Search } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import Loader from '../../components/Loader';
 import Notificacion from '../../components/Notificacion';
@@ -12,6 +12,7 @@ const GestionPlanificaciones = () => {
   const [planSeleccionada, setPlanSeleccionada] = useState('');
   const [asignando, setAsignando] = useState(false);
   const [notificacion, setNotificacion] = useState(null);
+  const [terminoBusqueda, setTerminoBusqueda] = useState('');
   const { usuario } = useAuth();
 
   const obtenerDatos = async () => {
@@ -104,6 +105,16 @@ const GestionPlanificaciones = () => {
     return plan?.titulo || 'Planificación desconocida';
   };
 
+  // Filtrar usuarios según el término de búsqueda
+  const usuariosFiltrados = usuarios.filter(user => {
+    const searchTerm = terminoBusqueda.toLowerCase();
+    return (
+      user.nombre.toLowerCase().includes(searchTerm) ||
+      user.email.toLowerCase().includes(searchTerm) ||
+      obtenerNombrePlanificacion(user.planificacion).toLowerCase().includes(searchTerm)
+    );
+  });
+
   useEffect(() => {
     obtenerDatos();
   }, []);
@@ -152,6 +163,30 @@ const GestionPlanificaciones = () => {
         )}
       </h1>
 
+      {/* Barra de búsqueda */}
+      <div className="mb-6 relative">
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            placeholder="Buscar usuarios por nombre, email o planificación..."
+            className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 dark:text-gray-100"
+            value={terminoBusqueda}
+            onChange={(e) => setTerminoBusqueda(e.target.value)}
+          />
+          {terminoBusqueda && (
+            <button
+              onClick={() => setTerminoBusqueda('')}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            >
+              <X className="h-5 w-5 text-gray-400 hover:text-gray-500" />
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Selector de planificación */}
       <div className="mb-6">
         <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
@@ -183,11 +218,11 @@ const GestionPlanificaciones = () => {
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Usuario</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Email</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Planificación actual</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Acciones</th>
+              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Asignar</th>
             </tr>
           </thead>
           <tbody>
-            {usuarios.map(usuario => (
+            {usuariosFiltrados.map(usuario => (
               <tr
                 key={usuario._id}
                 className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
