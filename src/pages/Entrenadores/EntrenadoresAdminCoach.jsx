@@ -456,6 +456,21 @@ const EntrenadoresAdminCoach = () => {
             }
           );
 
+          // Manejo específico de errores de referencia inválida
+          if (response.status === 400) {
+            const errorData = await response.json();
+            if (errorData.message && errorData.message.includes('no existen')) {
+              // Limpiar referencias inválidas en el frontend
+              setPlanificaciones(prev => prev.map(p => {
+                if (p._id === planificacionSeleccionada) {
+                  return limpiarPlanificacion(p);
+                }
+                return p;
+              }));
+              throw new Error('Referencias inválidas detectadas. Intente nuevamente');
+            }
+          }
+
           if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.message || 'Error al asignar bloque');
@@ -611,7 +626,7 @@ const EntrenadoresAdminCoach = () => {
                         : 'Notas/Instrucciones'}
                     </p>
 
-                    {esTipoEjercicios && (
+                    {esTipoEjercicios ? (
                       <div className="mt-2 space-y-1">
                         {ejercicios.slice(0, 3).map((ej, index) => {
                           if (!ej || typeof ej !== 'object') return null;
@@ -629,20 +644,28 @@ const EntrenadoresAdminCoach = () => {
                             +{ejercicios.length - 3} más...
                           </p>
                         )}
+                      </div>
+                    ) : (
+                      bloque.contenidoTexto && (
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line">
+                            {bloque.contenidoTexto}
+                          </p>
+                        </div>
+                      )
+                    )}
 
-                        {/* Etiquetas */}
-                        {Array.isArray(bloque.etiquetas) && bloque.etiquetas.length > 0 && (
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            {bloque.etiquetas.map((etiqueta, idx) => (
-                              <span
-                                key={idx}
-                                className="inline-block bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-xs px-2 py-0.5 rounded-full"
-                              >
-                                #{etiqueta}
-                              </span>
-                            ))}
-                          </div>
-                        )}
+                    {/* Etiquetas (compartidas para ambos tipos) */}
+                    {Array.isArray(bloque.etiquetas) && bloque.etiquetas.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {bloque.etiquetas.map((etiqueta, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-block bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-xs px-2 py-0.5 rounded-full"
+                          >
+                            #{etiqueta}
+                          </span>
+                        ))}
                       </div>
                     )}
 
