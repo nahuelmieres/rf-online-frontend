@@ -11,7 +11,7 @@ const Cuenta = () => {
     const fetchPerfil = async () => {
       try {
         const token = localStorage.getItem("token");
-        const res = await fetch("http://localhost:3000/api/usuarios/perfil", {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/usuarios/perfil`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
