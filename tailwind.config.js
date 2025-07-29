@@ -9,20 +9,24 @@ module.exports = {
         gray: {
           850: '#1e293b',
         },
-        // Nuevos colores estilo FullstackOpen
         primary: {
-          light: '#FF5A00', // Usamos tu naranja como primario
-          dark: '#FF8C66',  // Naranja más claro para dark mode
+          light: '#FF5A00',
+          dark: '#FF5A00', // Mantenemos el mismo naranja en dark mode (más contundente)
         },
         background: {
-          light: '#f8f9fa',
-          dark: '#121212',  // Más oscuro que el original para contraste
+          light: '#ffffff', // Blanco puro como hwpo
+          dark: '#000000',  // Negro puro
         }
       },
       fontFamily: {
-        sans: ['"Roboto Serif"', 'serif'],
-        mono: ['"Roboto Mono"', 'monospace'] // Para código/comentarios
+        sans: ['Inter', 'sans-serif'], // Cambiamos a Inter
       },
+      borderRadius: {
+        'none': '0', // Bordes cuadrados
+      },
+      boxShadow: {
+        'hard': '4px 4px 0px 0px rgba(0,0,0,1)', // Sombras duras como hwpo
+      }
     },
   },
   plugins: [],

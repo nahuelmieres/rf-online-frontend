@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Check } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import Loader from '../../components/Loader';
 import Notificacion from '../../components/Notificacion';
@@ -10,7 +11,7 @@ const Suscripcion = () => {
   const [notificacion, setNotificacion] = useState(null);
   const [metodoPago, setMetodoPago] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const monto = 2700; // Monto fijo según tu backend
+  const monto = 2700; // Monto fijo según backend
 
   if (loading) return <Loader className="h-64" />;
 
@@ -131,105 +132,104 @@ const Suscripcion = () => {
   };
 
   return (
-    <>
-      {notificacion && (
-        <Notificacion
-          tipo={notificacion.tipo}
-          titulo={notificacion.titulo}
-          mensaje={notificacion.mensaje}
-          tiempo={notificacion.tiempo}
-          onClose={() => setNotificacion(null)}
-        />
-      )}
+  <>
+    {notificacion && (
+      <Notificacion
+        tipo={notificacion.tipo}
+        titulo={notificacion.titulo}
+        mensaje={notificacion.mensaje}
+        tiempo={notificacion.tiempo}
+        onClose={() => setNotificacion(null)}
+      />
+    )}
 
-      <div className="max-w-md mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">
-          Pago de Suscripción
+    <div className="max-w-md mx-auto border-2 border-black dark:border-gray-600 bg-white dark:bg-black shadow-hard p-6">
+      <div className="flex items-center justify-center gap-3 mb-6 border-b-2 border-black dark:border-gray-600 pb-4">
+        <div className="bg-black dark:bg-white p-2 border-2 border-black dark:border-gray-600">
+          <svg className="w-6 h-6 text-white dark:text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h1 className="text-2xl font-extrabold tracking-tight">
+          PAGO DE SUSCRIPCIÓN
         </h1>
-
-        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6">
-          <h2 className="text-xl font-semibold text-center text-blue-700 dark:text-blue-300 mb-2">
-            UYU ${monto.toLocaleString('es-UY')} / mes
-          </h2>
-          <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
-            <li className="flex items-center">
-              <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Acceso a todas las planificaciones
-            </li>
-            <li className="flex items-center">
-              <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Soporte prioritario
-            </li>
-            <li className="flex items-center">
-              <svg className="h-5 w-5 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              Contenido exclusivo
-            </li>
-          </ul>
-        </div>
-
-        <div className="space-y-4">
-          <button
-            onClick={handleMercadoPago}
-            disabled={isProcessing}
-            className={`w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-              isProcessing && metodoPago !== 'mercadopago' ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-          >
-            {isProcessing && metodoPago === 'mercadopago' ? (
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            ) : (
-              <img 
-                src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.18.9/mercadopago/logo__small@2x.png" 
-                alt="MercadoPago" 
-                className="h-6 mr-3"
-              />
-            )}
-            Pagar con MercadoPago
-          </button>
-
-          <button
-            onClick={handlePayPal}
-            disabled={isProcessing}
-            className={`w-full flex items-center justify-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-600 ${
-              isProcessing && metodoPago !== 'paypal' ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-          >
-            {isProcessing && metodoPago === 'paypal' ? (
-              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            ) : (
-              <img 
-                src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" 
-                alt="PayPal" 
-                className="h-6 mr-3"
-              />
-            )}
-            Pagar con PayPal
-          </button>
-        </div>
-
-        <div className="mt-6 text-center">
-          <button
-            onClick={() => navigate('/cuenta')}
-            className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
-          >
-            Volver a mi perfil
-          </button>
-        </div>
       </div>
-    </>
+
+      <div className="border-2 border-black dark:border-gray-600 p-4 mb-6">
+        <h2 className="text-xl font-bold text-center mb-3">
+          UYU ${monto.toLocaleString('es-UY')} / MES
+        </h2>
+        <ul className="space-y-3">
+          <li className="flex items-center">
+            <Check className="w-5 h-5 text-green-500 mr-2" />
+            <span className="font-bold">ACCESO A TODAS LAS PLANIFICACIONES</span>
+          </li>
+          <li className="flex items-center">
+            <Check className="w-5 h-5 text-green-500 mr-2" />
+            <span className="font-bold">SOPORTE PRIORITARIO</span>
+          </li>
+          <li className="flex items-center">
+            <Check className="w-5 h-5 text-green-500 mr-2" />
+            <span className="font-bold">CONTENIDO EXCLUSIVO</span>
+          </li>
+        </ul>
+      </div>
+
+      <div className="space-y-4">
+        <button
+          onClick={handleMercadoPago}
+          disabled={isProcessing}
+          className={`w-full flex items-center justify-center px-6 py-3 border-2 font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
+            isProcessing && metodoPago !== 'mercadopago' 
+              ? 'border-gray-400 text-gray-400 cursor-not-allowed' 
+              : 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
+          }`}
+        >
+          {isProcessing && metodoPago === 'mercadopago' ? (
+            <Loader2 className="animate-spin mr-3 w-5 h-5" />
+          ) : (
+            <img 
+              src="https://http2.mlstatic.com/frontend-assets/ui-navigation/5.18.9/mercadopago/logo__small@2x.png" 
+              alt="MercadoPago" 
+              className="h-6 mr-3"
+            />
+          )}
+          PAGAR CON MERCADOPAGO
+        </button>
+
+        <button
+          onClick={handlePayPal}
+          disabled={isProcessing}
+          className={`w-full flex items-center justify-center px-6 py-3 border-2 font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
+            isProcessing && metodoPago !== 'paypal' 
+              ? 'border-gray-400 text-gray-400 cursor-not-allowed' 
+              : 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
+          }`}
+        >
+          {isProcessing && metodoPago === 'paypal' ? (
+            <Loader2 className="animate-spin mr-3 w-5 h-5" />
+          ) : (
+            <img 
+              src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" 
+              alt="PayPal" 
+              className="h-6 mr-3"
+            />
+          )}
+          PAGAR CON PAYPAL
+        </button>
+      </div>
+
+      <div className="mt-6 text-center">
+        <button
+          onClick={() => navigate('/cuenta')}
+          className="px-4 py-2 border-2 border-black dark:border-gray-600 font-bold hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5 transition-colors"
+        >
+          VOLVER A MI PERFIL
+        </button>
+      </div>
+    </div>
+  </>
   );
-};
+}
 
 export default Suscripcion;

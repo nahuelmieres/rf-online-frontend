@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import { Loader2, Lock, Mail, X } from 'lucide-react';
+import { Loader2, Lock, Mail, X, Dumbbell } from 'lucide-react';
 
 const Login = () => {
   const { login } = useAuth();
@@ -26,41 +26,39 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-      <div className="max-w-md w-full mx-auto p-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black p-4">
+      <div className="w-full max-w-md mx-auto border-2 border-black dark:border-gray-600 p-6 md:p-8 bg-white dark:bg-black shadow-hard">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            <div className="bg-orange-500 text-white p-3 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
-              </svg>
+            <div className="bg-black dark:bg-white p-3 border-2 border-black dark:border-gray-600">
+              <Dumbbell className="h-6 w-6 text-white dark:text-black" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">RF Online</h1>
-          <h2 className="text-xl text-gray-600 dark:text-gray-300">Plataforma de Entrenamiento</h2>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">RF ONLINE</h1>
+          <h2 className="text-lg md:text-xl font-medium">PLATAFORMA DE ENTRENAMIENTO</h2>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-4 py-3 rounded-md flex items-center gap-2">
-              <X className="flex-shrink-0" size={18} />
-              <span>{error}</span>
+            <div className="border-2 border-red-500 bg-red-100 dark:bg-black px-4 py-3 flex items-center gap-3">
+              <X className="flex-shrink-0 text-red-500" size={20} />
+              <span className="font-medium">{error}</span>
             </div>
           )}
 
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Correo electrónico
+            <label htmlFor="email" className="block text-base md:text-lg font-bold">
+              CORREO ELECTRÓNICO
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                <Mail className="h-5 w-5 text-gray-500" />
               </div>
               <input
                 id="email"
                 type="email"
-                placeholder="tucorreo@ejemplo.com"
-                className="pl-10 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="TU@EMAIL.COM"
+                className="pl-10 w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-base focus:outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -70,18 +68,18 @@ const Login = () => {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Contraseña
+            <label htmlFor="password" className="block text-base md:text-lg font-bold">
+              CONTRASEÑA
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                <Lock className="h-5 w-5 text-gray-500" />
               </div>
               <input
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                className="pl-10 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                className="pl-10 w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-base focus:outline-none"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -90,48 +88,46 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col xs:flex-row items-center justify-between gap-3">
             <div className="flex items-center">
               <input
                 id="remember-me"
                 name="remember-me"
                 type="checkbox"
-                className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 dark:border-gray-600 rounded"
+                className="h-4 w-4 border-2 border-black dark:border-gray-600 rounded-none focus:ring-0"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                Recordarme
+              <label htmlFor="remember-me" className="ml-2 block text-sm md:text-base">
+                RECORDARME
               </label>
             </div>
 
-            <div className="text-sm">
-              <a href="#" className="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500">
-                ¿Olvidaste tu contraseña?
-              </a>
-            </div>
+            <a href="#" className="text-sm md:text-base font-bold hover:underline whitespace-nowrap">
+              ¿OLVIDASTE CONTRASEÑA?
+            </a>
           </div>
 
-          <div>
+          <div className="pt-4">
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center items-center py-3 px-4 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black text-base md:text-lg font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50"
             >
               {loading ? (
                 <>
-                  <Loader2 className="animate-spin mr-2" size={18} />
-                  Iniciando sesión...
+                  <Loader2 className="animate-spin mr-2" size={20} />
+                  INICIANDO...
                 </>
-              ) : 'Iniciar sesión'}
+              ) : 'INICIAR SESIÓN'}
             </button>
           </div>
         </form>
 
-        <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-          <p>¿No tenes una cuenta?{' '}
-            <a href="/registro" className="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500">
-              Registrate
+        <div className="mt-6 text-center text-base">
+          <p>¿NO TIENES CUENTA?{' '}
+            <a href="/registro" className="font-bold hover:underline">
+              REGÍSTRATE
             </a>
           </p>
         </div>

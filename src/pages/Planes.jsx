@@ -185,21 +185,21 @@ const Planes = () => {
 
   if (cargando) return (
     <div className="flex flex-col items-center justify-center min-h-[300px]">
-      <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
-      <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando tu plan...</p>
+      <Loader2 className="w-8 h-8 text-primary-light dark:text-primary-dark animate-spin" />
+      <p className="mt-4 text-lg font-medium">CARGANDO TU PLAN...</p>
     </div>
   );
 
   if (error) return (
-    <div className="flex flex-col items-center justify-center min-h-[300px] p-6 text-center">
+    <div className="flex flex-col items-center justify-center min-h-[300px] p-6 text-center border-2 border-black dark:border-gray-600 bg-white dark:bg-black mx-6 my-8">
       <AlertTriangle className="w-8 h-8 text-red-500 mb-4" />
-      <h3 className="text-lg font-medium text-red-600 dark:text-red-400 mb-2">Error al cargar el plan</h3>
-      <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+      <h3 className="text-xl font-bold text-red-600 dark:text-red-400 mb-2">ERROR AL CARGAR EL PLAN</h3>
+      <p className="text-lg mb-6">{error}</p>
       <button
         onClick={() => window.location.reload()}
-        className="text-orange-500 dark:text-orange-400 hover:underline"
+        className="px-6 py-3 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
       >
-        Reintentar
+        REINTENTAR
       </button>
     </div>
   );
@@ -207,108 +207,111 @@ const Planes = () => {
   const { usuario, planificacion } = planData || {};
 
   return (
-    <section className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <Dumbbell className="w-6 h-6 text-orange-500 dark:text-orange-400" />
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-            Tu Plan de Entrenamiento
+    <section className="max-w-7xl mx-auto px-6 py-12">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-12 border-b-2 border-black dark:border-gray-600 pb-6">
+        <div className="flex items-center gap-4">
+          <Dumbbell className="w-8 h-8 text-primary-light dark:text-primary-dark" />
+          <h2 className="text-3xl font-extrabold tracking-tight">
+            TU PLAN DE ENTRENAMIENTO
           </h2>
         </div>
         {(usuario?.rol === 'admin' || usuario?.rol === 'coach') && (
           <Link
             to="/crear-plan"
-            className="flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition"
+            className="flex items-center gap-2 px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-bold border-2 border-black dark:border-gray-600 shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
           >
-            <Plus className="w-4 h-4" />
-            <span>Nuevo Plan</span>
+            <Plus className="w-5 h-5" />
+            <span>NUEVO PLAN</span>
           </Link>
         )}
       </div>
 
       {!planificacion ? (
-        <div className="card p-6 text-center">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            No tenés un plan activo actualmente.
+        <div className="border-2 border-black dark:border-gray-600 p-8 text-center">
+          <p className="text-xl mb-6">
+            NO TENÉS UN PLAN ACTIVO ACTUALMENTE.
           </p>
           <Link
             to="/solicitar-plan"
-            className="inline-flex items-center gap-2 text-orange-500 dark:text-orange-400 hover:underline"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-bold border-2 border-black dark:border-gray-600 shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
           >
-            Solicitar un plan personalizado
+            SOLICITAR UN PLAN PERSONALIZADO
           </Link>
         </div>
       ) : (
         <div className="space-y-8">
-          <div className="card p-6">
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-white">
+          {/* Plan Header */}
+          <div className="border-2 border-black dark:border-gray-600 p-8">
+            <h3 className="text-2xl font-bold mb-4">
               {planificacion.titulo}
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">{planificacion.descripcion}</p>
-            <div className="flex items-center gap-3 mt-3">
-              <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-xs px-3 py-1 rounded-full capitalize">
-                {planificacion.tipo}
+            <p className="text-lg mb-6">{planificacion.descripcion}</p>
+            <div className="flex flex-wrap items-center gap-4">
+              <span className="px-4 py-2 bg-black dark:bg-white text-white dark:text-black font-bold border-2 border-black dark:border-gray-600">
+                {planificacion.tipo.toUpperCase()}
               </span>
-              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                <Calendar className="w-4 h-4" />
-                <span>{planificacion.totalSemanas} semanas • {planificacion.totalBloques} rutinas • {planificacion.totalDescansos} descansos</span>
+              <div className="flex items-center gap-3 text-lg">
+                <Calendar className="w-5 h-5" />
+                <span>{planificacion.totalSemanas} SEMANAS • {planificacion.totalBloques} RUTINAS • {planificacion.totalDescansos} DESCANSO</span>
               </div>
             </div>
           </div>
 
+          {/* Semanas */}
           {planificacion.semanas?.map((semana) => (
-            <div key={semana.numero} className="card p-6">
-              <h4 className="text-lg font-medium text-gray-800 dark:text-white mb-6">
-                Semana {semana.numero}
+            <div key={semana.numero} className="border-2 border-black dark:border-gray-600 p-8">
+              <h4 className="text-xl font-bold mb-8">
+                SEMANA {semana.numero}
               </h4>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
                 {semana.dias?.map((dia) => {
                   const comentarioKey = `${semana.numero}-${dia.nombre}`;
                   const comentario = comentarios[comentarioKey];
 
                   return (
-                    <div key={dia._id} className="border-b pb-6 last:border-b-0 last:pb-0">
-                      <div className="flex items-center gap-3 mb-3">
-                        <h5 className="text-md font-medium text-gray-800 dark:text-white">
-                          {dia.nombre}
+                    <div key={dia._id} className="border-b-2 border-black dark:border-gray-600 pb-8 last:border-b-0 last:pb-0">
+                      <div className="flex items-center gap-4 mb-6">
+                        <h5 className="text-lg font-bold">
+                          {dia.nombre.toUpperCase()}
                         </h5>
                         {dia.descanso && (
-                          <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-                            <Coffee className="w-4 h-4" />
-                            Día de descanso
+                          <span className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 font-medium">
+                            <Coffee className="w-5 h-5" />
+                            DÍA DE DESCANSO
                           </span>
                         )}
                       </div>
 
                       {!dia.descanso && dia.bloquesPoblados?.length > 0 ? (
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                           {dia.bloquesPoblados.map((bloque) => (
-                            <div key={bloque._id} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                              <div className="flex items-center gap-2 mb-2">
-                                <Zap className="w-4 h-4 text-orange-500 dark:text-orange-400" />
-                                <span className="font-medium text-orange-500 dark:text-orange-400">
-                                  {bloque.tipo === 'ejercicios' ? 'Rutina de ejercicios' : 'Notas'}
+                            <div key={bloque._id} className="border-2 border-black dark:border-gray-600 p-6">
+                              <div className="flex items-center gap-3 mb-4">
+                                <Zap className="w-5 h-5 text-primary-light dark:text-primary-dark" />
+                                <span className="font-bold">
+                                  {bloque.tipo === 'ejercicios' ? 'RUTINA DE EJERCICIOS' : 'NOTAS'}
                                 </span>
                               </div>
 
                               {bloque.tipo === 'ejercicios' ? (
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                   {bloque.ejercicios?.map((ejercicio, index) => (
-                                    <div key={index} className="p-3 bg-white dark:bg-gray-700 rounded">
-                                      <div className="flex items-start gap-3">
+                                    <div key={index} className="border-2 border-black dark:border-gray-600 p-4">
+                                      <div className="flex items-start gap-4">
                                         <div className="flex-1">
-                                          <h6 className="font-medium text-gray-800 dark:text-white">{ejercicio.nombre}</h6>
-                                          <div className="flex flex-wrap gap-4 mt-2">
-                                            <span className="text-sm text-gray-600 dark:text-gray-300">
-                                              Series: {ejercicio.series}
+                                          <h6 className="text-lg font-bold mb-2">{ejercicio.nombre.toUpperCase()}</h6>
+                                          <div className="flex flex-wrap gap-6">
+                                            <span className="font-medium">
+                                              SERIES: {ejercicio.series}
                                             </span>
-                                            <span className="text-sm text-gray-600 dark:text-gray-300">
-                                              Reps: {ejercicio.repeticiones}
+                                            <span className="font-medium">
+                                              REPS: {ejercicio.repeticiones}
                                             </span>
                                             {ejercicio.peso && (
-                                              <span className="text-sm text-gray-600 dark:text-gray-300">
-                                                Peso: {ejercicio.peso}
+                                              <span className="font-medium">
+                                                PESO: {ejercicio.peso}
                                               </span>
                                             )}
                                           </div>
@@ -318,9 +321,20 @@ const Planes = () => {
                                             href={ejercicio.linkVideo}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-orange-500 hover:text-orange-600 dark:hover:text-orange-400"
+                                            className="flex-shrink-0"
                                           >
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <svg 
+                                              xmlns="http://www.w3.org/2000/svg" 
+                                              width="24" 
+                                              height="24" 
+                                              viewBox="0 0 24 24" 
+                                              fill="none" 
+                                              stroke="currentColor" 
+                                              strokeWidth="2" 
+                                              strokeLinecap="round" 
+                                              strokeLinejoin="round"
+                                              className="text-primary-light dark:text-primary-dark hover:text-black dark:hover:text-white transition-colors"
+                                            >
                                               <polygon points="23 7 16 12 23 17 23 7"></polygon>
                                               <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
                                             </svg>
@@ -331,7 +345,7 @@ const Planes = () => {
                                   ))}
                                 </div>
                               ) : (
-                                <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line">
+                                <p className="text-lg whitespace-pre-line">
                                   {bloque.contenidoTexto}
                                 </p>
                               )}
@@ -339,101 +353,102 @@ const Planes = () => {
                           ))}
                         </div>
                       ) : !dia.descanso ? (
-                        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                          <ZapOff className="w-4 h-4" />
-                          <span>No hay ejercicios asignados</span>
+                        <div className="flex items-center gap-3 px-4 py-3 bg-gray-100 dark:bg-gray-800">
+                          <ZapOff className="w-5 h-5" />
+                          <span className="font-medium">NO HAY EJERCICIOS ASIGNADOS</span>
                         </div>
                       ) : null}
 
-                      <div className="mt-6">
-                        <div className="flex items-center gap-2 mb-3">
-                          <MessageSquare className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                          <h6 className="text-sm font-medium text-gray-700 dark:text-gray-300">Comentarios</h6>
+                      {/* Comentarios */}
+                      <div className="mt-8">
+                        <div className="flex items-center gap-3 mb-4">
+                          <MessageSquare className="w-5 h-5" />
+                          <h6 className="font-bold">COMENTARIOS</h6>
                         </div>
 
                         {editandoComentario?.dia === dia.nombre && editandoComentario?.semana === semana.numero ? (
-                          <div className="space-y-3">
+                          <div className="space-y-4">
                             <textarea
                               value={editandoTexto}
                               onChange={(e) => setEditandoTexto(e.target.value)}
-                              className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-gray-200"
-                              rows="3"
-                              placeholder="Escribe tu comentario..."
+                              className="w-full p-4 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg"
+                              rows="4"
+                              placeholder="ESCRIBE TU COMENTARIO..."
                             />
-                            <div className="flex gap-2">
+                            <div className="flex gap-4">
                               <button
                                 onClick={manejarEditarComentario}
-                                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
+                                className="px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-bold border-2 border-black dark:border-gray-600 shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
                               >
-                                Guardar
+                                GUARDAR
                               </button>
                               <button
                                 onClick={() => setEditandoComentario(null)}
-                                className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition"
+                                className="px-6 py-3 bg-white dark:bg-black text-black dark:text-white font-bold border-2 border-black dark:border-gray-600 shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
                               >
-                                Cancelar
+                                CANCELAR
                               </button>
                             </div>
                           </div>
                         ) : comentario ? (
-                          <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                            <div className="flex justify-between items-start mb-2">
-                              <p className="text-gray-800 dark:text-gray-200 whitespace-pre-line">
+                          <div className="border-2 border-black dark:border-gray-600 p-6">
+                            <div className="flex justify-between items-start mb-4">
+                              <p className="text-lg whitespace-pre-line">
                                 {comentario.texto}
                               </p>
                               {comentario.autor?._id === usuario?.id && (
-                                <div className="flex gap-3">
+                                <div className="flex gap-4">
                                   <button
                                     onClick={() => {
                                       setEditandoComentario(comentario);
                                       setEditandoTexto(comentario.texto);
                                     }}
-                                    className="text-gray-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+                                    className="text-gray-500 hover:text-primary-light dark:hover:text-primary-dark transition-colors"
                                     title="Editar comentario"
                                   >
-                                    <Edit2 className="w-5 h-5" />
+                                    <Edit2 className="w-6 h-6" />
                                   </button>
                                   <button
                                     onClick={() => manejarEliminarComentario(comentario._id, semana.numero, dia.nombre)}
                                     className="text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                                     title="Eliminar comentario"
                                   >
-                                    <Trash2 className="w-5 h-5" />
+                                    <Trash2 className="w-6 h-6" />
                                   </button>
                                 </div>
                               )}
                             </div>
 
                             {comentario.respuesta && (
-                              <div className="mt-4 pl-4 border-l-2 border-orange-500 dark:border-orange-400">
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="text-xs font-medium text-orange-500 dark:text-orange-400">Entrenador:</span>
+                              <div className="mt-6 pl-6 border-l-4 border-primary-light dark:border-primary-dark">
+                                <div className="flex items-center gap-3 mb-3">
+                                  <span className="font-bold text-primary-light dark:text-primary-dark">{comentario.respuesta.autor.nombre.toUpperCase()}:</span>
                                 </div>
-                                <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                                <p className="text-lg whitespace-pre-line">
                                   {comentario.respuesta.texto}
                                 </p>
                               </div>
                             )}
                           </div>
                         ) : (
-                          <form onSubmit={manejarNuevoComentario(dia.nombre, semana.numero)} className="space-y-3">
+                          <form onSubmit={manejarNuevoComentario(dia.nombre, semana.numero)} className="space-y-4">
                             <textarea
                               value={nuevosComentarios[comentarioKey] || ''}
                               onChange={(e) => setNuevosComentarios(prev => ({
                                 ...prev,
                                 [comentarioKey]: e.target.value
                               }))}
-                              className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-gray-200"
-                              rows="3"
-                              placeholder="Escribe un comentario sobre este día..."
+                              className="w-full p-4 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg"
+                              rows="4"
+                              placeholder="ESCRIBE UN COMENTARIO SOBRE ESTE DÍA..."
                             />
                             <button
                               type="submit"
                               disabled={!nuevosComentarios[comentarioKey]?.trim()}
-                              className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="flex items-center gap-3 px-6 py-3 bg-black dark:bg-white text-white dark:text-black font-bold border-2 border-black dark:border-gray-600 shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                              <Send className="w-4 h-4" />
-                              <span>Enviar comentario</span>
+                              <Send className="w-5 h-5" />
+                              <span>ENVIAR COMENTARIO</span>
                             </button>
                           </form>
                         )}

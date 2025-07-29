@@ -64,7 +64,7 @@ const GestionPlanificaciones = () => {
   const asignarPlanificacion = async (idUsuario) => {
     try {
       if (!planSeleccionada) {
-        mostrarNotificacion('advertencia', 'Seleccioná una planificación primero');
+        mostrarNotificacion('advertencia', 'SELECCIONÁ UNA PLANIFICACIÓN PRIMERO');
         return;
       }
 
@@ -84,11 +84,11 @@ const GestionPlanificaciones = () => {
         throw new Error(errorData.message || 'Error al asignar planificación');
       }
 
-      mostrarNotificacion('exito', 'Planificación asignada correctamente');
+      mostrarNotificacion('exito', 'PLANIFICACIÓN ASIGNADA CORRECTAMENTE');
       await obtenerDatos();
     } catch (err) {
       console.error('Error al asignar planificación:', err);
-      mostrarNotificacion('error', err.message || 'No se pudo asignar la planificación');
+      mostrarNotificacion('error', err.message || 'NO SE PUDO ASIGNAR LA PLANIFICACIÓN');
     } finally {
       setAsignando(false);
     }
@@ -100,9 +100,9 @@ const GestionPlanificaciones = () => {
   };
 
   const obtenerNombrePlanificacion = (idPlanificacion) => {
-    if (!idPlanificacion) return 'Sin planificación asignada';
+    if (!idPlanificacion) return 'SIN PLANIFICACIÓN ASIGNADA';
     const plan = planificaciones.find(p => p._id === idPlanificacion);
-    return plan?.titulo || 'Planificación desconocida';
+    return plan?.titulo?.toUpperCase() || 'PLANIFICACIÓN DESCONOCIDA';
   };
 
   // Filtrar usuarios según el término de búsqueda
@@ -121,31 +121,31 @@ const GestionPlanificaciones = () => {
 
   if (cargando) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader />
+      <div className="flex flex-col items-center justify-center min-h-[300px]">
+        <Loader2 className="w-8 h-8 text-primary-light dark:text-primary-dark animate-spin" />
+        <p className="mt-4 text-lg font-medium">CARGANDO DATOS...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center mt-8">
-        <div className="inline-flex items-center gap-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-4 py-2 rounded">
-          <X size={18} />
-          <span>{error}</span>
-          <button
-            onClick={obtenerDatos}
-            className="ml-2 text-orange-600 dark:text-orange-400 hover:underline"
-          >
-            Reintentar
-          </button>
-        </div>
+      <div className="max-w-6xl mx-auto border-2 border-black dark:border-gray-600 bg-white dark:bg-black p-8 text-center">
+        <X className="mx-auto w-12 h-12 text-red-500 mb-4" />
+        <h2 className="text-2xl font-bold text-red-500 mb-4">ERROR</h2>
+        <p className="text-lg mb-6">{error}</p>
+        <button
+          onClick={obtenerDatos}
+          className="px-6 py-3 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+        >
+          REINTENTAR
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto border-2 border-black dark:border-gray-600 bg-white dark:bg-black shadow-hard p-6 md:p-8">
       {notificacion && (
         <Notificacion
           tipo={notificacion.tipo}
@@ -154,25 +154,30 @@ const GestionPlanificaciones = () => {
         />
       )}
 
-      <h1 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
-        Asignar Planificaciones
-        {usuario?.rol === 'admin' && (
-          <span className="ml-2 text-sm font-normal bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-200 px-2 py-1 rounded">
-            Modo Administrador
-          </span>
-        )}
-      </h1>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8 border-b-2 border-black dark:border-gray-600 pb-6">
+        <div className="flex items-center gap-4">
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            ASIGNAR PLANIFICACIONES
+          </h1>
+          {usuario?.rol === 'admin' && (
+            <span className="px-3 py-1 border-2 border-black dark:border-gray-600 text-sm font-bold">
+              MODO ADMINISTRADOR
+            </span>
+          )}
+        </div>
+      </div>
 
       {/* Barra de búsqueda */}
-      <div className="mb-6 relative">
+      <div className="mb-8 relative">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+            <Search className="h-5 w-5 text-black dark:text-white" />
           </div>
           <input
             type="text"
-            placeholder="Buscar usuarios por nombre, email o planificación..."
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md leading-5 bg-white dark:bg-gray-700 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-900 dark:text-gray-100"
+            placeholder="BUSCAR USUARIOS POR NOMBRE, EMAIL O PLANIFICACIÓN..."
+            className="block w-full pl-10 pr-3 py-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black focus:outline-none text-lg"
             value={terminoBusqueda}
             onChange={(e) => setTerminoBusqueda(e.target.value)}
           />
@@ -181,30 +186,30 @@ const GestionPlanificaciones = () => {
               onClick={() => setTerminoBusqueda('')}
               className="absolute inset-y-0 right-0 pr-3 flex items-center"
             >
-              <X className="h-5 w-5 text-gray-400 hover:text-gray-500" />
+              <X className="h-5 w-5 text-black dark:text-white hover:text-red-500" />
             </button>
           )}
         </div>
       </div>
 
       {/* Selector de planificación */}
-      <div className="mb-6">
-        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">
-          Seleccioná una planificación para asignar
+      <div className="mb-8">
+        <label className="block text-lg font-bold mb-2">
+          SELECCIONÁ UNA PLANIFICACIÓN PARA ASIGNAR
         </label>
         <select
           value={planSeleccionada}
           onChange={(e) => setPlanSeleccionada(e.target.value)}
-          className="w-full border px-3 py-2 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+          className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none"
         >
-          <option value="">-- Seleccioná una planificación --</option>
+          <option value="">-- SELECCIONÁ UNA PLANIFICACIÓN --</option>
           {planificaciones.map(plan => (
             <option
               key={plan._id}
               value={plan._id}
-              className="bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="bg-white dark:bg-black"
             >
-              {plan.titulo} ({plan.tipo})
+              {plan.titulo?.toUpperCase()} ({plan.tipo?.toUpperCase()})
             </option>
           ))}
         </select>
@@ -212,63 +217,61 @@ const GestionPlanificaciones = () => {
 
       {/* Tabla de usuarios */}
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-          <thead className="bg-gray-100 dark:bg-gray-700">
-            <tr>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Usuario</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Email</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Planificación actual</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">Asignar</th>
+        <table className="w-full border-2 border-black dark:border-gray-600">
+          <thead>
+            <tr className="border-b-2 border-black dark:border-gray-600">
+              <th className="px-4 py-3 text-left text-lg font-bold">USUARIO</th>
+              <th className="px-4 py-3 text-left text-lg font-bold">EMAIL</th>
+              <th className="px-4 py-3 text-left text-lg font-bold">PLANIFICACIÓN ACTUAL</th>
+              <th className="px-4 py-3 text-left text-lg font-bold">ASIGNAR</th>
             </tr>
           </thead>
           <tbody>
             {usuariosFiltrados.map(usuario => (
               <tr
                 key={usuario._id}
-                className="border-t dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                className="border-b border-black dark:border-gray-600 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
               >
-                <td className="px-4 py-3 text-gray-800 dark:text-gray-200">
+                <td className="px-4 py-3">
                   <a
                     href={`/perfil/${usuario._id}`}
-                    className="text-orange-600 dark:text-orange-400 hover:underline"
+                    className="font-bold hover:underline"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    {usuario.nombre}
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
+                    {usuario.nombre?.toUpperCase()}
                   </a>
                 </td>
-                <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{usuario.email}</td>
+                <td className="px-4 py-3">{usuario.email}</td>
                 <td className="px-4 py-3">
                   {usuario.planificacion ? (
                     <span className="inline-flex items-center gap-1">
-                      <Check className="text-green-500 dark:text-green-400" size={16} />
-                      <span className="text-gray-800 dark:text-gray-200">
+                      <Check className="text-green-500" size={16} />
+                      <span>
                         {obtenerNombrePlanificacion(usuario.planificacion)}
                       </span>
                     </span>
                   ) : (
-                    <span className="text-gray-500 dark:text-gray-400">Sin planificación asignada</span>
+                    <span>SIN PLANIFICACIÓN ASIGNADA</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
                   <button
                     onClick={() => asignarPlanificacion(usuario._id)}
                     disabled={asignando || !planSeleccionada}
-                    className={`flex items-center gap-1 px-3 py-1 rounded transition-colors ${asignando || !planSeleccionada
-                      ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 cursor-not-allowed'
-                      : 'bg-orange-500 hover:bg-orange-600 text-white'
-                      }`}
+                    className={`px-4 py-2 border-2 font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
+                      asignando || !planSeleccionada
+                        ? 'border-gray-400 text-gray-400 cursor-not-allowed'
+                        : 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
+                    }`}
                   >
                     {asignando ? (
-                      <>
+                      <span className="flex items-center gap-2">
                         <Loader2 className="animate-spin" size={16} />
-                        Asignando...
-                      </>
+                        ASIGNANDO...
+                      </span>
                     ) : (
-                      'Asignar'
+                      'ASIGNAR'
                     )}
                   </button>
                 </td>

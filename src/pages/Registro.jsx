@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Mail, Lock, User, ArrowLeft, X, Loader2 } from "lucide-react";
+import { Mail, Lock, User, ArrowLeft, X, Loader2, Dumbbell } from "lucide-react";
 
 const Registro = () => {
   const [nombre, setNombre] = useState("");
@@ -23,7 +23,7 @@ const Registro = () => {
           nombre,
           email,
           password,
-          rol: "cliente" // Rol por defecto
+          rol: "cliente"
         }),
       });
 
@@ -32,7 +32,6 @@ const Registro = () => {
         throw new Error(errorData.mensaje || "Error en el registro");
       }
 
-      // Registro exitoso - redirigir a login
       navigate("/login", { state: { registroExitoso: true } });
     } catch (err) {
       setError(err.message);
@@ -42,45 +41,50 @@ const Registro = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-      <div className="max-w-md w-full mx-auto p-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg relative">
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black p-4">
+      <div className="w-full max-w-md mx-auto border-2 border-black dark:border-gray-600 p-6 md:p-8 bg-white dark:bg-black shadow-hard relative">
         {/* Botón volver */}
         <Link 
           to="/login" 
-          className="absolute top-4 left-4 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+          className="absolute top-6 left-6 text-black dark:text-white hover:text-primary-light dark:hover:text-primary-dark"
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={24} />
         </Link>
 
         {/* Logo y título */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Crear cuenta</h1>
-          <h2 className="text-xl text-gray-600 dark:text-gray-300">Plataforma de Entrenamiento</h2>
+          <div className="flex justify-center mb-4">
+            <div className="bg-black dark:bg-white p-3 border-2 border-black dark:border-gray-600">
+              <Dumbbell className="h-6 w-6 text-white dark:text-black" />
+            </div>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">CREAR CUENTA</h1>
+          <h2 className="text-lg md:text-xl font-medium">PLATAFORMA DE ENTRENAMIENTO</h2>
         </div>
 
         {/* Formulario */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-4 py-3 rounded-md flex items-center gap-2">
-              <X className="flex-shrink-0" size={18} />
-              <span>{error}</span>
+            <div className="border-2 border-red-500 bg-red-100 dark:bg-black px-4 py-3 flex items-center gap-3">
+              <X className="flex-shrink-0 text-red-500" size={20} />
+              <span className="font-medium">{error}</span>
             </div>
           )}
 
           {/* Campo Nombre */}
           <div className="space-y-2">
-            <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Nombre completo
+            <label htmlFor="nombre" className="block text-base md:text-lg font-bold">
+              NOMBRE COMPLETO
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <User className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                <User className="h-5 w-5 text-gray-500" />
               </div>
               <input
                 id="nombre"
                 type="text"
-                placeholder="Tu nombre"
-                className="pl-10 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="TU NOMBRE"
+                className="pl-10 w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-base focus:outline-none"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 required
@@ -90,18 +94,18 @@ const Registro = () => {
 
           {/* Campo Email */}
           <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Correo electrónico
+            <label htmlFor="email" className="block text-base md:text-lg font-bold">
+              CORREO ELECTRÓNICO
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                <Mail className="h-5 w-5 text-gray-500" />
               </div>
               <input
                 id="email"
                 type="email"
-                placeholder="tucorreo@ejemplo.com"
-                className="pl-10 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                placeholder="TU@EMAIL.COM"
+                className="pl-10 w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-base focus:outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -111,18 +115,18 @@ const Registro = () => {
 
           {/* Campo Contraseña */}
           <div className="space-y-2">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-              Contraseña
+            <label htmlFor="password" className="block text-base md:text-lg font-bold">
+              CONTRASEÑA
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                <Lock className="h-5 w-5 text-gray-500" />
               </div>
               <input
                 id="password"
                 type="password"
                 placeholder="••••••••"
-                className="pl-10 w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                className="pl-10 w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-base focus:outline-none"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -132,27 +136,27 @@ const Registro = () => {
           </div>
 
           {/* Botón de Registro */}
-          <div>
+          <div className="pt-4">
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center items-center py-3 px-4 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black text-base md:text-lg font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50"
             >
               {loading ? (
                 <>
-                  <Loader2 className="animate-spin mr-2" size={18} />
-                  Creando cuenta...
+                  <Loader2 className="animate-spin mr-2" size={20} />
+                  CREANDO CUENTA...
                 </>
-              ) : 'Registrarse'}
+              ) : 'REGISTRARSE'}
             </button>
           </div>
         </form>
 
         {/* Enlace a Login */}
-        <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-          <p>¿Ya tienes una cuenta?{' '}
-            <Link to="/login" className="font-medium text-orange-600 dark:text-orange-400 hover:text-orange-500">
-              Inicia sesión
+        <div className="mt-6 text-center text-base">
+          <p>¿YA TIENES UNA CUENTA?{' '}
+            <Link to="/login" className="font-bold hover:underline">
+              INICIA SESIÓN
             </Link>
           </p>
         </div>

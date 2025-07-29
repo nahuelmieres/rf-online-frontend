@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Plus, Dumbbell, Edit, Trash2, Check, Search } from 'lucide-react';
+import { Plus, Dumbbell, AlertCircle, Trash2, Check, Search, Link, Loader2,
+  Edit2 } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import Loader from '../../components/Loader';
 import Modal from '../../components/Modal';
@@ -159,7 +160,7 @@ const EntrenadoresAdminCoach = () => {
     return bloques.filter(bloque => {
       if (!bloque || typeof bloque !== 'object') return false;
 
-      const nombre = (bloque.nombre || '').toLowerCase();
+      const nombre = (bloque.titulo || '').toLowerCase();
       const tipo = bloque.tipo || '';
       const etiquetas = Array.isArray(bloque.etiquetas) ? bloque.etiquetas.map(e => e.toLowerCase()) : [];
       const ejercicios = Array.isArray(bloque.ejercicios) ? bloque.ejercicios : [];
@@ -529,297 +530,321 @@ const EntrenadoresAdminCoach = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="card p-6 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-800">
-          <h2 className="text-xl font-semibold text-yellow-800 dark:text-yellow-200 mb-2">
-            Autenticación requerida
-          </h2>
-          <p className="text-yellow-700 dark:text-yellow-300 mb-4">
-            Necesitas iniciar sesión para acceder a esta página
-          </p>
-        </div>
+      <div className="max-w-6xl mx-auto border-2 border-black dark:border-gray-600 bg-white dark:bg-black p-8 text-center">
+        <AlertCircle className="mx-auto w-12 h-12 text-yellow-500 mb-4" />
+        <h2 className="text-2xl font-bold mb-4">AUTENTICACIÓN REQUERIDA</h2>
+        <p className="text-lg mb-6">NECESITAS INICIAR SESIÓN PARA ACCEDER A ESTA PÁGINA</p>
+        <Link
+          to="/login"
+          className="inline-block px-6 py-3 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+        >
+          IR A INICIAR SESIÓN
+        </Link>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="card p-6 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800">
-          <h2 className="text-xl font-semibold text-red-800 dark:text-red-200 mb-2">Error</h2>
-          <p className="text-red-700 dark:text-red-300 mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="btn btn-outline bg-white dark:bg-gray-800"
-          >
-            Recargar página
-          </button>
-        </div>
+      <div className="max-w-6xl mx-auto border-2 border-black dark:border-gray-600 bg-white dark:bg-black p-8 text-center">
+        <AlertCircle className="mx-auto w-12 h-12 text-red-500 mb-4" />
+        <h2 className="text-2xl font-bold text-red-500 mb-4">ERROR</h2>
+        <p className="text-lg mb-6">{error}</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-6 py-3 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+        >
+          RECARGAR PÁGINA
+        </button>
       </div>
     );
   }
 
   if (cargando) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <Loader className="h-64" />
+      <div className="flex flex-col items-center justify-center min-h-[300px]">
+        <Loader2 className="w-8 h-8 text-primary-light dark:text-primary-dark animate-spin" />
+        <p className="mt-4 text-lg font-medium">CARGANDO DATOS...</p>
       </div>
     );
   }
 
   return (
     <ErrorBoundary>
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
-          <Dumbbell className="text-orange-500" />
-          {user.rol === 'admin' ? 'Administración de Bloques' : 'Mis Bloques'}
-        </h1>
+    <div className="max-w-6xl mx-auto border-2 border-black dark:border-gray-600 bg-white dark:bg-black shadow-hard p-6 md:p-8">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-8 border-b-2 border-black dark:border-gray-600 pb-6">
+        <div className="flex items-center gap-4">
+          <div className="bg-black dark:bg-white p-3 border-2 border-black dark:border-gray-600">
+            <Dumbbell className="w-6 h-6 text-white dark:text-black" />
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            {user.rol === 'admin' ? 'ADMINISTRACIÓN DE BLOQUES' : 'MIS BLOQUES'}
+          </h1>
+        </div>
+        <button
+          onClick={() => {
+            setModoEdicion(null);
+            setMostrarModal(true);
+          }}
+          className="flex items-center gap-2 px-6 py-3 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+        >
+          <Plus className="w-5 h-5" />
+          <span>NUEVO BLOQUE</span>
+        </button>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Panel de Bloques */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex justify-between items-center mb-4">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Buscar bloques..."
-                  className="pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400"
-                  value={filtro}
-                  onChange={(e) => setFiltro(e.target.value)}
-                />
-              </div>
-              <button
-                onClick={() => {
-                  setModoEdicion(null);
-                  setMostrarModal(true);
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg transition-colors shadow-md"
-              >
-                <Plus size={18} />
-                Nuevo Bloque
-              </button>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Panel de Bloques */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="w-5 h-5 text-gray-500" />
             </div>
+            <input
+              type="text"
+              placeholder="BUSCAR BLOQUES..."
+              className="pl-10 w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none"
+              value={filtro}
+              onChange={(e) => setFiltro(e.target.value)}
+            />
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {bloquesFiltrados.map(bloque => {
-                if (!bloque || !bloque._id) return null;
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {bloquesFiltrados.map(bloque => {
+              if (!bloque || !bloque._id) return null;
 
-                const ejercicios = Array.isArray(bloque.ejercicios) ? bloque.ejercicios : [];
-                const esTipoEjercicios = bloque.tipo === 'ejercicios';
+              const ejercicios = Array.isArray(bloque.ejercicios) ? bloque.ejercicios : [];
+              const esTipoEjercicios = bloque.tipo === 'ejercicios';
 
-                return (
-                  <div
-                    key={bloque._id}
-                    className={`p-4 rounded-lg border transition-all cursor-pointer ${seleccionados.includes(bloque._id)
-                      ? 'bg-orange-50 border-orange-300 dark:bg-orange-900/20 dark:border-orange-700'
-                      : 'bg-white hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 border-gray-200 dark:border-gray-700'
-                      }`}
-                    onClick={() => toggleSeleccion(bloque._id)}
-                  >
-                    <h3 className="font-medium text-gray-900 dark:text-white">
-                      {bloque.titulo || 'Bloque sin nombre'}
-                    </h3>
-                    <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                      {esTipoEjercicios
-                        ? `${ejercicios.length} ejercicios`
-                        : 'Notas/Instrucciones'}
-                    </p>
+              return (
+                <div
+                  key={bloque._id}
+                  className={`border-2 p-4 transition-all cursor-pointer ${
+                    seleccionados.includes(bloque._id)
+                      ? 'border-primary-light dark:border-primary-dark bg-orange-50 dark:bg-orange-900/20'
+                      : 'border-black dark:border-gray-600 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5'
+                  }`}
+                  onClick={() => toggleSeleccion(bloque._id)}
+                >
+                  <h3 className="text-xl font-bold mb-2">
+                    {bloque.titulo?.toUpperCase() || 'BLOQUE SIN NOMBRE'}
+                  </h3>
+                  <p className="text-lg mb-3">
+                    {esTipoEjercicios
+                      ? `${ejercicios.length} EJERCICIOS`
+                      : 'NOTAS/INSTRUCCIONES'}
+                  </p>
 
-                    {esTipoEjercicios ? (
-                      <div className="mt-2 space-y-1">
-                        {ejercicios.slice(0, 3).map((ej, index) => {
-                          if (!ej || typeof ej !== 'object') return null;
-                          return (
-                            <p key={index} className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                              • {ej.nombre || 'Ejercicio sin nombre'}
-                              {(ej.series && ej.repeticiones)
-                                ? ` (${ej.series}x${ej.repeticiones})`
-                                : ''}
-                            </p>
-                          );
-                        })}
-                        {ejercicios.length > 3 && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            +{ejercicios.length - 3} más...
-                          </p>
-                        )}
+                  {esTipoEjercicios && (
+                    <div className="space-y-2 mb-3">
+                      {ejercicios.slice(0, 3).map((ej, index) => (
+                        <p key={index} className="text-sm">
+                          • {ej.nombre?.toUpperCase() || 'EJERCICIO SIN NOMBRE'}
+                          {(ej.series && ej.repeticiones)
+                            ? ` (${ej.series}X${ej.repeticiones})`
+                            : ''}
+                        </p>
+                      ))}
+                      {ejercicios.length > 3 && (
+                        <p className="text-sm">+{ejercicios.length - 3} MÁS...</p>
+                      )}
+                    </div>
+                  )}
+
+                  {Array.isArray(bloque.etiquetas) && bloque.etiquetas.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {bloque.etiquetas.map((etiqueta, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2 py-1 border-2 border-black dark:border-gray-600 text-xs font-bold"
+                        >
+                          #{etiqueta.toUpperCase()}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex justify-between items-center mt-4">
+                    {esCreador(bloque) && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setModoEdicion(bloque._id);
+                            setMostrarModal(true);
+                          }}
+                          className="p-1 border-2 border-black dark:border-gray-600 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
+                          title="Editar bloque"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            eliminarBloque(bloque._id);
+                          }}
+                          className="p-1 border-2 border-black dark:border-gray-600 hover:bg-red-500 hover:bg-opacity-20"
+                          title="Eliminar bloque"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
-                    ) : (
-                      bloque.contenidoTexto && (
-                        <div className="mt-2">
-                          <p className="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-line">
-                            {bloque.contenidoTexto}
-                          </p>
-                        </div>
-                      )
                     )}
-
-                    {/* Etiquetas (compartidas para ambos tipos) */}
-                    {Array.isArray(bloque.etiquetas) && bloque.etiquetas.length > 0 && (
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {bloque.etiquetas.map((etiqueta, idx) => (
-                          <span
-                            key={idx}
-                            className="inline-block bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-xs px-2 py-0.5 rounded-full"
-                          >
-                            #{etiqueta}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-
                     {!esCreador(bloque) && bloque.creadoPor?.nombre && (
-                      <p className="text-xs text-blue-500 dark:text-blue-400 mt-2">
-                        Creado por: {bloque.creadoPor.nombre}
+                      <p className="text-xs">
+                        CREADO POR: {bloque.creadoPor.nombre.toUpperCase()}
                       </p>
                     )}
                   </div>
-                );
-              })}
-            </div>
-
-            {bloquesFiltrados.length === 0 && (
-              <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                {filtro ? 'No hay bloques con ese criterio' : 'No hay bloques disponibles'}
-              </div>
-            )}
+                </div>
+              );
+            })}
           </div>
 
-          {/* Panel de Asignación */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-              <h2 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Asignar a Planificación</h2>
+          {bloquesFiltrados.length === 0 && (
+            <div className="border-2 border-black dark:border-gray-600 p-8 text-center">
+              <p className="text-xl font-medium">
+                {filtro ? 'NO HAY BLOQUES CON ESE CRITERIO' : 'NO HAY BLOQUES DISPONIBLES'}
+              </p>
+            </div>
+          )}
+        </div>
 
-              <div className="space-y-4">
+        {/* Panel de Asignación */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-4 border-2 border-black dark:border-gray-600 p-6 bg-white dark:bg-black shadow-hard">
+            <h2 className="text-xl font-bold mb-6 border-b-2 border-black dark:border-gray-600 pb-2">
+              ASIGNAR A PLANIFICACIÓN
+            </h2>
+
+            <div className="space-y-6">
+              <div>
+                <label className="block text-lg font-bold mb-2">PLANIFICACIÓN</label>
+                <select
+                  className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none"
+                  value={planificacionSeleccionada || ''}
+                  onChange={(e) => setPlanificacionSeleccionada(e.target.value)}
+                >
+                  <option value="">SELECCIONA UNA PLANIFICACIÓN</option>
+                  {planificaciones.map(plan => (
+                    <option key={plan._id} value={plan._id}>
+                      {plan.titulo?.toUpperCase()} ({plan.tipo?.toUpperCase()})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Seleccionar Planificación
-                  </label>
+                  <label className="block text-lg font-bold mb-2">SEMANA</label>
                   <select
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                    value={planificacionSeleccionada || ''}
-                    onChange={(e) => setPlanificacionSeleccionada(e.target.value)}
+                    className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none"
+                    value={semanaSeleccionada}
+                    onChange={(e) => setSemanaSeleccionada(parseInt(e.target.value))}
                   >
-                    <option value="">Selecciona una planificación</option>
-                    {planificaciones.map(plan => (
-                      <option key={plan._id} value={plan._id}>
-                        {plan.titulo} ({plan.tipo}) - Creada por: {plan.creadoPor?.nombre || 'Desconocido'}
-                      </option>
+                    {[1, 2, 3, 4].map(num => (
+                      <option key={num} value={num}>SEMANA {num}</option>
                     ))}
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Semana
-                    </label>
-                    <select
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      value={semanaSeleccionada}
-                      onChange={(e) => setSemanaSeleccionada(parseInt(e.target.value))}
-                    >
-                      {[1, 2, 3, 4].map(num => (
-                        <option key={num} value={num}>Semana {num}</option>
-                      ))}
-                    </select>
-                  </div>
+                <div>
+                  <label className="block text-lg font-bold mb-2">DÍA</label>
+                  <select
+                    className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none"
+                    value={diaSeleccionado}
+                    onChange={(e) => setDiaSeleccionado(e.target.value)}
+                  >
+                    {['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'].map(dia => (
+                      <option key={dia} value={dia}>{dia}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Día
-                    </label>
-                    <select
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                      value={diaSeleccionado}
-                      onChange={(e) => setDiaSeleccionado(e.target.value)}
-                    >
-                      {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map(dia => (
-                        <option key={dia} value={dia}>{dia}</option>
+              {seleccionados.length > 0 && (
+                <div>
+                  <h3 className="text-lg font-bold mb-3">
+                    BLOQUES SELECCIONADOS ({seleccionados.length})
+                  </h3>
+                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                    {bloques
+                      .filter(b => b && seleccionados.includes(b._id))
+                      .map(bloque => (
+                        <div
+                          key={bloque._id}
+                          className="flex items-center justify-between p-3 border-2 border-black dark:border-gray-600"
+                        >
+                          <div>
+                            <p className="font-bold">{bloque.nombre?.toUpperCase()}</p>
+                            <p className="text-sm">
+                              {Array.isArray(bloque.ejercicios) ? bloque.ejercicios.length : 0} EJERCICIOS
+                            </p>
+                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleSeleccion(bloque._id);
+                            }}
+                            className="p-1 border-2 border-black dark:border-gray-600 hover:bg-red-500 hover:bg-opacity-20"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       ))}
-                    </select>
                   </div>
                 </div>
+              )}
 
-                {seleccionados.length > 0 && (
-                  <div>
-                    <h3 className="font-medium mb-2 text-gray-900 dark:text-white">
-                      Bloques seleccionados ({seleccionados.length})
-                    </h3>
-                    <div className="space-y-2 max-h-60 overflow-y-auto">
-                      {bloques
-                        .filter(b => b && seleccionados.includes(b._id))
-                        .map(bloque => (
-                          <div
-                            key={bloque._id}
-                            className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                          >
-                            <div>
-                              <p className="text-sm font-medium text-gray-900 dark:text-white">{bloque.nombre}</p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                {Array.isArray(bloque.ejercicios) ? bloque.ejercicios.length : 0} ejercicios
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => toggleSeleccion(bloque._id)}
-                              className="text-red-500 hover:text-red-700 dark:hover:text-red-400 p-1"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  onClick={asignarBloquesAPlanificacion}
-                  disabled={!planificacionSeleccionada || seleccionados.length === 0}
-                  className={`w-full mt-4 px-4 py-2 rounded-lg flex items-center justify-center gap-2 ${!planificacionSeleccionada || seleccionados.length === 0
-                    ? 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                    : 'bg-orange-600 hover:bg-orange-700 text-white'
-                    }`}
-                >
-                  <Check size={18} />
-                  Asignar Bloques
-                </button>
-              </div>
+              <button
+                onClick={asignarBloquesAPlanificacion}
+                disabled={!planificacionSeleccionada || seleccionados.length === 0}
+                className={`w-full mt-4 px-6 py-3 border-2 font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
+                  !planificacionSeleccionada || seleccionados.length === 0
+                    ? 'border-gray-400 text-gray-400 cursor-not-allowed'
+                    : 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <Check className="w-5 h-5" />
+                  <span>ASIGNAR BLOQUES</span>
+                </div>
+              </button>
             </div>
           </div>
         </div>
-
-        {/* Modal para crear/editar bloques */}
-        <Modal
-          isOpen={mostrarModal}
-          onClose={() => setMostrarModal(false)}
-          title={modoEdicion ? 'Editar Bloque' : 'Crear Nuevo Bloque'}
-        >
-          <FormularioBloque
-            bloque={modoEdicion ? bloques.find(b => b._id === modoEdicion) : null}
-            onSubmit={modoEdicion ? actualizarBloque : crearBloque}
-            onCancel={() => setMostrarModal(false)}
-            onDelete={modoEdicion ? () => {
-              eliminarBloque(modoEdicion);
-              setMostrarModal(false);
-            } : null}
-            isSubmitting={creandoBloque}
-          />
-        </Modal>
-
-        {/* Notificación centrada */}
-        {notificacion.mostrar && (
-          <Notificacion
-            tipo={notificacion.tipo}
-            titulo={notificacion.titulo}
-            mensaje={notificacion.mensaje}
-            tiempo={notificacion.tiempo}
-            onClose={() => setNotificacion(prev => ({ ...prev, mostrar: false }))}
-            mostrarBarra={notificacion.tiempo > 0}
-          />
-        )}
       </div>
+
+      {/* Modal para crear/editar bloques */}
+      <Modal
+        isOpen={mostrarModal}
+        onClose={() => setMostrarModal(false)}
+        title={modoEdicion ? 'EDITAR BLOQUE' : 'CREAR NUEVO BLOQUE'}
+      >
+        <FormularioBloque
+          bloque={modoEdicion ? bloques.find(b => b._id === modoEdicion) : null}
+          onSubmit={modoEdicion ? actualizarBloque : crearBloque}
+          onCancel={() => setMostrarModal(false)}
+          onDelete={modoEdicion ? () => {
+            eliminarBloque(modoEdicion);
+            setMostrarModal(false);
+          } : null}
+          isSubmitting={creandoBloque}
+        />
+      </Modal>
+
+      {/* Notificación */}
+      {notificacion.mostrar && (
+        <Notificacion
+          tipo={notificacion.tipo}
+          titulo={notificacion.titulo}
+          mensaje={notificacion.mensaje}
+          tiempo={notificacion.tiempo}
+          onClose={() => setNotificacion(prev => ({ ...prev, mostrar: false }))}
+        />
+      )}
+    </div>
     </ErrorBoundary>
   );
 };

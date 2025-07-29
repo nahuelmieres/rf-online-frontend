@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Dumbbell, Calendar, AlertTriangle, Loader2, Plus, Zap, ZapOff, Coffee, MessageSquare, Edit2, Trash2, Send, Check, X, User } from 'lucide-react';
 import Loader from '../../components/Loader';
+import Notificacion from '../../components/Notificacion';
 
 // Función para formatear fechas
 const formatDate = (dateString) => {
@@ -31,6 +32,11 @@ const PerfilUsuario = () => {
     const [editandoTexto, setEditandoTexto] = useState('');
     const [editandoRespuesta, setEditandoRespuesta] = useState(null);
     const [textoEditandoRespuesta, setTextoEditandoRespuesta] = useState('');
+    const [notificacion, setNotificacion] = useState({
+        mostrar: false,
+        tipo: 'success',
+        mensaje: ''
+    });
     const navigate = useNavigate();
 
     // Función para cargar comentarios
@@ -50,7 +56,7 @@ const PerfilUsuario = () => {
                 }
             );
 
-            if (!res.ok) throw new Error('Error al obtener comentarios');
+            if (!res.ok) throw new Error('ERROR AL OBTENER COMENTARIOS');
 
             const { data } = await res.json();
             const comentariosData = {};
@@ -65,6 +71,15 @@ const PerfilUsuario = () => {
             console.error('Error cargando comentarios:', err);
             return {};
         }
+    };
+
+    const mostrarNotificacion = (tipo, mensaje) => {
+        setNotificacion({
+            mostrar: true,
+            tipo,
+            mensaje
+        });
+        setTimeout(() => setNotificacion(prev => ({ ...prev, mostrar: false })), 5000);
     };
 
     useEffect(() => {
@@ -90,12 +105,12 @@ const PerfilUsuario = () => {
 
                 if (!userRes.ok) {
                     const errorData = await userRes.json().catch(() => ({}));
-                    throw new Error(errorData.message || 'Error al cargar usuario');
+                    throw new Error(errorData.message || 'ERROR AL CARGAR USUARIO');
                 }
 
                 const userData = await userRes.json();
                 if (!userData.data?.usuarios?.length) {
-                    throw new Error('Usuario no encontrado');
+                    throw new Error('USUARIO NO ENCONTRADO');
                 }
 
                 const targetUser = userData.data.usuarios[0];
@@ -112,7 +127,7 @@ const PerfilUsuario = () => {
 
                     if (!planRes.ok) {
                         const errorData = await planRes.json().catch(() => ({}));
-                        throw new Error(errorData.message || 'Error al cargar planificación');
+                        throw new Error(errorData.message || 'ERROR AL CARGAR PLANIFICACIÓN');
                     }
 
                     const planData = await planRes.json();
@@ -125,6 +140,7 @@ const PerfilUsuario = () => {
             } catch (err) {
                 console.error('Error cargando perfil:', err);
                 setError(err.message);
+                mostrarNotificacion('error', err.message);
                 if (err.message.includes('no encontrado') || err.message.includes('inválido')) {
                     navigate('/gestion/usuarios', { replace: true });
                 }
@@ -169,9 +185,11 @@ const PerfilUsuario = () => {
                         delete nuevos[key];
                         return nuevos;
                     });
+                    mostrarNotificacion('success', 'COMENTARIO ENVIADO');
                 }
             } catch (err) {
                 console.error('Error al crear comentario:', err);
+                mostrarNotificacion('error', 'ERROR AL ENVIAR COMENTARIO');
             }
         };
     };
@@ -201,9 +219,11 @@ const PerfilUsuario = () => {
                 }));
                 setEditandoComentario(null);
                 setEditandoTexto('');
+                mostrarNotificacion('success', 'COMENTARIO ACTUALIZADO');
             }
         } catch (err) {
             console.error('Error al editar comentario:', err);
+            mostrarNotificacion('error', 'ERROR AL ACTUALIZAR COMENTARIO');
         }
     };
 
@@ -226,9 +246,11 @@ const PerfilUsuario = () => {
                     delete nuevos[key];
                     return nuevos;
                 });
+                mostrarNotificacion('success', 'COMENTARIO ELIMINADO');
             }
         } catch (err) {
             console.error('Error al eliminar comentario:', err);
+            mostrarNotificacion('error', 'ERROR AL ELIMINAR COMENTARIO');
         }
     };
 
@@ -260,9 +282,11 @@ const PerfilUsuario = () => {
                         delete nuevos[comentarioId];
                         return nuevos;
                     });
+                    mostrarNotificacion('success', 'RESPUESTA ENVIADA');
                 }
             } catch (err) {
                 console.error('Error al responder comentario:', err);
+                mostrarNotificacion('error', 'ERROR AL ENVIAR RESPUESTA');
             }
         };
     };
@@ -292,9 +316,11 @@ const PerfilUsuario = () => {
                 }));
                 setEditandoRespuesta(null);
                 setTextoEditandoRespuesta('');
+                mostrarNotificacion('success', 'RESPUESTA ACTUALIZADA');
             }
         } catch (err) {
             console.error('Error al editar respuesta:', err);
+            mostrarNotificacion('error', 'ERROR AL ACTUALIZAR RESPUESTA');
         }
     };
 
@@ -322,32 +348,34 @@ const PerfilUsuario = () => {
                     ...prev,
                     [key]: comentarioActualizado
                 }));
+                mostrarNotificacion('success', 'RESPUESTA ELIMINADA');
             }
         } catch (err) {
             console.error('Error al eliminar respuesta:', err);
+            mostrarNotificacion('error', 'ERROR AL ELIMINAR RESPUESTA');
         }
     };
 
     if (authLoading || cargando) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <Loader />
+            <div className="flex flex-col items-center justify-center min-h-[300px]">
+                <Loader2 className="w-8 h-8 text-primary-light dark:text-primary-dark animate-spin" />
+                <p className="mt-4 text-lg font-medium">CARGANDO DATOS...</p>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="text-center mt-8">
-                <div className="inline-flex items-center gap-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 px-4 py-2 rounded">
-                    <X size={18} />
-                    <span>{error}</span>
-                </div>
+            <div className="max-w-6xl mx-auto border-2 border-black dark:border-gray-600 bg-white dark:bg-black p-8 text-center">
+                <X className="mx-auto w-12 h-12 text-red-500 mb-4" />
+                <h2 className="text-2xl font-bold text-red-500 mb-4">ERROR</h2>
+                <p className="text-lg mb-6">{error}</p>
                 <button
                     onClick={() => window.location.reload()}
-                    className="mt-4 text-orange-600 dark:text-orange-400 hover:underline"
+                    className="px-6 py-3 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
                 >
-                    Recargar página
+                    RECARGAR PÁGINA
                 </button>
             </div>
         );
@@ -355,8 +383,15 @@ const PerfilUsuario = () => {
 
     if (!usuario) {
         return (
-            <div className="text-center mt-8">
-                <p className="text-gray-600 dark:text-gray-400">No se encontraron datos del usuario</p>
+            <div className="max-w-6xl mx-auto border-2 border-black dark:border-gray-600 bg-white dark:bg-black p-8 text-center">
+                <AlertTriangle className="mx-auto w-12 h-12 text-yellow-500 mb-4" />
+                <h2 className="text-2xl font-bold mb-4">NO SE ENCONTRARON DATOS DEL USUARIO</h2>
+                <button
+                    onClick={() => navigate('/gestion/usuarios')}
+                    className="px-6 py-3 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+                >
+                    VOLVER A GESTIÓN DE USUARIOS
+                </button>
             </div>
         );
     }
@@ -364,120 +399,134 @@ const PerfilUsuario = () => {
     const esEntrenador = currentUser?.rol === 'admin' || currentUser?.rol === 'coach';
 
     return (
-        <div className="max-w-6xl mx-auto p-6">
-            {/* Sección de información del usuario */}
-            <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
-                <div className="flex items-start justify-between">
-                    <div>
-                        <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">
-                            <User className="inline-block mr-2" size={20} />
-                            Información del Usuario
-                        </h2>
+        <div className="max-w-6xl mx-auto border-2 border-black dark:border-gray-600 bg-white dark:bg-black shadow-hard p-6 md:p-8">
+            {notificacion.mostrar && (
+                <Notificacion
+                    tipo={notificacion.tipo}
+                    mensaje={notificacion.mensaje}
+                    onClose={() => setNotificacion(prev => ({ ...prev, mostrar: false }))}
+                />
+            )}
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <p className="text-gray-600 dark:text-gray-300">Nombre:</p>
-                                <p className="text-gray-800 dark:text-white font-medium">{usuario.nombre}</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-600 dark:text-gray-300">Email:</p>
-                                <p className="text-gray-800 dark:text-white font-medium">{usuario.email}</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-600 dark:text-gray-300">Rol:</p>
-                                <p className="text-gray-800 dark:text-white font-medium capitalize">{usuario.rol}</p>
-                            </div>
-                            <div>
-                                <p className="text-gray-600 dark:text-gray-300">Estado de pago:</p>
-                                <div className="flex items-center gap-1">
-                                    {usuario.estadoPago ? (
-                                        <Check className="text-green-500 dark:text-green-400" size={18} />
-                                    ) : (
-                                        <X className="text-red-500 dark:text-red-400" size={18} />
-                                    )}
-                                    <span className="text-gray-800 dark:text-white font-medium">
-                                        {usuario.estadoPago ? 'Activo' : 'Inactivo'}
-                                    </span>
-                                </div>
-                            </div>
+            {/* Sección de información del usuario */}
+            <div className="border-2 border-black dark:border-gray-600 p-6 mb-8">
+                <div className="flex items-start justify-between border-b-2 border-black dark:border-gray-600 pb-4 mb-4">
+                    <div className="flex items-center gap-4">
+                        <div className="bg-black dark:bg-white p-3 border-2 border-black dark:border-gray-600">
+                            <User className="w-6 h-6 text-white dark:text-black" />
                         </div>
+                        <h2 className="text-2xl font-extrabold tracking-tight">
+                            INFORMACIÓN DEL USUARIO
+                        </h2>
                     </div>
 
                     {currentUser?.id === usuario._id && (
-                        <span className="text-sm font-normal bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
-                            Tú
+                        <span className="px-3 py-1 border-2 border-black dark:border-gray-600 text-sm font-bold">
+                            TÚ
                         </span>
                     )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <p className="text-lg font-bold mb-1">NOMBRE:</p>
+                        <p className="text-xl">{usuario.nombre?.toUpperCase()}</p>
+                    </div>
+                    <div>
+                        <p className="text-lg font-bold mb-1">EMAIL:</p>
+                        <p className="text-xl">{usuario.email}</p>
+                    </div>
+                    <div>
+                        <p className="text-lg font-bold mb-1">ROL:</p>
+                        <p className="text-xl capitalize">{usuario.rol}</p>
+                    </div>
+                    <div>
+                        <p className="text-lg font-bold mb-1">ESTADO DE PAGO:</p>
+                        <div className="flex items-center gap-2">
+                            {usuario.estadoPago ? (
+                                <Check className="text-green-500" size={20} />
+                            ) : (
+                                <X className="text-red-500" size={20} />
+                            )}
+                            <span className="text-xl">
+                                {usuario.estadoPago ? 'ACTIVO' : 'INACTIVO'}
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {/* Sección de planificación */}
-            <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
-                <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white">
-                    <Dumbbell className="inline-block mr-2" size={20} />
-                    Planificación Asignada
-                </h2>
+            <div className="border-2 border-black dark:border-gray-600 p-6">
+                <div className="flex items-center gap-4 border-b-2 border-black dark:border-gray-600 pb-4 mb-6">
+                    <div className="bg-black dark:bg-white p-3 border-2 border-black dark:border-gray-600">
+                        <Dumbbell className="w-6 h-6 text-white dark:text-black" />
+                    </div>
+                    <h2 className="text-2xl font-extrabold tracking-tight">
+                        PLANIFICACIÓN ASIGNADA
+                    </h2>
+                </div>
 
                 {planificacion ? (
                     <div>
-                        <div className="mb-4">
-                            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                                {planificacion.titulo} ({planificacion.tipo})
+                        <div className="mb-6">
+                            <h3 className="text-xl font-bold mb-2">
+                                {planificacion.titulo?.toUpperCase()} ({planificacion.tipo?.toUpperCase()})
                             </h3>
-                            <p className="text-gray-600 dark:text-gray-300">{planificacion.descripcion}</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                                <span className="font-medium">Creada por:</span> {planificacion.creadoPor?.nombre || 'Desconocido'}
-                                ({planificacion.creadoPor?.rol || 'Sin rol'})
+                            <p className="text-lg mb-4">{planificacion.descripcion}</p>
+                            <p className="text-sm">
+                                <span className="font-bold">CREADA POR:</span> {planificacion.creadoPor?.nombre?.toUpperCase() || 'DESCONOCIDO'}
+                                ({planificacion.creadoPor?.rol?.toUpperCase() || 'SIN ROL'})
                             </p>
                         </div>
 
-                        <div className="border-t pt-4">
-                            <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Resumen:
+                        <div className="border-t-2 border-black dark:border-gray-600 pt-6 mb-8">
+                            <h4 className="text-xl font-bold mb-4">
+                                RESUMEN:
                             </h4>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded">
-                                    <p className="text-gray-500 dark:text-gray-400">Semanas</p>
-                                    <p className="font-medium">{planificacion.totalSemanas || 0}</p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div className="border-2 border-black dark:border-gray-600 p-4">
+                                    <p className="text-sm font-bold">SEMANAS</p>
+                                    <p className="text-2xl font-bold">{planificacion.totalSemanas || 0}</p>
                                 </div>
-                                <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded">
-                                    <p className="text-gray-500 dark:text-gray-400">Días</p>
-                                    <p className="font-medium">{planificacion.totalDias || 0}</p>
+                                <div className="border-2 border-black dark:border-gray-600 p-4">
+                                    <p className="text-sm font-bold">DÍAS</p>
+                                    <p className="text-2xl font-bold">{planificacion.totalDias || 0}</p>
                                 </div>
-                                <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded">
-                                    <p className="text-gray-500 dark:text-gray-400">Bloques</p>
-                                    <p className="font-medium">{planificacion.totalBloques || 0}</p>
+                                <div className="border-2 border-black dark:border-gray-600 p-4">
+                                    <p className="text-sm font-bold">BLOQUES</p>
+                                    <p className="text-2xl font-bold">{planificacion.totalBloques || 0}</p>
                                 </div>
-                                <div className="bg-gray-100 dark:bg-gray-700 p-3 rounded">
-                                    <p className="text-gray-500 dark:text-gray-400">Descansos</p>
-                                    <p className="font-medium">{planificacion.totalDescansos || 0}</p>
+                                <div className="border-2 border-black dark:border-gray-600 p-4">
+                                    <p className="text-sm font-bold">DESCANSOS</p>
+                                    <p className="text-2xl font-bold">{planificacion.totalDescansos || 0}</p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Detalle de la planificación con comentarios */}
-                        <div className="mt-8 space-y-8">
+                        <div className="space-y-8">
                             {planificacion.semanas?.map((semana) => (
-                                <div key={semana.numero} className="card p-6">
-                                    <h4 className="text-lg font-medium text-gray-800 dark:text-white mb-6">
-                                        Semana {semana.numero}
+                                <div key={semana.numero} className="border-2 border-black dark:border-gray-600 p-6">
+                                    <h4 className="text-xl font-bold mb-6">
+                                        SEMANA {semana.numero}
                                     </h4>
 
-                                    <div className="space-y-6">
+                                    <div className="space-y-8">
                                         {semana.dias?.map((dia) => {
                                             const comentarioKey = `${semana.numero}-${dia.nombre}`;
                                             const comentario = comentarios[comentarioKey];
 
                                             return (
-                                                <div key={dia._id} className="border-b pb-6 last:border-b-0 last:pb-0">
-                                                    <div className="flex items-center gap-3 mb-3">
-                                                        <h5 className="text-md font-medium text-gray-800 dark:text-white">
-                                                            {dia.nombre}
+                                                <div key={dia._id} className="border-b-2 border-black dark:border-gray-600 pb-6 last:border-b-0 last:pb-0">
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <h5 className="text-lg font-bold">
+                                                            {dia.nombre?.toUpperCase()}
                                                         </h5>
                                                         {dia.descanso && (
-                                                            <span className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                                                            <span className="flex items-center gap-2 px-3 py-1 border-2 border-black dark:border-gray-600 text-sm font-bold">
                                                                 <Coffee className="w-4 h-4" />
-                                                                Día de descanso
+                                                                DÍA DE DESCANSO
                                                             </span>
                                                         )}
                                                     </div>
@@ -485,31 +534,31 @@ const PerfilUsuario = () => {
                                                     {!dia.descanso && dia.bloquesPoblados?.length > 0 ? (
                                                         <div className="space-y-4">
                                                             {dia.bloquesPoblados.map((bloque) => (
-                                                                <div key={bloque._id} className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                                                                    <div className="flex items-center gap-2 mb-2">
-                                                                        <Zap className="w-4 h-4 text-orange-500 dark:text-orange-400" />
-                                                                        <span className="font-medium text-orange-500 dark:text-orange-400">
-                                                                            {bloque.tipo === 'ejercicios' ? 'Rutina de ejercicios' : 'Notas'}
+                                                                <div key={bloque._id} className="border-2 border-black dark:border-gray-600 p-4">
+                                                                    <div className="flex items-center gap-2 mb-3">
+                                                                        <Zap className="w-5 h-5 text-orange-500" />
+                                                                        <span className="font-bold text-orange-500">
+                                                                            {bloque.tipo === 'ejercicios' ? 'RUTINA DE EJERCICIOS' : 'NOTAS'}
                                                                         </span>
                                                                     </div>
 
                                                                     {bloque.tipo === 'ejercicios' ? (
                                                                         <div className="space-y-3">
                                                                             {bloque.ejercicios?.map((ejercicio, index) => (
-                                                                                <div key={index} className="p-3 bg-white dark:bg-gray-700 rounded">
-                                                                                    <div className="flex items-start gap-3">
+                                                                                <div key={index} className="p-3 border-2 border-black dark:border-gray-600">
+                                                                                    <div className="flex items-start gap-4">
                                                                                         <div className="flex-1">
-                                                                                            <h6 className="font-medium text-gray-800 dark:text-white">{ejercicio.nombre}</h6>
+                                                                                            <h6 className="font-bold">{ejercicio.nombre?.toUpperCase()}</h6>
                                                                                             <div className="flex flex-wrap gap-4 mt-2">
-                                                                                                <span className="text-sm text-gray-600 dark:text-gray-300">
-                                                                                                    Series: {ejercicio.series}
+                                                                                                <span className="text-sm font-bold">
+                                                                                                    SERIES: {ejercicio.series}
                                                                                                 </span>
-                                                                                                <span className="text-sm text-gray-600 dark:text-gray-300">
-                                                                                                    Reps: {ejercicio.repeticiones}
+                                                                                                <span className="text-sm font-bold">
+                                                                                                    REPS: {ejercicio.repeticiones}
                                                                                                 </span>
                                                                                                 {ejercicio.peso && (
-                                                                                                    <span className="text-sm text-gray-600 dark:text-gray-300">
-                                                                                                        Peso: {ejercicio.peso}
+                                                                                                    <span className="text-sm font-bold">
+                                                                                                        PESO: {ejercicio.peso}
                                                                                                     </span>
                                                                                                 )}
                                                                                             </div>
@@ -532,7 +581,7 @@ const PerfilUsuario = () => {
                                                                             ))}
                                                                         </div>
                                                                     ) : (
-                                                                        <p className="text-gray-600 dark:text-gray-300 whitespace-pre-line">
+                                                                        <p className="whitespace-pre-line">
                                                                             {bloque.contenidoTexto}
                                                                         </p>
                                                                     )}
@@ -540,16 +589,16 @@ const PerfilUsuario = () => {
                                                             ))}
                                                         </div>
                                                     ) : !dia.descanso ? (
-                                                        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                                                            <ZapOff className="w-4 h-4" />
-                                                            <span>No hay ejercicios asignados</span>
+                                                        <div className="flex items-center gap-2 px-3 py-2 border-2 border-black dark:border-gray-600">
+                                                            <ZapOff className="w-5 h-5" />
+                                                            <span className="font-bold">NO HAY EJERCICIOS ASIGNADOS</span>
                                                         </div>
                                                     ) : null}
 
                                                     <div className="mt-6">
                                                         <div className="flex items-center gap-2 mb-3">
-                                                            <MessageSquare className="w-4 h-4 text-gray-500 dark:text-gray-400" />
-                                                            <h6 className="text-sm font-medium text-gray-700 dark:text-gray-300">Comentarios</h6>
+                                                            <MessageSquare className="w-5 h-5" />
+                                                            <h6 className="font-bold">COMENTARIOS</h6>
                                                         </div>
 
                                                         {editandoComentario?.dia === dia.nombre && editandoComentario?.semana === semana.numero ? (
@@ -557,33 +606,33 @@ const PerfilUsuario = () => {
                                                                 <textarea
                                                                     value={editandoTexto}
                                                                     onChange={(e) => setEditandoTexto(e.target.value)}
-                                                                    className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-gray-200"
+                                                                    className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black focus:outline-none"
                                                                     rows="3"
-                                                                    placeholder="Escribe tu comentario..."
+                                                                    placeholder="ESCRIBE TU COMENTARIO..."
                                                                 />
-                                                                <div className="flex gap-2">
+                                                                <div className="flex gap-3">
                                                                     <button
                                                                         onClick={manejarEditarComentario}
-                                                                        className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition"
+                                                                        className="px-6 py-2 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
                                                                     >
-                                                                        Guardar
+                                                                        GUARDAR
                                                                     </button>
                                                                     <button
                                                                         onClick={() => setEditandoComentario(null)}
-                                                                        className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition"
+                                                                        className="px-6 py-2 border-2 border-black dark:border-gray-600 font-bold hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5 transition-all"
                                                                     >
-                                                                        Cancelar
+                                                                        CANCELAR
                                                                     </button>
                                                                 </div>
                                                             </div>
                                                         ) : comentario ? (
-                                                            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                                                                <div className="flex justify-between items-start mb-2">
+                                                            <div className="border-2 border-black dark:border-gray-600 p-4">
+                                                                <div className="flex justify-between items-start mb-3">
                                                                     <div className="flex-1">
-                                                                        <p className="text-gray-800 dark:text-gray-200 whitespace-pre-line">
+                                                                        <p className="whitespace-pre-line">
                                                                             {comentario.texto}
                                                                         </p>
-                                                                        <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                                        <div className="mt-2 text-sm">
                                                                             {formatDate(comentario.fechaCreacion)}
                                                                         </div>
                                                                     </div>
@@ -594,14 +643,14 @@ const PerfilUsuario = () => {
                                                                                     setEditandoComentario(comentario);
                                                                                     setEditandoTexto(comentario.texto);
                                                                                 }}
-                                                                                className="text-gray-500 hover:text-orange-500 dark:hover:text-orange-400 transition-colors"
+                                                                                className="p-1 border-2 border-black dark:border-gray-600 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
                                                                                 title="Editar comentario"
                                                                             >
                                                                                 <Edit2 className="w-5 h-5" />
                                                                             </button>
                                                                             <button
                                                                                 onClick={() => manejarEliminarComentario(comentario._id, semana.numero, dia.nombre)}
-                                                                                className="text-gray-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                                                                                className="p-1 border-2 border-black dark:border-gray-600 hover:bg-red-500 hover:bg-opacity-20"
                                                                                 title="Eliminar comentario"
                                                                             >
                                                                                 <Trash2 className="w-5 h-5" />
@@ -611,14 +660,14 @@ const PerfilUsuario = () => {
                                                                 </div>
 
                                                                 {comentario.respuesta && (
-                                                                    <div className="mt-4 pl-4 border-l-2 border-orange-500 dark:border-orange-400">
+                                                                    <div className="mt-4 pl-4 border-l-4 border-orange-500">
                                                                         <div className="flex justify-between items-start mb-2">
                                                                             <div>
                                                                                 <div className="flex items-center gap-2 mb-1">
-                                                                                    <span className="text-xs font-medium text-orange-500 dark:text-orange-400">
-                                                                                        {comentario.respuesta.autor?.nombre || currentUser.nombre}:
+                                                                                    <span className="text-sm font-bold text-orange-500">
+                                                                                        {comentario.respuesta.autor?.nombre?.toUpperCase() || currentUser.nombre?.toUpperCase()}:
                                                                                     </span>
-                                                                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                                                                    <span className="text-sm">
                                                                                         {formatDate(comentario.respuesta.fecha)}
                                                                                     </span>
                                                                                 </div>
@@ -628,31 +677,31 @@ const PerfilUsuario = () => {
                                                                                         <textarea
                                                                                             value={textoEditandoRespuesta}
                                                                                             onChange={(e) => setTextoEditandoRespuesta(e.target.value)}
-                                                                                            className="w-full p-2 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-gray-200"
+                                                                                            className="w-full p-2 border-2 border-black dark:border-gray-600 bg-white dark:bg-black focus:outline-none"
                                                                                             rows="2"
                                                                                         />
                                                                                         <div className="flex gap-2 mt-2">
                                                                                             <button
                                                                                                 onClick={manejarEditarRespuesta}
-                                                                                                className="px-3 py-1 text-xs bg-orange-500 text-white rounded"
+                                                                                                className="px-4 py-1 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold text-sm"
                                                                                             >
-                                                                                                Guardar
+                                                                                                GUARDAR
                                                                                             </button>
                                                                                             <button
                                                                                                 onClick={() => setEditandoRespuesta(null)}
-                                                                                                className="px-3 py-1 text-xs bg-gray-200 dark:bg-gray-600 rounded"
+                                                                                                className="px-4 py-1 border-2 border-black dark:border-gray-600 font-bold text-sm"
                                                                                             >
-                                                                                                Cancelar
+                                                                                                CANCELAR
                                                                                             </button>
                                                                                         </div>
                                                                                     </div>
                                                                                 ) : (
                                                                                     <>
-                                                                                        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                                                                                        <p className="whitespace-pre-line">
                                                                                             {comentario.respuesta.texto}
                                                                                         </p>
                                                                                         {esEntrenador && comentario.respuesta.autor?._id === currentUser?.id && (
-                                                                                            <div className="flex gap-2 mt-2">
+                                                                                            <div className="flex gap-3 mt-2">
                                                                                                 <button
                                                                                                     onClick={() => {
                                                                                                         setEditandoRespuesta({
@@ -661,15 +710,15 @@ const PerfilUsuario = () => {
                                                                                                         });
                                                                                                         setTextoEditandoRespuesta(comentario.respuesta.texto);
                                                                                                     }}
-                                                                                                    className="text-xs text-gray-500 hover:text-orange-500 dark:hover:text-orange-400 flex items-center gap-1"
+                                                                                                    className="text-sm font-bold flex items-center gap-1 px-2 py-1 border-2 border-black dark:border-gray-600 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
                                                                                                 >
-                                                                                                    <Edit2 size={14} /> Editar
+                                                                                                    <Edit2 size={14} /> EDITAR
                                                                                                 </button>
                                                                                                 <button
                                                                                                     onClick={() => manejarEliminarRespuesta(comentario._id, semana.numero, dia.nombre)}
-                                                                                                    className="text-xs text-gray-500 hover:text-red-500 dark:hover:text-red-400 flex items-center gap-1"
+                                                                                                    className="text-sm font-bold flex items-center gap-1 px-2 py-1 border-2 border-black dark:border-gray-600 hover:bg-red-500 hover:bg-opacity-20"
                                                                                                 >
-                                                                                                    <Trash2 size={14} /> Eliminar
+                                                                                                    <Trash2 size={14} /> ELIMINAR
                                                                                                 </button>
                                                                                             </div>
                                                                                         )}
@@ -689,17 +738,17 @@ const PerfilUsuario = () => {
                                                                                 ...prev,
                                                                                 [comentario._id]: e.target.value
                                                                             }))}
-                                                                            className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-gray-200"
+                                                                            className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black focus:outline-none"
                                                                             rows="2"
-                                                                            placeholder="Escribe tu respuesta como entrenador..."
+                                                                            placeholder="ESCRIBE TU RESPUESTA COMO ENTRENADOR..."
                                                                         />
                                                                         <button
                                                                             onClick={manejarResponderComentario(comentario._id, semana.numero, dia.nombre)}
                                                                             disabled={!respuestas[comentario._id]?.trim()}
-                                                                            className="mt-2 flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                            className="mt-2 flex items-center gap-2 px-6 py-2 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                                                         >
-                                                                            <Send className="w-4 h-4" />
-                                                                            <span>Enviar respuesta</span>
+                                                                            <Send className="w-5 h-5" />
+                                                                            <span>ENVIAR RESPUESTA</span>
                                                                         </button>
                                                                     </div>
                                                                 )}
@@ -712,17 +761,17 @@ const PerfilUsuario = () => {
                                                                         ...prev,
                                                                         [comentarioKey]: e.target.value
                                                                     }))}
-                                                                    className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 text-gray-800 dark:text-gray-200"
+                                                                    className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black focus:outline-none"
                                                                     rows="3"
-                                                                    placeholder="Escribe un comentario sobre este día..."
+                                                                    placeholder="ESCRIBE UN COMENTARIO SOBRE ESTE DÍA..."
                                                                 />
                                                                 <button
                                                                     type="submit"
                                                                     disabled={!nuevosComentarios[comentarioKey]?.trim()}
-                                                                    className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                    className="flex items-center gap-2 px-6 py-2 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                                                 >
-                                                                    <Send className="w-4 h-4" />
-                                                                    <span>Enviar comentario</span>
+                                                                    <Send className="w-5 h-5" />
+                                                                    <span>ENVIAR COMENTARIO</span>
                                                                 </button>
                                                             </form>
                                                         )}
@@ -736,9 +785,9 @@ const PerfilUsuario = () => {
                         </div>
                     </div>
                 ) : (
-                    <p className="text-gray-500 dark:text-gray-400">
-                        Este usuario no tiene una planificación asignada.
-                    </p>
+                    <div className="border-2 border-black dark:border-gray-600 p-6 text-center">
+                        <p className="text-lg font-bold">ESTE USUARIO NO TIENE UNA PLANIFICACIÓN ASIGNADA.</p>
+                    </div>
                 )}
             </div>
         </div>
