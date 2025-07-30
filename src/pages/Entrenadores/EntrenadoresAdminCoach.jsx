@@ -478,7 +478,6 @@ const EntrenadoresAdminCoach = () => {
           }
 
           const result = await response.json();
-          console.log('Bloque asignado:', result);
           asignacionesExitosas++;
         } catch (error) {
           console.error(`Error asignando bloque ${bloqueId}:`, error);
@@ -756,8 +755,8 @@ const EntrenadoresAdminCoach = () => {
                     value={diaSeleccionado}
                     onChange={(e) => setDiaSeleccionado(e.target.value)}
                   >
-                    {['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES', 'SÁBADO', 'DOMINGO'].map(dia => (
-                      <option key={dia} value={dia}>{dia}</option>
+                    {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map(dia => (
+                      <option key={dia} value={dia}>{dia.toUpperCase()}</option>
                     ))}
                   </select>
                 </div>

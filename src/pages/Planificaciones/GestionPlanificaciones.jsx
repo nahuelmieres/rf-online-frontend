@@ -84,7 +84,7 @@ const GestionPlanificaciones = () => {
         throw new Error(errorData.message || 'Error al asignar planificación');
       }
 
-      mostrarNotificacion('exito', 'PLANIFICACIÓN ASIGNADA CORRECTAMENTE');
+      mostrarNotificacion('success', 'PLANIFICACIÓN ASIGNADA CORRECTAMENTE');
       await obtenerDatos();
     } catch (err) {
       console.error('Error al asignar planificación:', err);
