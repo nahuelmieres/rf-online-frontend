@@ -12,7 +12,8 @@ const CrearPlanificacion = () => {
     descripcion: '',
     tipo: 'fuerza',
     cantidadSemanas: 2,
-    diasPorSemana: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
+    diasPorSemana: ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'],
+    categoria: 'basica',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notificacion, setNotificacion] = useState(null);
@@ -176,6 +177,23 @@ const CrearPlanificacion = () => {
                 <option value="hibrido">HÍBRIDO</option>
                 <option value="gap">GAP (GLÚTEOS, ABDOMEN, PIERNAS)</option>
               </select>
+            </div>
+
+            <div>
+              <label htmlFor="categoria" className="block text-lg font-bold mb-2">
+                CATEGORÍA (OPCIONAL)
+              </label>
+              <select
+                id="categoria"
+                name="categoria" 
+                value={formData.categoria}
+                onChange={(e) => setFormData({...formData, categoria: e.target.value})}
+                className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none"
+                required
+              >
+                <option value="basica">BÁSICA</option>
+                <option value="personalizada">PERSONALIZADA</option>
+                </select>
             </div>
 
             <div>

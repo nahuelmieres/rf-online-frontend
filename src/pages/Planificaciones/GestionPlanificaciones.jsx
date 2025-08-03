@@ -27,7 +27,7 @@ const GestionPlanificaciones = () => {
             'Accept': 'application/json'
           }
         }),
-        fetch('/api/planificaciones', {
+        fetch('/api/planificaciones?categoria=personalizada', {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('token')}`,
             'Accept': 'application/json'
@@ -45,8 +45,8 @@ const GestionPlanificaciones = () => {
 
       // Ordenar usuarios: primero los sin planificación
       const usuariosOrdenados = (dataUsuarios.data?.usuarios || []).sort((a, b) => {
-        if (!a.planificacion && b.planificacion) return -1;
-        if (a.planificacion && !b.planificacion) return 1;
+        if (!a.planPersonalizado && b.planPersonalizado) return -1;
+        if (a.planPersonalizado && !b.planPersonalizado) return 1;
         return 0;
       });
 
@@ -70,6 +70,7 @@ const GestionPlanificaciones = () => {
 
       setAsignando(true);
 
+      console.log(`Asignando planificación ${planSeleccionada} al usuario ${idUsuario}`);
       const res = await fetch(`/api/usuarios/asignar-plan/${idUsuario}/planificacion/${planSeleccionada}`, {
         method: 'PUT',
         headers: {
@@ -111,7 +112,7 @@ const GestionPlanificaciones = () => {
     return (
       user.nombre.toLowerCase().includes(searchTerm) ||
       user.email.toLowerCase().includes(searchTerm) ||
-      obtenerNombrePlanificacion(user.planificacion).toLowerCase().includes(searchTerm)
+      obtenerNombrePlanificacion(user.planPersonalizado).toLowerCase().includes(searchTerm)
     );
   });
 
@@ -158,7 +159,7 @@ const GestionPlanificaciones = () => {
       <div className="flex items-center justify-between mb-8 border-b-2 border-black dark:border-gray-600 pb-6">
         <div className="flex items-center gap-4">
           <h1 className="text-3xl font-extrabold tracking-tight">
-            ASIGNAR PLANIFICACIONES
+            ASIGNAR PLANIFICACIONES PERSONALIZADAS
           </h1>
           {usuario?.rol === 'admin' && (
             <span className="px-3 py-1 border-2 border-black dark:border-gray-600 text-sm font-bold">
@@ -244,15 +245,15 @@ const GestionPlanificaciones = () => {
                 </td>
                 <td className="px-4 py-3">{usuario.email}</td>
                 <td className="px-4 py-3">
-                  {usuario.planificacion ? (
+                  {usuario.planPersonalizado ? (
                     <span className="inline-flex items-center gap-1">
                       <Check className="text-green-500" size={16} />
                       <span>
-                        {obtenerNombrePlanificacion(usuario.planificacion)}
+                        {obtenerNombrePlanificacion(usuario.planPersonalizado)}
                       </span>
                     </span>
                   ) : (
-                    <span>SIN PLANIFICACIÓN ASIGNADA</span>
+                    <span>SIN PLANIFICACIÓN PERSONALIZADA</span>
                   )}
                 </td>
                 <td className="px-4 py-3">
