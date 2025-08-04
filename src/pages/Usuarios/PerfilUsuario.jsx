@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Dumbbell, Calendar, AlertTriangle, Loader2, Plus, Zap, ZapOff, Coffee, MessageSquare, Edit2, Trash2, Send, Check, X, User } from 'lucide-react';
-import Loader from '../../components/Loader';
 import Notificacion from '../../components/Notificacion';
 
 // Función para formatear fechas
@@ -116,9 +115,9 @@ const PerfilUsuario = () => {
                 const targetUser = userData.data.usuarios[0];
                 setUsuario(targetUser);
 
-                // 2. Obtengo planificación si existe
-                if (targetUser.planificacion) {
-                    const planRes = await fetch(`${import.meta.env.VITE_API_URL}/api/planificaciones/${targetUser.planificacion}`, {
+                // 2. Obtengo planificación personalizada si existe
+                if (targetUser.planPersonalizado) {
+                    const planRes = await fetch(`${import.meta.env.VITE_API_URL}/api/planificaciones/${targetUser.planPersonalizado}`, {
                         headers: {
                             'Authorization': `Bearer ${localStorage.getItem('token')}`,
                             'Accept': 'application/json'
@@ -134,7 +133,7 @@ const PerfilUsuario = () => {
                     setPlanificacion(planData.data);
 
                     // 3. Cargo comentarios
-                    const comentariosData = await cargarComentarios(targetUser.planificacion);
+                    const comentariosData = await cargarComentarios(targetUser.planPersonalizado);
                     setComentarios(comentariosData);
                 }
             } catch (err) {

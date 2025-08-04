@@ -8,7 +8,7 @@ const decodeJWT = (token) => {
         if (!base64Url) return null;
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const payload = JSON.parse(atob(base64));
-        
+
         // Verificar expiración
         if (payload.exp && payload.exp * 1000 < Date.now()) {
             return null;
@@ -29,7 +29,7 @@ export const useAuth = () => {
     const initializeAuth = () => {
         const token = localStorage.getItem("token");
         const rememberMe = localStorage.getItem("rememberMe") === "true";
-        
+
         if (token && rememberMe) {
             const payload = decodeJWT(token);
             if (payload) {
@@ -37,7 +37,8 @@ export const useAuth = () => {
                     id: payload.id,
                     email: payload.email,
                     rol: payload.rol,
-                    nombre: payload.nombre
+                    nombre: payload.nombre,
+                    planPersonalizado: payload.planPersonalizado
                 });
                 setLoading(false);
                 return;
@@ -50,7 +51,7 @@ export const useAuth = () => {
     // Inicializo al montar
     useEffect(() => {
         initializeAuth();
-        
+
         // Escucho eventos de almacenamiento para sincronizar entre pestañas
         const handleStorageChange = (e) => {
             if (e.key === "token" || e.key === "rememberMe") {
@@ -87,7 +88,8 @@ export const useAuth = () => {
                 id: payload.id,
                 email: payload.email,
                 rol: payload.rol,
-                nombre: payload.nombre
+                nombre: payload.nombre,
+                planPersonalizado: payload.planPersonalizado
             };
 
             setUser(userData);

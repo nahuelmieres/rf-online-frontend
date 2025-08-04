@@ -2,7 +2,8 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Inicio from '../pages/Inicio';
 import Login from "../pages/Login";
-import Planes from '../pages/Planes';
+import Planes from '../pages/Planificaciones/Planes';
+import Planificacion from '../pages/Planificaciones/DetallePlanificacion';
 import Entrenadores from '../pages/Entrenadores/Entrenadores';
 import Cuenta from '../pages/Cuenta';
 import GestionUsuarios from '../pages/Usuarios/GestionUsuarios';
@@ -24,6 +25,7 @@ const AppRoutes = () => {
             <Route element={<RutaPrivada />}>
                 <Route path="/" element={<Inicio />} />
                 <Route path="/planes" element={<Planes />} />
+                <Route path="/planificacion/:id" element={<Planificacion />} />
                 <Route path="/entrenadores" element={<Entrenadores />} />
                 <Route path="/cuenta" element={<Cuenta />} />
 
