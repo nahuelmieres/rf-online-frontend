@@ -111,7 +111,7 @@ const Navbar = () => {
         <div className="fixed inset-0 bg-white dark:bg-black z-40 pt-16 overflow-y-auto">
           <div className="max-w-7xl mx-auto px-6 pb-10">
             <NavItem to="/" icon={<Home size={24} />} text="INICIO" onClick={() => setMenuAbierto(false)} />
-            <NavItem to="/planes" icon={<Dumbbell size={24} />} text="MI PLAN" onClick={() => setMenuAbierto(false)} />
+            <NavItem to="/planes" icon={<Dumbbell size={24} />} text="PLANIFICACIONES" onClick={() => setMenuAbierto(false)} />
             <NavItem to="/entrenadores" icon={<Users size={24} />} text="ENTRENADORES" onClick={() => setMenuAbierto(false)} />
             
             {mostrarGestion && (
