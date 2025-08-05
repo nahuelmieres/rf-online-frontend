@@ -6,6 +6,7 @@ const Registro = () => {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [aceptaTerminos, setTerminos] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Registro = () => {
     setError(null);
 
     try {
+      console.log("Terminos aceptados:", terminos);
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/usuarios/registrar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -23,7 +25,8 @@ const Registro = () => {
           nombre,
           email,
           password,
-          rol: "cliente"
+          rol: "cliente",
+          aceptaTerminos,
         }),
       });
 
@@ -87,7 +90,6 @@ const Registro = () => {
                 className="pl-10 w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-base focus:outline-none"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                required
               />
             </div>
           </div>
@@ -108,7 +110,6 @@ const Registro = () => {
                 className="pl-10 w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-base focus:outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
               />
             </div>
           </div>
@@ -129,10 +130,23 @@ const Registro = () => {
                 className="pl-10 w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-base focus:outline-none"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
                 minLength={6}
               />
             </div>
+          </div>
+
+          {/* Checkbox para aceptar terminos y condiciones */}
+          <div className="flex items-center space-x-2">
+            <input
+              id="terminos"
+              type="checkbox"
+              className="h-5 w-5 border-2 border-black dark:border-gray-600 rounded focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark"
+              onChange={(e) => setTerminos(e.target.checked)}
+              checked={aceptaTerminos}
+            />
+            <label htmlFor="terminos" className="text-sm md:text-base">
+              Acepto los <Link to="/terminos" target="_blank" className="text-blue-600 hover:underline">términos y condiciones</Link>
+            </label>
           </div>
 
           {/* Botón de Registro */}

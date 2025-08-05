@@ -13,6 +13,7 @@ import Registro from '../pages/Registro';
 import CrearPlanificacion from '../pages/Planificaciones/CrearPlanificacion';
 import Suscripcion from '../pages/Pagos/Suscripcion';
 import PerfilUsuario from '../pages/Usuarios/PerfilUsuario';
+import TerminosCondiciones from '../pages/TerminosCondiciones';
 
 const AppRoutes = () => {
     return (
@@ -20,6 +21,7 @@ const AppRoutes = () => {
             {/* Públicas */}
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Registro />} />
+            <Route path="/terminos" element={<TerminosCondiciones />} />
 
             {/* Privadas */}
             <Route element={<RutaPrivada />}>
