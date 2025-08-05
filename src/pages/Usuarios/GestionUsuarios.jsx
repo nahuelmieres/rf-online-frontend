@@ -174,8 +174,8 @@ const GestionUsuarios = () => {
   if (!user || user.rol !== 'admin') {
     return (
       <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg p-4">
-          <h2 className="text-xl font-semibold text-red-800 dark:text-red-200">
+        <div className="border-2 border-red-500 dark:border-red-400 rounded-lg p-4 bg-red-50 dark:bg-red-900/20">
+          <h2 className="text-xl font-bold text-red-800 dark:text-red-300">
             Acceso no autorizado
           </h2>
           <p className="text-red-700 dark:text-red-300 mt-2">
@@ -186,18 +186,20 @@ const GestionUsuarios = () => {
     );
   }
 
-  // Renderizado principal
+  // Renderizado principal con estilos actualizados
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Encabezado */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-        <h1 className="text-2xl font-bold flex items-center gap-2 text-gray-900 dark:text-white">
-          <UserCheck className="text-blue-500" />
-          Administración de Usuarios
-        </h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b-2 border-black dark:border-gray-600 pb-6">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight flex items-center gap-3">
+            <UserCheck className="text-blue-500" size={24} />
+            ADMINISTRACIÓN DE USUARIOS
+          </h1>
+        </div>
 
         {/* Contador de resultados */}
-        <div className="text-sm text-gray-600 dark:text-gray-400">
+        <div className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Mostrando {(paginacion.page - 1) * paginacion.limit + 1}-
           {Math.min(paginacion.page * paginacion.limit, paginacion.total)} de {paginacion.total} usuarios
         </div>
@@ -208,12 +210,12 @@ const GestionUsuarios = () => {
         {/* Búsqueda por texto */}
         <div className="relative flex-1">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+            <Search className="h-5 w-5 text-gray-500 dark:text-gray-400" />
           </div>
           <input
             type="text"
             placeholder="Buscar por nombre o email..."
-            className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            className="block w-full pl-10 pr-3 py-3 border-2 border-black dark:border-gray-600 rounded-lg bg-white dark:bg-black focus:outline-none focus:ring-0 transition-all"
             value={filtro}
             onChange={(e) => {
               setFiltro(e.target.value);
@@ -226,9 +228,9 @@ const GestionUsuarios = () => {
         <div className="relative">
           <button
             onClick={() => setMenuFiltrosAbierto(!menuFiltrosAbierto)}
-            className="inline-flex justify-center items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors w-full sm:w-auto"
+            className="inline-flex justify-center items-center gap-2 px-4 py-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black rounded-lg hover:bg-gray-100 dark:hover:bg-gray-900 transition-colors w-full sm:w-auto font-bold"
           >
-            <span>Filtrar por rol</span>
+            <span>FILTRAR POR ROL</span>
             <ChevronDown
               size={16}
               className={`transition-transform duration-200 ${menuFiltrosAbierto ? 'rotate-180' : ''}`}
@@ -237,19 +239,24 @@ const GestionUsuarios = () => {
 
           {menuFiltrosAbierto && (
             <div
-              className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-md shadow-lg z-10 border border-gray-200 dark:border-gray-700"
+              className="absolute right-0 mt-2 w-56 bg-white dark:bg-black rounded-md shadow-hard border-2 border-black dark:border-gray-600 z-10"
               onMouseLeave={() => setMenuFiltrosAbierto(false)}
             >
               <div className="p-2 space-y-2">
                 {['admin', 'coach', 'cliente'].map((rol) => (
-                  <label key={rol} className="flex items-center gap-3 p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors">
+                  <label 
+                    key={rol} 
+                    className={`flex items-center gap-3 p-3 rounded cursor-pointer transition-colors ${rolesFiltrados.includes(rol) 
+                      ? 'bg-blue-100 dark:bg-blue-900/30' 
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-900'}`}
+                  >
                     <input
                       type="checkbox"
                       checked={rolesFiltrados.includes(rol)}
                       onChange={() => toggleFiltroRol(rol)}
-                      className="rounded h-4 w-4 text-blue-500 focus:ring-blue-500 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700"
+                      className="rounded h-4 w-4 text-blue-500 focus:ring-0 border-2 border-black dark:border-gray-600 bg-white dark:bg-black"
                     />
-                    <span className="capitalize dark:text-gray-200">
+                    <span className="capitalize font-medium dark:text-gray-200">
                       {rol === 'cliente' ? 'Cliente' : rol === 'coach' ? 'Entrenador' : 'Administrador'}
                     </span>
                   </label>
@@ -261,73 +268,73 @@ const GestionUsuarios = () => {
       </div>
 
       {/* Tabla de usuarios */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700">
+      <div className="border-2 border-black dark:border-gray-600 bg-white dark:bg-black rounded-lg shadow-hard overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+          <table className="min-w-full">
+            <thead className="bg-gray-100 dark:bg-gray-900">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-gray-200 uppercase tracking-wider border-b-2 border-black dark:border-gray-600">
                   Usuario
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-gray-200 uppercase tracking-wider border-b-2 border-black dark:border-gray-600">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-gray-200 uppercase tracking-wider border-b-2 border-black dark:border-gray-600">
                   Estado
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-gray-200 uppercase tracking-wider border-b-2 border-black dark:border-gray-600">
                   Rol Actual
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-gray-200 uppercase tracking-wider border-b-2 border-black dark:border-gray-600">
                   Cambiar Rol
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-gray-300 dark:divide-gray-700">
               {usuarios.length > 0 ? (
                 usuarios.map((usuario) => (
-                  <tr key={usuario._id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  <tr key={usuario._id} className="hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                          <User className="h-5 w-5 text-gray-500 dark:text-gray-300" />
+                        <div className="flex-shrink-0 h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center border-2 border-black dark:border-gray-600">
+                          <User className="h-5 w-5 text-gray-700 dark:text-gray-300" />
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                          <div className="text-base font-bold text-gray-900 dark:text-white">
                             {usuario.nombre || 'Sin nombre'}
                           </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                          <div className="text-xs text-gray-600 dark:text-gray-400">
                             Registrado: {new Date(usuario.fechaRegistro).toLocaleDateString()}
                           </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td className="px-6 py-4 whitespace-nowrap text-base text-gray-900 dark:text-gray-300">
                       {usuario.email}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${usuario.estadoPago
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                      <span className={`px-3 py-1.5 inline-flex text-sm font-bold rounded-full ${usuario.estadoPago
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-2 border-green-500 dark:border-green-600'
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 border-2 border-yellow-500 dark:border-yellow-600'
                         }`}>
                         {usuario.estadoPago ? 'Pagado' : 'Pendiente'}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${usuario.rol === 'admin'
-                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                      <span className={`px-3 py-1.5 inline-flex text-sm font-bold rounded-full ${usuario.rol === 'admin'
+                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300 border-2 border-purple-500 dark:border-purple-600'
                         : usuario.rol === 'coach'
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
-                          : 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 border-2 border-blue-500 dark:border-blue-600'
+                          : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-2 border-green-500 dark:border-green-600'
                         }`}>
                         {usuario.rol === 'cliente' ? 'Cliente' : usuario.rol === 'coach' ? 'Entrenador' : 'Administrador'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <select
                         value={usuario.rol}
                         onChange={(e) => cambiarRol(usuario._id, e.target.value)}
-                        className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md dark:bg-gray-700 dark:text-white"
+                        className="block w-full pl-3 pr-10 py-2.5 text-base border-2 border-black dark:border-gray-600 focus:outline-none focus:ring-0 sm:text-sm rounded-md bg-white dark:bg-black text-gray-900 dark:text-white"
                         disabled={usuario._id === user.id}
                       >
                         <option value="admin">Administrador</option>
@@ -339,11 +346,11 @@ const GestionUsuarios = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="px-6 py-8 text-center">
-                    <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
-                      <Search className="h-12 w-12 mb-3 opacity-50" />
-                      <p className="text-lg font-medium">No se encontraron usuarios</p>
-                      <p className="text-sm mt-1">Prueba ajustando los filtros de búsqueda</p>
+                  <td colSpan="5" className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center justify-center text-gray-600 dark:text-gray-400">
+                      <Search className="h-16 w-16 mb-4 opacity-60" />
+                      <p className="text-xl font-bold">No se encontraron usuarios</p>
+                      <p className="text-base mt-2">Prueba ajustando los filtros de búsqueda</p>
                     </div>
                   </td>
                 </tr>
@@ -354,14 +361,14 @@ const GestionUsuarios = () => {
 
         {/* Paginación */}
         {paginacion.totalPaginas > 1 && (
-          <div className="bg-gray-50 dark:bg-gray-700 px-6 py-3 flex items-center justify-between border-t border-gray-200 dark:border-gray-600">
+          <div className="px-6 py-4 flex items-center justify-between border-t-2 border-black dark:border-gray-600 bg-gray-100 dark:bg-gray-900">
             <div className="flex-1 flex justify-between sm:justify-end items-center gap-4">
               <button
                 onClick={() => cambiarPagina(paginacion.page - 1)}
                 disabled={paginacion.page === 1}
-                className="relative inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="relative inline-flex items-center px-4 py-2 border-2 border-black dark:border-gray-600 text-sm font-bold rounded-md bg-white dark:bg-black text-gray-900 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5"
               >
-                <ChevronLeft className="h-4 w-4 mr-1" />
+                <ChevronLeft className="h-5 w-5 mr-1" />
                 Anterior
               </button>
 
@@ -382,10 +389,11 @@ const GestionUsuarios = () => {
                     <button
                       key={pageNum}
                       onClick={() => cambiarPagina(pageNum)}
-                      className={`px-3 py-1 border text-sm font-medium rounded-md transition-colors ${pageNum === paginacion.page
-                        ? 'bg-blue-500 border-blue-500 text-white'
-                        : 'bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700'
-                        }`}
+                      className={`px-4 py-2 border-2 text-sm font-bold rounded-md transition-all shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 ${
+                        pageNum === paginacion.page
+                          ? 'bg-black dark:bg-white border-black dark:border-gray-600 text-white dark:text-black'
+                          : 'bg-white dark:bg-black border-black dark:border-gray-600 text-black dark:text-white'
+                      }`}
                     >
                       {pageNum}
                     </button>
@@ -393,17 +401,17 @@ const GestionUsuarios = () => {
                 })}
               </div>
 
-              <span className="text-sm text-gray-700 dark:text-gray-300 mx-2 sm:hidden">
+              <span className="text-sm font-medium text-gray-900 dark:text-gray-300 mx-2 sm:hidden">
                 Página {paginacion.page} de {paginacion.totalPaginas}
               </span>
 
               <button
                 onClick={() => cambiarPagina(paginacion.page + 1)}
                 disabled={paginacion.page >= paginacion.totalPaginas}
-                className="relative inline-flex items-center px-3 py-1.5 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="relative inline-flex items-center px-4 py-2 border-2 border-black dark:border-gray-600 text-sm font-bold rounded-md bg-white dark:bg-black text-gray-900 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5"
               >
                 Siguiente
-                <ChevronRight className="h-4 w-4 ml-1" />
+                <ChevronRight className="h-5 w-5 ml-1" />
               </button>
             </div>
           </div>

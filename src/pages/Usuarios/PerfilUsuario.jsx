@@ -429,7 +429,7 @@ const PerfilUsuario = () => {
                         <User className="w-6 h-6 text-white dark:text-black" />
                     </div>
                     <h2 className="text-xl font-bold">INFORMACIÓN DEL USUARIO</h2>
-                    
+
                     {currentUser?.id === usuario._id && (
                         <span className="ml-auto px-3 py-1 border-2 border-black dark:border-gray-600 text-sm font-bold">
                             TÚ
@@ -488,8 +488,8 @@ const PerfilUsuario = () => {
                                         {planificacion.tipo?.toUpperCase() || 'SIN TIPO'}
                                     </span>
                                     <span className={`px-3 py-1 border text-sm ${planificacion.categoria === 'personalizada'
-                                            ? 'border-purple-500 text-purple-500'
-                                            : 'border-orange-500 text-orange-500'
+                                        ? 'border-purple-500 text-purple-500'
+                                        : 'border-orange-500 text-orange-500'
                                         }`}>
                                         {planificacion.categoria?.toUpperCase() || 'SIN CATEGORÍA'}
                                     </span>
@@ -530,11 +530,10 @@ const PerfilUsuario = () => {
                                         <button
                                             key={index}
                                             onClick={() => setSemanaActiva(index)}
-                                            className={`flex-shrink-0 px-4 py-2 min-w-[120px] border-2 font-bold ${
-                                                semanaActiva === index
+                                            className={`flex-shrink-0 px-4 py-2 min-w-[120px] border-2 font-bold ${semanaActiva === index
                                                     ? 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
                                                     : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300'
-                                            }`}
+                                                }`}
                                         >
                                             Semana {semana.numero}
                                         </button>
@@ -560,7 +559,7 @@ const PerfilUsuario = () => {
                                             className={`border-2 p-6 w-full ${dia.descanso
                                                 ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
                                                 : 'border-black dark:border-gray-600'
-                                            }`}
+                                                }`}
                                         >
                                             <div className="flex items-center gap-3 mb-4">
                                                 <h3 className="font-bold text-lg">
@@ -633,191 +632,215 @@ const PerfilUsuario = () => {
                                             )}
 
                                             {/* Comentarios y respuestas */}
-                                            <div className="mt-4 pt-4 border-t border-gray-300 dark:border-gray-600">
-                                                <div className="flex items-center gap-2 mb-3">
-                                                    <MessageSquare className="w-4 h-4" />
-                                                    <h5 className="text-sm font-bold">COMENTARIOS</h5>
-                                                </div>
-
-                                                {editandoComentario?.dia === dia.nombre && 
-                                                editandoComentario?.semana === planificacion.semanas[semanaActiva].numero ? (
-                                                    <div className="space-y-2">
-                                                        <textarea
-                                                            value={editandoTexto}
-                                                            onChange={(e) => setEditandoTexto(e.target.value)}
-                                                            className="w-full p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-black text-sm"
-                                                            rows="3"
-                                                        />
-                                                        <div className="flex gap-2">
-                                                            <button
-                                                                onClick={manejarEditarComentario}
-                                                                className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-xs font-bold border border-black dark:border-gray-600"
-                                                            >
-                                                                GUARDAR
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setEditandoComentario(null)}
-                                                                className="px-3 py-1 bg-white dark:bg-black text-black dark:text-white text-xs font-bold border border-black dark:border-gray-600"
-                                                            >
-                                                                CANCELAR
-                                                            </button>
-                                                        </div>
+                                            {esEntrenador && !comentario ? null : (
+                                                <div className="mt-4 pt-4 border-t border-gray-300 dark:border-gray-600">
+                                                    <div className="flex items-center gap-2 mb-3">
+                                                        <MessageSquare className="w-4 h-4" />
+                                                        <h5 className="text-sm font-bold">COMENTARIOS</h5>
                                                     </div>
-                                                ) : comentario ? (
-                                                    <div className="text-sm">
-                                                        <div className="flex justify-between items-start mb-2">
-                                                            <p className="whitespace-pre-line">{comentario.texto}</p>
-                                                            {comentario.autor?._id === currentUser?.id && (
-                                                                <div className="flex gap-2">
+
+                                                    {/* Modo edición del comentario */}
+                                                    {editandoComentario?.dia === dia.nombre &&
+                                                        editandoComentario?.semana === planificacion.semanas[semanaActiva].numero ? (
+                                                        <div className="space-y-2">
+                                                            <textarea
+                                                                value={editandoTexto}
+                                                                onChange={(e) => setEditandoTexto(e.target.value)}
+                                                                className="w-full p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-black text-sm"
+                                                                rows="3"
+                                                            />
+                                                            <div className="flex gap-2">
+                                                                <button
+                                                                    onClick={manejarEditarComentario}
+                                                                    className="px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-xs font-bold border border-black dark:border-gray-600"
+                                                                >
+                                                                    GUARDAR
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => setEditandoComentario(null)}
+                                                                    className="px-3 py-1 bg-white dark:bg-black text-black dark:text-white text-xs font-bold border border-black dark:border-gray-600"
+                                                                >
+                                                                    CANCELAR
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    ) : comentario ? (
+                                                        <div className="text-sm">
+                                                            <div className="flex justify-between items-start mb-2">
+                                                                <p className="whitespace-pre-line">{comentario.texto}</p>
+                                                                {comentario.autor?._id === currentUser?.id && (
+                                                                    <div className="flex gap-2">
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                setEditandoComentario(comentario);
+                                                                                setEditandoTexto(comentario.texto);
+                                                                            }}
+                                                                            className="text-gray-500 hover:text-blue-500"
+                                                                        >
+                                                                            <Edit2 className="w-4 h-4" />
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() =>
+                                                                                manejarEliminarComentario(
+                                                                                    comentario._id,
+                                                                                    planificacion.semanas[semanaActiva].numero,
+                                                                                    dia.nombre
+                                                                                )
+                                                                            }
+                                                                            className="text-gray-500 hover:text-red-500"
+                                                                        >
+                                                                            <Trash2 className="w-4 h-4" />
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="text-xs text-gray-500 mt-1">
+                                                                {formatDate(comentario.fechaCreacion)}
+                                                            </div>
+
+                                                            {/* RESPUESTA DEL ENTRENADOR */}
+                                                            {comentario.respuesta && (
+                                                                <div className="mt-4 pl-4 border-l-2 border-orange-500">
+                                                                    <div className="flex justify-between items-start mb-1">
+                                                                        <div>
+                                                                            <div className="flex items-center gap-1 text-xs mb-1">
+                                                                                <span className="font-bold text-orange-500">
+                                                                                    {comentario.respuesta.autor?.nombre?.toUpperCase() || currentUser?.nombre?.toUpperCase()}:
+                                                                                </span>
+                                                                                <span className="text-gray-500">
+                                                                                    {formatDate(comentario.respuesta.fecha)}
+                                                                                </span>
+                                                                            </div>
+
+                                                                            {/* Si está editando la respuesta */}
+                                                                            {editandoRespuesta?.comentarioId === comentario._id ? (
+                                                                                <div className="mt-1">
+                                                                                    <textarea
+                                                                                        value={textoEditandoRespuesta}
+                                                                                        onChange={(e) => setTextoEditandoRespuesta(e.target.value)}
+                                                                                        className="w-full p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-black text-sm"
+                                                                                        rows="6"
+                                                                                    />
+                                                                                    <div className="flex gap-2 mt-1">
+                                                                                        <button
+                                                                                            onClick={manejarEditarRespuesta}
+                                                                                            className="px-2 py-1 bg-black dark:bg-white text-white dark:text-black text-xs font-bold border border-black dark:border-gray-600"
+                                                                                        >
+                                                                                            GUARDAR
+                                                                                        </button>
+                                                                                        <button
+                                                                                            onClick={() => setEditandoRespuesta(null)}
+                                                                                            className="px-2 py-1 bg-white dark:bg-black text-black dark:text-white text-xs font-bold border border-black dark:border-gray-600"
+                                                                                        >
+                                                                                            CANCELAR
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            ) : (
+                                                                                <>
+                                                                                    <p className="whitespace-pre-line">{comentario.respuesta.texto}</p>
+
+                                                                                    {/* Solo el autor de la respuesta (coach/admin) puede editarla o borrarla */}
+                                                                                    {esEntrenador && comentario.respuesta.autor?._id === currentUser?.id && (
+                                                                                        <div className="flex gap-2 mt-1">
+                                                                                            <button
+                                                                                                onClick={() => {
+                                                                                                    setEditandoRespuesta({
+                                                                                                        comentarioId: comentario._id,
+                                                                                                        texto: comentario.respuesta.texto,
+                                                                                                    });
+                                                                                                    setTextoEditandoRespuesta(comentario.respuesta.texto);
+                                                                                                }}
+                                                                                                className="text-xs flex items-center gap-1 text-gray-500 hover:text-blue-500"
+                                                                                            >
+                                                                                                <Edit2 size={12} /> EDITAR
+                                                                                            </button>
+                                                                                            <button
+                                                                                                onClick={() =>
+                                                                                                    manejarEliminarRespuesta(
+                                                                                                        comentario._id,
+                                                                                                        planificacion.semanas[semanaActiva].numero,
+                                                                                                        dia.nombre
+                                                                                                    )
+                                                                                                }
+                                                                                                className="text-xs flex items-center gap-1 text-gray-500 hover:text-red-500"
+                                                                                            >
+                                                                                                <Trash2 size={12} /> ELIMINAR
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    )}
+                                                                                </>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Formulario para responder comentario (solo si es entrenador y aún no respondió) */}
+                                                            {esEntrenador && !comentario.respuesta && (
+                                                                <div className="mt-3">
+                                                                    <textarea
+                                                                        value={respuestas[comentario._id] || ''}
+                                                                        onChange={(e) =>
+                                                                            setRespuestas((prev) => ({
+                                                                                ...prev,
+                                                                                [comentario._id]: e.target.value,
+                                                                            }))
+                                                                        }
+                                                                        className="w-full p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-black text-sm"
+                                                                        rows="2"
+                                                                        placeholder="Escribe tu respuesta como entrenador..."
+                                                                    />
                                                                     <button
-                                                                        onClick={() => {
-                                                                            setEditandoComentario(comentario);
-                                                                            setEditandoTexto(comentario.texto);
-                                                                        }}
-                                                                        className="text-gray-500 hover:text-blue-500"
-                                                                    >
-                                                                        <Edit2 className="w-4 h-4" />
-                                                                    </button>
-                                                                    <button
-                                                                        onClick={() => manejarEliminarComentario(
+                                                                        onClick={manejarResponderComentario(
                                                                             comentario._id,
                                                                             planificacion.semanas[semanaActiva].numero,
                                                                             dia.nombre
                                                                         )}
-                                                                        className="text-gray-500 hover:text-red-500"
+                                                                        disabled={!respuestas[comentario._id]?.trim()}
+                                                                        className="mt-2 flex items-center gap-1 px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-xs font-bold border border-black dark:border-gray-600 disabled:opacity-50"
                                                                     >
-                                                                        <Trash2 className="w-4 h-4" />
+                                                                        <Send className="w-3 h-3" />
+                                                                        <span>ENVIAR RESPUESTA</span>
                                                                     </button>
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        <div className="text-xs text-gray-500 mt-1">
-                                                            {formatDate(comentario.fechaCreacion)}
-                                                        </div>
-
-                                                        {comentario.respuesta && (
-                                                            <div className="mt-4 pl-4 border-l-2 border-orange-500">
-                                                                <div className="flex justify-between items-start mb-1">
-                                                                    <div>
-                                                                        <div className="flex items-center gap-1 text-xs mb-1">
-                                                                            <span className="font-bold text-orange-500">
-                                                                                {comentario.respuesta.autor?.nombre?.toUpperCase() || currentUser.nombre?.toUpperCase()}:
-                                                                            </span>
-                                                                            <span className="text-gray-500">
-                                                                                {formatDate(comentario.respuesta.fecha)}
-                                                                            </span>
-                                                                        </div>
-
-                                                                        {editandoRespuesta?.comentarioId === comentario._id ? (
-                                                                            <div className="mt-1">
-                                                                                <textarea
-                                                                                    value={textoEditandoRespuesta}
-                                                                                    onChange={(e) => setTextoEditandoRespuesta(e.target.value)}
-                                                                                    className="w-full p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-black text-sm"
-                                                                                    rows="2"
-                                                                                />
-                                                                                <div className="flex gap-2 mt-1">
-                                                                                    <button
-                                                                                        onClick={manejarEditarRespuesta}
-                                                                                        className="px-2 py-1 bg-black dark:bg-white text-white dark:text-black text-xs font-bold border border-black dark:border-gray-600"
-                                                                                    >
-                                                                                        GUARDAR
-                                                                                    </button>
-                                                                                    <button
-                                                                                        onClick={() => setEditandoRespuesta(null)}
-                                                                                        className="px-2 py-1 bg-white dark:bg-black text-black dark:text-white text-xs font-bold border border-black dark:border-gray-600"
-                                                                                    >
-                                                                                        CANCELAR
-                                                                                    </button>
-                                                                                </div>
-                                                                            </div>
-                                                                        ) : (
-                                                                            <>
-                                                                                <p className="whitespace-pre-line">
-                                                                                    {comentario.respuesta.texto}
-                                                                                </p>
-                                                                                {esEntrenador && comentario.respuesta.autor?._id === currentUser?.id && (
-                                                                                    <div className="flex gap-2 mt-1">
-                                                                                        <button
-                                                                                            onClick={() => {
-                                                                                                setEditandoRespuesta({
-                                                                                                    comentarioId: comentario._id,
-                                                                                                    texto: comentario.respuesta.texto
-                                                                                                });
-                                                                                                setTextoEditandoRespuesta(comentario.respuesta.texto);
-                                                                                            }}
-                                                                                            className="text-xs flex items-center gap-1 text-gray-500 hover:text-blue-500"
-                                                                                        >
-                                                                                            <Edit2 size={12} /> EDITAR
-                                                                                        </button>
-                                                                                        <button
-                                                                                            onClick={() => manejarEliminarRespuesta(comentario._id, planificacion.semanas[semanaActiva].numero, dia.nombre)}
-                                                                                            className="text-xs flex items-center gap-1 text-gray-500 hover:text-red-500"
-                                                                                        >
-                                                                                            <Trash2 size={12} /> ELIMINAR
-                                                                                        </button>
-                                                                                    </div>
-                                                                                )}
-                                                                            </>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        )}
-
-                                                        {/* Formulario para responder comentario (solo entrenadores) */}
-                                                        {esEntrenador && !comentario.respuesta && (
-                                                            <div className="mt-3">
+                                                    ) : (
+                                                        // Solo clientes pueden comentar si no hay comentario aún
+                                                        !esEntrenador && (
+                                                            <form
+                                                                onSubmit={manejarNuevoComentario(
+                                                                    dia.nombre,
+                                                                    planificacion.semanas[semanaActiva].numero
+                                                                )}
+                                                                className="space-y-2"
+                                                            >
                                                                 <textarea
-                                                                    value={respuestas[comentario._id] || ''}
-                                                                    onChange={(e) => setRespuestas(prev => ({
-                                                                        ...prev,
-                                                                        [comentario._id]: e.target.value
-                                                                    }))}
+                                                                    value={nuevosComentarios[comentarioKey] || ''}
+                                                                    onChange={(e) =>
+                                                                        setNuevosComentarios((prev) => ({
+                                                                            ...prev,
+                                                                            [comentarioKey]: e.target.value,
+                                                                        }))
+                                                                    }
                                                                     className="w-full p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-black text-sm"
                                                                     rows="2"
-                                                                    placeholder="Escribe tu respuesta como entrenador..."
+                                                                    placeholder="Añadir comentario..."
                                                                 />
                                                                 <button
-                                                                    onClick={manejarResponderComentario(comentario._id, planificacion.semanas[semanaActiva].numero, dia.nombre)}
-                                                                    disabled={!respuestas[comentario._id]?.trim()}
-                                                                    className="mt-2 flex items-center gap-1 px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-xs font-bold border border-black dark:border-gray-600 disabled:opacity-50"
+                                                                    type="submit"
+                                                                    disabled={!nuevosComentarios[comentarioKey]?.trim()}
+                                                                    className="flex items-center gap-1 px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-xs font-bold border border-black dark:border-gray-600 disabled:opacity-50"
                                                                 >
                                                                     <Send className="w-3 h-3" />
-                                                                    <span>ENVIAR RESPUESTA</span>
+                                                                    <span>ENVIAR</span>
                                                                 </button>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <form 
-                                                        onSubmit={manejarNuevoComentario(
-                                                            dia.nombre,
-                                                            planificacion.semanas[semanaActiva].numero
-                                                        )}
-                                                        className="space-y-2"
-                                                    >
-                                                        <textarea
-                                                            value={nuevosComentarios[comentarioKey] || ''}
-                                                            onChange={(e) => setNuevosComentarios(prev => ({
-                                                                ...prev,
-                                                                [comentarioKey]: e.target.value
-                                                            }))}
-                                                            className="w-full p-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-black text-sm"
-                                                            rows="2"
-                                                            placeholder="Añadir comentario..."
-                                                        />
-                                                        <button
-                                                            type="submit"
-                                                            disabled={!nuevosComentarios[comentarioKey]?.trim()}
-                                                            className="flex items-center gap-1 px-3 py-1 bg-black dark:bg-white text-white dark:text-black text-xs font-bold border border-black dark:border-gray-600 disabled:opacity-50"
-                                                        >
-                                                            <Send className="w-3 h-3" />
-                                                            <span>ENVIAR</span>
-                                                        </button>
-                                                    </form>
-                                                )}
-                                            </div>
+                                                            </form>
+                                                        )
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })}
