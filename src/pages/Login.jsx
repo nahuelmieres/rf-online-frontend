@@ -104,7 +104,7 @@ const Login = () => {
             </div>
 
             <a href="#" className="text-sm md:text-base font-bold hover:underline whitespace-nowrap">
-              ¿OLVIDASTE CONTRASEÑA?
+              ¿OLVIDASTE LA CONTRASEÑA?
             </a>
           </div>
 
@@ -127,7 +127,7 @@ const Login = () => {
         <div className="mt-6 text-center text-base">
           <p>¿NO TIENES CUENTA?{' '}
             <a href="/registro" className="font-bold hover:underline">
-              REGÍSTRATE
+              REGISTRATE
             </a>
           </p>
         </div>

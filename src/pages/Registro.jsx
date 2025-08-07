@@ -63,6 +63,10 @@ const Registro = () => {
           </div>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">CREAR CUENTA</h1>
           <h2 className="text-lg md:text-xl font-medium">PLATAFORMA DE ENTRENAMIENTO</h2>
+          <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-1">
+            ÚNETE A NUESTRA COMUNIDAD Y COMIENZA TU VIAJE DE SUPERACIÓN HOY MISMO,
+             LOS PRIMEROS 14 DÍAS VAN POR NUESTRA CUENTA.
+          </p>
         </div>
 
         {/* Formulario */}
