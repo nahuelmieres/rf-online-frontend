@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { format, addDays, isSameDay, parseISO } from 'date-fns';
-import { Calendar, Check, LocateIcon, Loader2, X } from 'lucide-react';
+import { Calendar, Dumbbell, LocateIcon, Loader2, X, Clock } from 'lucide-react';
 import Notificacion from '../../components/Notificacion';
 import { useAuth } from '../../hooks/useAuth';
 
@@ -49,13 +49,13 @@ const ReservaForm = () => {
 
         try {
             const fechaCompleta = new Date(`${format(fechaSeleccionada, 'yyyy-MM-dd')}T${hora}`);
-            console.log("Fecha completa:", fechaCompleta);
 
             const res = await fetch('/api/reservas', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json',
+                headers: {
+                    'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
-                 },
+                },
                 body: JSON.stringify({
                     fecha: fechaCompleta.toISOString(),
                     tipo,
@@ -96,9 +96,12 @@ const ReservaForm = () => {
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Selector de fecha */}
+                {/* Selector de fecha */}
                 <div>
-                    <Calendar className="mb-2" size={24} />
-                    <label className="block text-lg font-bold mb-2">Fecha</label>
+                    <label className="flex items-center gap-2 text-lg font-bold mb-2">
+                        <Calendar size={24} />
+                        <span>Fecha</span>
+                    </label>
                     <div className="flex overflow-x-auto gap-2 pb-4">
                         {Array.from({ length: 15 }).map((_, i) => {
                             const fecha = addDays(hoy, i);
@@ -122,27 +125,31 @@ const ReservaForm = () => {
 
                 {/* Selector de sucursal */}
                 <div>
-                    <LocateIcon className="mb-2" size={24} />
-                    <label className="block text-lg font-bold mb-2">Sucursal</label>
+                    <label className="flex items-center gap-2 text-lg font-bold mb-2">
+                        <LocateIcon size={24} />
+                        <span>Sucursal</span>
+                    </label>
                     <div className="grid grid-cols-2 gap-4">
                         <button
                             type="button"
                             onClick={() => setSucursal('malvin')}
-                            className={`p-4 border-2 text-center ${sucursal === 'malvin'
+                            className={`p-4 border-2 text-center flex items-center justify-center gap-2 ${sucursal === 'malvin'
                                     ? 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
                                     : 'border-gray-300 dark:border-gray-700'
                                 }`}
                         >
+                            <LocateIcon size={18} />
                             Malvín
                         </button>
                         <button
                             type="button"
                             onClick={() => setSucursal('blanqueada')}
-                            className={`p-4 border-2 text-center ${sucursal === 'blanqueada'
+                            className={`p-4 border-2 text-center flex items-center justify-center gap-2 ${sucursal === 'blanqueada'
                                     ? 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
                                     : 'border-gray-300 dark:border-gray-700'
                                 }`}
                         >
+                            <LocateIcon size={18} />
                             La Blanqueada
                         </button>
                     </div>
@@ -150,26 +157,31 @@ const ReservaForm = () => {
 
                 {/* Selector de tipo */}
                 <div>
-                    <label className="block text-lg font-bold mb-2">Tipo de reserva</label>
+                    <label className="flex items-center gap-2 text-lg font-bold mb-2">
+                        <Dumbbell size={24} />
+                        <span>Tipo de reserva</span>
+                    </label>
                     <div className="grid grid-cols-2 gap-4">
                         <button
                             type="button"
                             onClick={() => setTipo('salud')}
-                            className={`p-4 border-2 text-center ${tipo === 'salud'
+                            className={`p-4 border-2 text-center flex items-center justify-center gap-2 ${tipo === 'salud'
                                     ? 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
                                     : 'border-gray-300 dark:border-gray-700'
                                 }`}
                         >
+                            <Dumbbell size={18} />
                             Salud y Fitness
                         </button>
                         <button
                             type="button"
                             onClick={() => setTipo('openbox')}
-                            className={`p-4 border-2 text-center ${tipo === 'openbox'
+                            className={`p-4 border-2 text-center flex items-center justify-center gap-2 ${tipo === 'openbox'
                                     ? 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
                                     : 'border-gray-300 dark:border-gray-700'
                                 }`}
                         >
+                            <Dumbbell size={18} />
                             Open Box
                         </button>
                     </div>
@@ -177,7 +189,10 @@ const ReservaForm = () => {
 
                 {/* Horarios disponibles */}
                 <div>
-                    <label className="block text-lg font-bold mb-2">Horarios</label>
+                    <label className="flex items-center gap-2 text-lg font-bold mb-2">
+                        <Clock size={24} />
+                        <span>Horarios</span>
+                    </label>
                     {cargando ? (
                         <div className="flex justify-center py-8">
                             <Loader2 className="animate-spin" size={24} />
@@ -189,13 +204,19 @@ const ReservaForm = () => {
                                     key={index}
                                     type="button"
                                     onClick={() => setHora(format(parseISO(slot.horario), 'HH:mm'))}
-                                    className={`p-3 border-2 text-center ${hora === format(parseISO(slot.horario), 'HH:mm')
+                                    className={`p-3 border-2 text-center flex flex-col items-center ${hora === format(parseISO(slot.horario), 'HH:mm')
                                             ? 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
                                             : 'border-gray-300 dark:border-gray-700'
-                                        } ${tipo === 'salud' && slot.salud <= 0 ? 'opacity-50 cursor-not-allowed' : tipo === 'openbox' && slot.openbox <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        } ${(tipo === 'salud' && slot.salud <= 0) || (tipo === 'openbox' && slot.openbox <= 0)
+                                            ? 'opacity-50 cursor-not-allowed'
+                                            : ''
+                                        }`}
                                     disabled={(tipo === 'salud' && slot.salud <= 0) || (tipo === 'openbox' && slot.openbox <= 0)}
                                 >
-                                    {format(parseISO(slot.horario), 'HH:mm')}
+                                    <div className="flex items-center gap-1">
+                                        <Clock size={16} />
+                                        {format(parseISO(slot.horario), 'HH:mm')}
+                                    </div>
                                     <div className="text-xs mt-1">
                                         {tipo === 'salud' ? `(${slot.salud} cupos)` : `(${slot.openbox} cupos)`}
                                     </div>

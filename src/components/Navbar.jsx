@@ -9,8 +9,8 @@ const Navbar = () => {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     const savedTheme = localStorage.getItem('theme');
-    return savedTheme === 'dark' || 
-           (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    return savedTheme === 'dark' ||
+      (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
   });
   const [submenuGestionAbierto, setSubmenuGestionAbierto] = useState(false);
   const [submenuReservasAbierto, setSubmenuReservasAbierto] = useState(false);
@@ -49,8 +49,8 @@ const Navbar = () => {
 
   const NavItem = ({ to, icon, text, onClick, children }) => (
     <div className="border-b-2 border-black dark:border-gray-600 last:border-0">
-      <Link 
-        to={to} 
+      <Link
+        to={to}
         onClick={onClick}
         className="flex items-center gap-4 py-5 px-6 text-xl hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
       >
@@ -114,9 +114,9 @@ const Navbar = () => {
           <div className="max-w-7xl mx-auto px-6 pb-10">
             <NavItem to="/" icon={<Home size={24} />} text="INICIO" onClick={() => setMenuAbierto(false)} />
             <NavItem to="/planes" icon={<Dumbbell size={24} />} text="PLANIFICACIONES" onClick={() => setMenuAbierto(false)} />
-            
+
             {/* Nuevo submenú de reservas */}
-            <div 
+            <div
               className="border-b-2 border-black dark:border-gray-600 py-5 px-6 flex items-center gap-4 cursor-pointer text-xl"
               onClick={() => setSubmenuReservasAbierto(!submenuReservasAbierto)}
             >
@@ -124,29 +124,37 @@ const Navbar = () => {
               <span>RESERVAS</span>
               <span className="ml-auto">▼</span>
             </div>
-            
+
             {submenuReservasAbierto && (
               <div className="bg-gray-100 dark:bg-gray-900">
-                <NavItem 
-                  to="/reservar" 
-                  icon={<Clock size={20} />} 
-                  text="NUEVA RESERVA" 
-                  onClick={() => setMenuAbierto(false)} 
+                <NavItem
+                  to="/reservar"
+                  icon={<Clock size={20} />}
+                  text="NUEVA RESERVA"
+                  onClick={() => setMenuAbierto(false)}
                 />
-                <NavItem 
-                  to="/mis-reservas" 
-                  icon={<ClipboardList size={20} />} 
-                  text="MIS RESERVAS" 
-                  onClick={() => setMenuAbierto(false)} 
+                <NavItem
+                  to="/mis-reservas"
+                  icon={<ClipboardList size={20} />}
+                  text="MIS RESERVAS"
+                  onClick={() => setMenuAbierto(false)}
                 />
+                {(esAdmin || esCoach) && (
+                  <NavItem
+                    to="/gestion/reservas"
+                    icon={<ClipboardList size={20} />}
+                    text="TODAS LAS RESERVAS"
+                    onClick={() => setMenuAbierto(false)}
+                  />
+                )}
               </div>
             )}
 
             <NavItem to="/entrenadores" icon={<Users size={24} />} text="ENTRENADORES" onClick={() => setMenuAbierto(false)} />
-            
+
             {mostrarGestion && (
               <>
-                <div 
+                <div
                   className="border-b-2 border-black dark:border-gray-600 py-5 px-6 flex items-center gap-4 cursor-pointer text-xl"
                   onClick={() => setSubmenuGestionAbierto(!submenuGestionAbierto)}
                 >
@@ -154,22 +162,22 @@ const Navbar = () => {
                   <span>GESTIÓN</span>
                   <span className="ml-auto">▼</span>
                 </div>
-                
+
                 {submenuGestionAbierto && (
                   <div className="bg-gray-100 dark:bg-gray-900">
                     {esAdmin && (
-                      <NavItem 
-                        to="/gestion/usuarios" 
-                        icon={<UserCog size={20} />} 
-                        text="ADMINISTRAR USUARIOS" 
-                        onClick={() => setMenuAbierto(false)} 
+                      <NavItem
+                        to="/gestion/usuarios"
+                        icon={<UserCog size={20} />}
+                        text="ADMINISTRAR USUARIOS"
+                        onClick={() => setMenuAbierto(false)}
                       />
                     )}
-                    <NavItem 
-                      to="/gestion/planificaciones" 
-                      icon={<ClipboardList size={20} />} 
-                      text="ASIGNAR PLANIFICACIONES" 
-                      onClick={() => setMenuAbierto(false)} 
+                    <NavItem
+                      to="/gestion/planificaciones"
+                      icon={<ClipboardList size={20} />}
+                      text="ASIGNAR PLANIFICACIONES"
+                      onClick={() => setMenuAbierto(false)}
                     />
                   </div>
                 )}
@@ -177,7 +185,7 @@ const Navbar = () => {
             )}
 
             <NavItem to="/cuenta" icon={<UserCircle size={24} />} text="MI CUENTA" onClick={() => setMenuAbierto(false)} />
-            
+
             <div className="mt-8 px-6">
               <button
                 onClick={handleLogout}

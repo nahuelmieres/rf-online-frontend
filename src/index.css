@@ -90,3 +90,91 @@
 input, textarea, select {
   @apply border-2 border-black dark:border-gray-600 bg-transparent px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-light dark:focus:ring-primary-dark;
 }
+
+/* Estilos para el DatePicker - Light Mode */
+.react-datepicker {
+  font-family: inherit;
+  border: 2px solid #000 !important;
+  border-radius: 0 !important;
+  box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 1) !important;
+  background-color: white !important;
+}
+
+.react-datepicker__header {
+  background-color: #f3f4f6 !important;
+  border-bottom: 2px solid #000 !important;
+  border-radius: 0 !important;
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name,
+.react-datepicker__day {
+  color: #000 !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: #e5e7eb !important;
+}
+
+.react-datepicker__day--selected {
+  background-color: #000 !important;
+  color: #fff !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: #000 !important;
+}
+
+.react-datepicker__day--outside-month {
+  color: #9ca3af !important;
+}
+
+.react-datepicker__triangle {
+  display: none !important;
+}
+
+/* Input del DatePicker */
+.react-datepicker__input-container input {
+  background-color: #fff !important;
+  color: #000 !important;
+  border: 2px solid #000 !important;
+  padding: 0.5rem !important;
+  width: 100% !important;
+}
+
+/* Dark Mode */
+.dark .react-datepicker {
+  border-color: #4b5563 !important;
+  background-color: #000 !important;
+  box-shadow: 4px 4px 0 0 rgba(75, 85, 99, 1) !important;
+}
+
+.dark .react-datepicker__header {
+  background-color: #111827 !important;
+  border-bottom-color: #4b5563 !important;
+}
+
+.dark .react-datepicker__current-month,
+.dark .react-datepicker__day-name,
+.dark .react-datepicker__day {
+  color: #fff !important;
+}
+
+.dark .react-datepicker__day:hover {
+  background-color: #374151 !important;
+}
+
+.dark .react-datepicker__day--selected {
+  background-color: #fff !important;
+  color: #000 !important;
+}
+
+.dark .react-datepicker__navigation-icon::before {
+  border-color: #fff !important;
+}
+
+.dark .react-datepicker__input-container input {
+  background-color: #000 !important;
+  color: #fff !important;
+  border-color: #4b5563 !important;
+}
