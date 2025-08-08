@@ -14,6 +14,8 @@ import CrearPlanificacion from '../pages/Planificaciones/CrearPlanificacion';
 import Suscripcion from '../pages/Pagos/Suscripcion';
 import PerfilUsuario from '../pages/Usuarios/PerfilUsuario';
 import TerminosCondiciones from '../pages/TerminosCondiciones';
+import ReservaForm from '../pages/Reservas/ReservaForm';
+import MisReservas from '../pages/Reservas/MisReservas';
 
 const AppRoutes = () => {
     return (
@@ -30,6 +32,8 @@ const AppRoutes = () => {
                 <Route path="/planificacion/:id" element={<Planificacion />} />
                 <Route path="/entrenadores" element={<Entrenadores />} />
                 <Route path="/cuenta" element={<Cuenta />} />
+                <Route path="/reservar" element={<ReservaForm />} />
+                <Route path="/mis-reservas" element={<MisReservas />} />
 
                 {/* Nueva ruta de gestión */}
                 <Route

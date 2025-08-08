@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { Sun, Moon, Menu, X, Home, Dumbbell, Users, UserCircle, LogOut, Settings, UserCog, ClipboardList } from 'lucide-react';
+import { Sun, Moon, Menu, X, Home, Dumbbell, Users, UserCircle, LogOut, Settings, UserCog, ClipboardList, Calendar, Clock } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout, loading } = useAuth();
@@ -12,7 +12,8 @@ const Navbar = () => {
     return savedTheme === 'dark' || 
            (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
   });
-  const [submenuAbierto, setSubmenuAbierto] = useState(false);
+  const [submenuGestionAbierto, setSubmenuGestionAbierto] = useState(false);
+  const [submenuReservasAbierto, setSubmenuReservasAbierto] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,7 +28,8 @@ const Navbar = () => {
 
   useEffect(() => {
     setMenuAbierto(false);
-    setSubmenuAbierto(false);
+    setSubmenuGestionAbierto(false);
+    setSubmenuReservasAbierto(false);
   }, [location]);
 
   const toggleDarkMode = () => {
@@ -112,20 +114,48 @@ const Navbar = () => {
           <div className="max-w-7xl mx-auto px-6 pb-10">
             <NavItem to="/" icon={<Home size={24} />} text="INICIO" onClick={() => setMenuAbierto(false)} />
             <NavItem to="/planes" icon={<Dumbbell size={24} />} text="PLANIFICACIONES" onClick={() => setMenuAbierto(false)} />
+            
+            {/* Nuevo submenú de reservas */}
+            <div 
+              className="border-b-2 border-black dark:border-gray-600 py-5 px-6 flex items-center gap-4 cursor-pointer text-xl"
+              onClick={() => setSubmenuReservasAbierto(!submenuReservasAbierto)}
+            >
+              <Calendar size={24} />
+              <span>RESERVAS</span>
+              <span className="ml-auto">▼</span>
+            </div>
+            
+            {submenuReservasAbierto && (
+              <div className="bg-gray-100 dark:bg-gray-900">
+                <NavItem 
+                  to="/reservar" 
+                  icon={<Clock size={20} />} 
+                  text="NUEVA RESERVA" 
+                  onClick={() => setMenuAbierto(false)} 
+                />
+                <NavItem 
+                  to="/mis-reservas" 
+                  icon={<ClipboardList size={20} />} 
+                  text="MIS RESERVAS" 
+                  onClick={() => setMenuAbierto(false)} 
+                />
+              </div>
+            )}
+
             <NavItem to="/entrenadores" icon={<Users size={24} />} text="ENTRENADORES" onClick={() => setMenuAbierto(false)} />
             
             {mostrarGestion && (
               <>
                 <div 
                   className="border-b-2 border-black dark:border-gray-600 py-5 px-6 flex items-center gap-4 cursor-pointer text-xl"
-                  onClick={() => setSubmenuAbierto(!submenuAbierto)}
+                  onClick={() => setSubmenuGestionAbierto(!submenuGestionAbierto)}
                 >
                   <Settings size={24} />
                   <span>GESTIÓN</span>
                   <span className="ml-auto">▼</span>
                 </div>
                 
-                {submenuAbierto && (
+                {submenuGestionAbierto && (
                   <div className="bg-gray-100 dark:bg-gray-900">
                     {esAdmin && (
                       <NavItem 

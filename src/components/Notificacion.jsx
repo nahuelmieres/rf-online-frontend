@@ -62,7 +62,7 @@ const Notificacion = ({
   }, [onClose, tiempo]);
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 pointer-events-none p-4">
+    <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
       <div className={`${color.bg} ${color.border} shadow-hard w-full max-w-md pointer-events-auto animate-fade-in-up`}>
         <div className="p-4">
           <div className="flex items-start gap-4">
@@ -81,8 +81,12 @@ const Notificacion = ({
             </div>
             {mostrarCerrar && (
               <button
-                onClick={onClose}
-                className="p-1 border-2 border-black dark:border-gray-600 hover:bg-black hover:bg-opacity-10 dark:hover:bg-white dark:hover:bg-opacity-10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose?.();
+                }}
+                className="p-1 border-2 border-black dark:border-gray-600 hover:bg-black hover:bg-opacity-10 dark:hover:bg-white dark:hover:bg-opacity-10 transition-colors"
+                aria-label="Cerrar notificación"
               >
                 <X className="h-5 w-5" />
               </button>
