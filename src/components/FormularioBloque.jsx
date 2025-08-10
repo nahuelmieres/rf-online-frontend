@@ -146,16 +146,16 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
       ejercicios:
         tipo === 'ejercicios'
           ? ejercicios.map(e => ({
-              nombre: e.nombre.trim(),
-              series: Number(e.series),
-              repeticiones: e.repeticiones.trim(),
-              escala: e.escala ? e.escala.toUpperCase() : undefined,
-              esfuerzoPercibido:
-                e.esfuerzoPercibido !== '' && e.esfuerzoPercibido !== null && e.esfuerzoPercibido !== undefined
-                  ? Number(e.esfuerzoPercibido)
-                  : undefined,
-              linkVideo: e.linkVideo?.trim() || ''
-            }))
+            nombre: e.nombre.trim(),
+            series: Number(e.series),
+            repeticiones: e.repeticiones.trim(),
+            escala: e.escala ? e.escala.toUpperCase() : undefined,
+            esfuerzoPercibido:
+              e.esfuerzoPercibido !== '' && e.esfuerzoPercibido !== null && e.esfuerzoPercibido !== undefined
+                ? Number(e.esfuerzoPercibido)
+                : undefined,
+            linkVideo: e.linkVideo?.trim() || ''
+          }))
           : [],
       etiquetas
     };
@@ -358,35 +358,32 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
         )}
 
         {/* Acciones */}
-        <div className="flex justify-between pt-6 border-t-2 border-black dark:border-gray-600">
-          <div>
-            {onDelete && (
-              <button
-                type="button"
-                onClick={onDelete}
-                className="flex items-center gap-2 px-6 py-3 border-2 border-red-500 text-red-500 font-bold hover:bg-red-500 hover:bg-opacity-10"
-              >
-                <Trash2 size={16} />
-                ELIMINAR
-              </button>
-            )}
-          </div>
-
-          <div className="flex gap-4">
+        <div className="flex justify-between items-center pt-6 border-t-2 border-black dark:border-gray-600 gap-4">
+          {onDelete && (
             <button
               type="button"
-              onClick={onCancel}
-              className="px-6 py-3 border-2 border-black dark:border-gray-600 font-bold hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
+              onClick={onDelete}
+              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 border-2 border-red-500 text-red-500 font-bold hover:bg-red-500 hover:bg-opacity-10"
             >
-              CANCELAR
+              <Trash2 size={16} />
+              ELIMINAR
             </button>
-            <button
-              type="submit"
-              className="px-6 py-3 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
-            >
-              {bloque ? 'GUARDAR CAMBIOS' : 'CREAR BLOQUE'}
-            </button>
-          </div>
+          )}
+
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 px-6 py-3 border-2 border-black dark:border-gray-600 font-bold hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
+          >
+            CANCELAR
+          </button>
+
+          <button
+            type="submit"
+            className="flex-1 px-6 py-3 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+          >
+            {bloque ? 'GUARDAR CAMBIOS' : 'CREAR BLOQUE'}
+          </button>
         </div>
       </form>
     </>

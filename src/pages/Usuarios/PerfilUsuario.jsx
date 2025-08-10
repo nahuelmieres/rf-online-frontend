@@ -531,8 +531,8 @@ const PerfilUsuario = () => {
                                             key={index}
                                             onClick={() => setSemanaActiva(index)}
                                             className={`flex-shrink-0 px-4 py-2 min-w-[120px] border-2 font-bold ${semanaActiva === index
-                                                    ? 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
-                                                    : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300'
+                                                ? 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
+                                                : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300'
                                                 }`}
                                         >
                                             Semana {semana.numero}
@@ -590,31 +590,56 @@ const PerfilUsuario = () => {
 
                                                                 {bloque.tipo === 'ejercicios' ? (
                                                                     <div className="space-y-3">
-                                                                        {bloque.ejercicios?.map((ejercicio, ejIndex) => (
-                                                                            <div key={ejIndex} className="text-sm">
-                                                                                <p className="font-semibold">{ejercicio.nombre}</p>
-                                                                                <p className="text-xs">
-                                                                                    {ejercicio.series}x{ejercicio.repeticiones}
-                                                                                    {ejercicio.peso && ` @ ${ejercicio.peso}kg`}
-                                                                                </p>
-                                                                                {ejercicio.linkVideo && (
-                                                                                    <a
-                                                                                        href={ejercicio.linkVideo}
-                                                                                        target="_blank"
-                                                                                        rel="noopener noreferrer"
-                                                                                        className="text-xs text-blue-500 hover:underline"
-                                                                                    >
-                                                                                        Ver video
-                                                                                    </a>
-                                                                                )}
-                                                                            </div>
-                                                                        ))}
+                                                                        {bloque.ejercicios?.map((ejercicio, ejIndex) => {
+                                                                            const escala = (ejercicio.escala || '').toUpperCase();
+                                                                            const esfuerzoVal = ejercicio.esfuerzoPercibido ?? '';
+                                                                            const tieneEsfuerzo =
+                                                                                escala && esfuerzoVal !== '' && esfuerzoVal !== null && esfuerzoVal !== undefined;
+
+                                                                            return (
+                                                                                <div key={ejIndex} className="text-sm">
+                                                                                    <p className="font-semibold">{ejercicio.nombre}</p>
+
+                                                                                    <div className="flex items-center gap-2 text-xs mt-0.5">
+                                                                                        <span>
+                                                                                            {ejercicio.series}x{ejercicio.repeticiones}
+                                                                                        </span>
+
+                                                                                        {tieneEsfuerzo && (
+                                                                                            <span
+                                                                                                className={[
+                                                                                                    "inline-flex items-center gap-1 px-2 py-0.5",
+                                                                                                    "border-2 border-black dark:border-gray-600",
+                                                                                                    "bg-white dark:bg-black font-bold"
+                                                                                                ].join(' ')}
+                                                                                                title={escala === 'RPE' ? 'Esfuerzo percibido (6–10)' : 'Repeticiones en recámara (0–5)'}
+                                                                                            >
+                                                                                                <span className="text-[10px] tracking-wide">{escala}</span>
+                                                                                                <span className="text-xs">{esfuerzoVal}</span>
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </div>
+
+                                                                                    {ejercicio.linkVideo && (
+                                                                                        <a
+                                                                                            href={ejercicio.linkVideo}
+                                                                                            target="_blank"
+                                                                                            rel="noopener noreferrer"
+                                                                                            className="text-xs text-blue-500 hover:underline"
+                                                                                        >
+                                                                                            Ver video
+                                                                                        </a>
+                                                                                    )}
+                                                                                </div>
+                                                                            );
+                                                                        })}
                                                                     </div>
                                                                 ) : (
                                                                     <p className="text-sm whitespace-pre-line">
                                                                         {bloque.contenidoTexto || 'Sin contenido'}
                                                                     </p>
                                                                 )}
+
                                                             </div>
                                                         ))
                                                     ) : (

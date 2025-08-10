@@ -493,50 +493,68 @@ const DetallePlanificacion = () => {
 
                                                     {bloque.tipo === 'ejercicios' ? (
                                                         <div className="space-y-3">
-                                                            {bloque.ejercicios?.map((ejercicio, ejIndex) => (
-                                                                <div key={ejIndex} className="text-sm">
-                                                                    <p className="font-semibold">{ejercicio.nombre}</p>
-                                                                    <p className="text-xs">
-                                                                        {ejercicio.series}x{ejercicio.repeticiones}
-                                                                        {ejercicio.peso && ` @ ${ejercicio.peso}kg`}
-                                                                    </p>
-                                                                    {ejercicio.linkVideo && (() => {
-                                                                        const { id, isShort } = getYouTubeId(ejercicio.linkVideo);
+                                                            {bloque.ejercicios?.map((ejercicio, ejIndex) => {
+                                                                const escala = (ejercicio.escala || '').toUpperCase();
+                                                                const esfuerzoVal = ejercicio.esfuerzoPercibido ?? '';
+                                                                const tieneEsfuerzo = escala && esfuerzoVal !== '' && esfuerzoVal !== null && esfuerzoVal !== undefined;
 
-                                                                        return (
-                                                                            <div className="mt-2">
-                                                                                <div className="flex items-center gap-1 mb-1">
-                                                                                    <svg className="w-4 h-4 text-red-600" viewBox="0 0 24 24">
-                                                                                        <path fill="currentColor" d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
-                                                                                    </svg>
-                                                                                    <span className="text-xs font-medium">
-                                                                                        {isShort ? 'Short demostrativo' : 'Video demostrativo'}
-                                                                                    </span>
-                                                                                </div>
+                                                                return (
+                                                                    <div key={ejIndex} className="text-sm">
+                                                                        <p className="font-semibold">{ejercicio.nombre}</p>
 
-                                                                                <div className={`relative ${isShort ? 'aspect-[9/16] w-full max-w-[300px] mx-auto' : 'aspect-video'} bg-black`}>
-                                                                                    <iframe
-                                                                                        className="w-full h-full"
-                                                                                        src={`https://www.youtube.com/embed/${id}${isShort
-                                                                                                ? '?controls=0&modestbranding=1'
-                                                                                                : '?rel=0&modestbranding=1'
-                                                                                            }`}
-                                                                                        title="Video demostración del ejercicio"
-                                                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                                                        allowFullScreen
-                                                                                    />
+                                                                        <div className="flex items-center gap-2 text-xs mt-0.5">
+                                                                            <span>{ejercicio.series}x{ejercicio.repeticiones}</span>
+
+                                                                            {tieneEsfuerzo && (
+                                                                                <span
+                                                                                    className={[
+                                                                                        "inline-flex items-center gap-1 px-2 py-0.5",
+                                                                                        "border-2 border-black dark:border-gray-600",
+                                                                                        "bg-white dark:bg-black font-bold"
+                                                                                    ].join(' ')}
+                                                                                    title={escala === 'RPE' ? 'Esfuerzo percibido (6–10)' : 'Repeticiones en recámara (0–5)'}
+                                                                                >
+                                                                                    <span className="text-[10px] tracking-wide">{escala}</span>
+                                                                                    <span className="text-xs">{esfuerzoVal}</span>
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+
+                                                                        {ejercicio.linkVideo && (() => {
+                                                                            const { id, isShort } = getYouTubeId(ejercicio.linkVideo);
+                                                                            return (
+                                                                                <div className="mt-2">
+                                                                                    <div className="flex items-center gap-1 mb-1">
+                                                                                        <svg className="w-4 h-4 text-red-600" viewBox="0 0 24 24">
+                                                                                            <path fill="currentColor" d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                                                                                        </svg>
+                                                                                        <span className="text-xs font-medium">
+                                                                                            {isShort ? 'Short demostrativo' : 'Video demostrativo'}
+                                                                                        </span>
+                                                                                    </div>
+
+                                                                                    <div className={`relative ${isShort ? 'aspect-[9/16] w-full max-w-[300px] mx-auto' : 'aspect-video'} bg-black`}>
+                                                                                        <iframe
+                                                                                            className="w-full h-full"
+                                                                                            src={`https://www.youtube.com/embed/${id}${isShort ? '?controls=0&modestbranding=1' : '?rel=0&modestbranding=1'}`}
+                                                                                            title="Video demostración del ejercicio"
+                                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                            allowFullScreen
+                                                                                        />
+                                                                                    </div>
                                                                                 </div>
-                                                                            </div>
-                                                                        );
-                                                                    })()}
-                                                                </div>
-                                                            ))}
+                                                                            );
+                                                                        })()}
+                                                                    </div>
+                                                                );
+                                                            })}
                                                         </div>
                                                     ) : (
                                                         <p className="text-sm whitespace-pre-line">
                                                             {bloque.contenidoTexto || 'Sin contenido'}
                                                         </p>
                                                     )}
+
                                                 </div>
                                             ))
                                         ) : (
