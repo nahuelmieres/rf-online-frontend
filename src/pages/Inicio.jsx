@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, Dumbbell, User, ArrowRight } from 'lucide-react';
+import { Calendar, Dumbbell, User, Clock } from 'lucide-react';
 
 const Inicio = () => {
   return (
@@ -15,71 +15,93 @@ const Inicio = () => {
         </p>
       </div>
 
-      {/* Cards Section */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 md:px-0">
+      {/* Cards Section - Ahora con 4 columnas en desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4 md:px-0">
         {/* Card Planes */}
         <Link
           to="/planes"
-          className="card p-8 group border-2 border-black dark:border-gray-600 hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+          className="card p-6 group border-2 border-black dark:border-gray-600 bg-white dark:bg-black hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all shadow-hard"
         >
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-4">
             <div className="bg-black dark:bg-white p-3 border-2 border-black dark:border-gray-600">
               <Calendar className="w-6 h-6 text-white dark:text-black" />
             </div>
-            <h3 className="text-2xl font-bold">
+            <h3 className="text-xl font-bold">
               PLANES
             </h3>
           </div>
-          <p className="text-lg mb-6">
+          <p className="text-base mb-4">
             MIRÁ TU PLANIFICACIÓN ACTIVA Y PRÓXIMAS RUTINAS.
           </p>
-          <div className="flex items-center gap-2 mt-auto">
-            <span className="font-bold">VER MÁS</span>
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+          <div className="flex items-center gap-2 mt-auto text-sm font-bold">
+            <span>VER MÁS</span>
+            <span className="transition-transform group-hover:translate-x-1">→</span>
           </div>
         </Link>
 
         {/* Card Entrenadores */}
         <Link
           to="/entrenadores"
-          className="card p-8 group border-2 border-black dark:border-gray-600 hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+          className="card p-6 group border-2 border-black dark:border-gray-600 bg-white dark:bg-black hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all shadow-hard"
         >
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-4">
             <div className="bg-black dark:bg-white p-3 border-2 border-black dark:border-gray-600">
               <User className="w-6 h-6 text-white dark:text-black" />
             </div>
-            <h3 className="text-2xl font-bold">
+            <h3 className="text-xl font-bold">
               PROFES
             </h3>
           </div>
-          <p className="text-lg mb-6">
+          <p className="text-base mb-4">
             CONOCÉ QUIÉN TE GUÍA Y CÓMO CONTACTARLO.
           </p>
-          <div className="flex items-center gap-2 mt-auto">
-            <span className="font-bold">VER MÁS</span>
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+          <div className="flex items-center gap-2 mt-auto text-sm font-bold">
+            <span>VER MÁS</span>
+            <span className="transition-transform group-hover:translate-x-1">→</span>
           </div>
         </Link>
 
         {/* Card Cuenta */}
         <Link
           to="/cuenta"
-          className="card p-8 group border-2 border-black dark:border-gray-600 hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+          className="card p-6 group border-2 border-black dark:border-gray-600 bg-white dark:bg-black hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all shadow-hard"
         >
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-4">
             <div className="bg-black dark:bg-white p-3 border-2 border-black dark:border-gray-600">
               <Dumbbell className="w-6 h-6 text-white dark:text-black" />
             </div>
-            <h3 className="text-2xl font-bold">
+            <h3 className="text-xl font-bold">
               MI CUENTA
             </h3>
           </div>
-          <p className="text-lg mb-6">
+          <p className="text-base mb-4">
             GESTIONÁ TUS DATOS Y EL ESTADO DE TU SUSCRIPCIÓN.
           </p>
-          <div className="flex items-center gap-2 mt-auto">
-            <span className="font-bold">VER MÁS</span>
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+          <div className="flex items-center gap-2 mt-auto text-sm font-bold">
+            <span>VER MÁS</span>
+            <span className="transition-transform group-hover:translate-x-1">→</span>
+          </div>
+        </Link>
+
+        {/* Card Reservas - Ahora con ícono de reloj y en la misma fila */}
+        <Link
+          to="/reservar"
+          className="card p-6 group border-2 border-black dark:border-gray-600 bg-white dark:bg-black hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all shadow-hard"
+        >
+          <div className="flex items-center gap-4 mb-4">
+            <div className="bg-black dark:bg-white p-3 border-2 border-black dark:border-gray-600">
+              <Clock className="w-6 h-6 text-white dark:text-black" />
+            </div>
+            <h3 className="text-xl font-bold">
+              RESERVAS
+            </h3>
+          </div>
+          <p className="text-base mb-4">
+            RESERVÁ TU CLASE O ENTRENAMIENTO EN EL GIMNASIO.
+          </p>
+          <div className="flex items-center gap-2 mt-auto text-sm font-bold">
+            <span>VER MÁS</span>
+            <span className="transition-transform group-hover:translate-x-1">→</span>
           </div>
         </Link>
       </div>
