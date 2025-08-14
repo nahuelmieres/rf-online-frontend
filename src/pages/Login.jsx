@@ -103,7 +103,7 @@ const Login = () => {
               </label>
             </div>
 
-            <a href="#" className="text-sm md:text-base font-bold hover:underline whitespace-nowrap">
+            <a href="/recuperar-contrasena" className="text-sm md:text-base font-bold hover:underline whitespace-nowrap">
               ¿OLVIDASTE LA CONTRASEÑA?
             </a>
           </div>

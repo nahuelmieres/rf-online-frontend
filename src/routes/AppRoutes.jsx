@@ -17,6 +17,8 @@ import TerminosCondiciones from '../pages/TerminosCondiciones';
 import ReservaForm from '../pages/Reservas/ReservaForm';
 import MisReservas from '../pages/Reservas/MisReservas';
 import GestionReservas from '../pages/Reservas/GestionReservas';
+import ForgotPassword  from '../pages/ForgotPassword';
+import ResetPassword from '../pages/ResetPassword';
 
 const AppRoutes = () => {
     return (
@@ -25,6 +27,8 @@ const AppRoutes = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/registro" element={<Registro />} />
             <Route path="/terminos" element={<TerminosCondiciones />} />
+            <Route path="/recuperar-contrasena" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Privadas */}
             <Route element={<RutaPrivada />}>
