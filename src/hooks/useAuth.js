@@ -110,11 +110,46 @@ export const useAuth = () => {
         navigate("/login");
     };
 
+    // Método para setear el usuario manualmente
+    const setAuthState = (userData, token) => {
+        try {
+            setLoading(true);
+            localStorage.setItem("token", token);
+            localStorage.setItem("rememberMe", "true");
+
+            // Decodificamos el token para asegurar consistencia
+            const payload = decodeJWT(token);
+            if (!payload) {
+                throw new Error("Token inválido al establecer estado manual");
+            }
+
+            // Usamos los datos del token para mantener consistencia con el login tradicional
+            const user = {
+                id: payload.id,
+                email: payload.email,
+                rol: payload.rol,
+                nombre: payload.nombre,
+                planPersonalizado: payload.planPersonalizado || null
+            };
+
+            setUser(user);
+            navigate("/");
+            return user;
+        } catch (error) {
+            console.error("Error al establecer estado de autenticación manual:", error);
+            throw error;
+        } finally {
+            setLoading(false);
+            window.location.reload();
+        }
+    }
+
     return {
         user,
         loading,
         isAuthenticated: !!user,
         login,
+        setAuthState,
         logout
     };
 };

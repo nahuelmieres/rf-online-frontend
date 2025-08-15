@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, User, ArrowLeft, X, Loader2, Dumbbell } from "lucide-react";
+import GoogleButton from '../components/GoogleButton';
 
 const Registro = () => {
   const [nombre, setNombre] = useState("");
@@ -43,12 +44,18 @@ const Registro = () => {
     }
   };
 
+  const handleGoogleSuccess = (user, token) => {
+    // Aquí puedes manejar el inicio de sesión exitoso con Google
+    //console.log("Usuario autenticado con Google:", user);
+    //console.log("Token JWT:", token);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black p-4">
       <div className="w-full max-w-md mx-auto border-2 border-black dark:border-gray-600 p-6 md:p-8 bg-white dark:bg-black shadow-hard relative">
         {/* Botón volver */}
-        <Link 
-          to="/login" 
+        <Link
+          to="/login"
           className="absolute top-6 left-6 text-black dark:text-white hover:text-primary-light dark:hover:text-primary-dark"
         >
           <ArrowLeft size={24} />
@@ -65,7 +72,7 @@ const Registro = () => {
           <h2 className="text-lg md:text-xl font-medium">PLATAFORMA DE ENTRENAMIENTO</h2>
           <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 mt-1">
             ÚNETE A NUESTRA COMUNIDAD Y COMIENZA TU VIAJE DE SUPERACIÓN HOY MISMO,
-             LOS PRIMEROS 14 DÍAS VAN POR NUESTRA CUENTA.
+            LOS PRIMEROS 14 DÍAS VAN POR NUESTRA CUENTA.
           </p>
         </div>
 
@@ -169,6 +176,9 @@ const Registro = () => {
             </button>
           </div>
         </form>
+
+        {/* Botón de Google personalizado */}
+        <GoogleButton onSuccessLogin={handleGoogleSuccess} />
 
         {/* Enlace a Login */}
         <div className="mt-6 text-center text-base">

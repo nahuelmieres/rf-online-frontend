@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Loader2, Lock, Mail, X, Dumbbell } from 'lucide-react';
+import GoogleButton from '../components/GoogleButton';
 
 const Login = () => {
   const { login } = useAuth();
@@ -21,8 +22,14 @@ const Login = () => {
       setError(err.message || "Error al iniciar sesión");
     } finally {
       setLoading(false);
-      window.location.reload(); 
+      window.location.reload();
     }
+  };
+
+  const handleGoogleSuccess = (user, token) => {
+    // Aquí puedes manejar el inicio de sesión exitoso con Google
+    //console.log("Usuario autenticado con Google:", user);
+    //console.log("Token JWT:", token);
   };
 
   return (
@@ -61,7 +68,6 @@ const Login = () => {
                 className="pl-10 w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-base focus:outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                required
                 autoComplete="email"
               />
             </div>
@@ -82,7 +88,6 @@ const Login = () => {
                 className="pl-10 w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-base focus:outline-none"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
                 autoComplete="current-password"
               />
             </div>
@@ -123,6 +128,8 @@ const Login = () => {
             </button>
           </div>
         </form>
+        {/* Botón de Google personalizado */}
+        <GoogleButton onSuccessLogin={handleGoogleSuccess} />
 
         <div className="mt-6 text-center text-base">
           <p>¿NO TIENES CUENTA?{' '}
