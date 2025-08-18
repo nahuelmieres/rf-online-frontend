@@ -19,6 +19,7 @@ import MisReservas from '../pages/Reservas/MisReservas';
 import GestionReservas from '../pages/Reservas/GestionReservas';
 import ForgotPassword  from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
+import ForoPlanificacion from '../pages/Planificaciones/ForoPlanificacion';
 
 const AppRoutes = () => {
     return (
@@ -40,6 +41,7 @@ const AppRoutes = () => {
                 <Route path="/reservar" element={<ReservaForm />} />
                 <Route path="/mis-reservas" element={<MisReservas />} />
                 <Route path="/gestion/reservas" element={<GestionReservas />} />
+                <Route path="/planificacion/:idPlanificacion/foro" element={<ForoPlanificacion />} />
 
                 {/* Nueva ruta de gestión */}
                 <Route

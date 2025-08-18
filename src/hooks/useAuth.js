@@ -80,6 +80,7 @@ export const useAuth = () => {
             const data = await response.json();
             localStorage.setItem("token", data.token);
             localStorage.setItem("rememberMe", remember.toString());
+            localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
             const payload = decodeJWT(data.token);
             if (!payload) throw new Error("Token inválido");
@@ -131,6 +132,7 @@ export const useAuth = () => {
                 nombre: payload.nombre,
                 planPersonalizado: payload.planPersonalizado || null
             };
+            localStorage.setItem("usuario", JSON.stringify(user));
 
             setUser(user);
             navigate("/");

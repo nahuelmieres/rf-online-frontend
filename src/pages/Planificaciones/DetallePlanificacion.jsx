@@ -401,6 +401,13 @@ const DetallePlanificacion = () => {
                             {planificacion.categoria?.toUpperCase() || 'SIN CATEGORÍA'}
                         </span>
                     </div>
+                    <Link
+                        to={`/planificacion/${planificacion._id}/foro`}
+                        className="px-4 py-2 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+                        target='_blank'
+                    >
+                        VER FORO
+                    </Link>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
