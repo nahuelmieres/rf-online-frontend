@@ -7,6 +7,7 @@ import TarjetaPlan from './TarjetaPlan';
 const Planes = () => {
   const [planificacionesBasicas, setPlanificacionesBasicas] = useState([]);
   const [planificacionPersonalizada, setPlanificacionPersonalizada] = useState(null);
+  const [perfilUsuario, setPerfilUsuario] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState(null);
   const [notificacion, setNotificacion] = useState(null);
@@ -43,6 +44,7 @@ const Planes = () => {
         }
         const perfilData = await perfilRes.json();
         const usuario = perfilData.data.usuarios[0];
+        setPerfilUsuario(usuario);
 
         // Obtener planificación personalizada si existe
         let resPersonalizada = null;
@@ -88,6 +90,11 @@ const Planes = () => {
     setTimeout(() => setNotificacion(null), 5000);
   };
 
+  // Función para verificar si el usuario tiene permisos de coach o admin
+  const tienePermisosCreacion = () => {
+    return perfilUsuario && (perfilUsuario.rol === 'coach' || perfilUsuario.rol === 'admin');
+  };
+
   if (cargando) {
     return <Loader mensaje="Cargando las planificaciones..." />;
   }
@@ -118,7 +125,19 @@ const Planes = () => {
         />
       )}
 
-      <h1 className="text-3xl font-bold mb-8">Planificaciones</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Planificaciones</h1>
+        
+        {/* Botón para crear planificación (solo visible para coach/admin) */}
+        {user && tienePermisosCreacion() && (
+          <a 
+            href="/crear-plan"
+            className="px-4 py-2 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+          >
+            CREAR PLANIFICACIÓN
+          </a>
+        )}
+      </div>
 
       {/* Sección para usuarios autenticados */}
       {user ? (

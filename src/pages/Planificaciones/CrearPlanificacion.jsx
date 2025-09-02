@@ -114,7 +114,7 @@ const CrearPlanificacion = () => {
         <header className="mb-8">
           <div className="flex items-center gap-4 mb-4">
             <button
-              onClick={() => navigate('/gestion/planificaciones')}
+              onClick={() => navigate('/planes')}
               className="p-2 border-2 border-black dark:border-gray-600 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
             >
               <ArrowLeft className="w-5 h-5" />
