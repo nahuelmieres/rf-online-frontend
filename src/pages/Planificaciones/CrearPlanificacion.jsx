@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { Dumbbell, Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
 import Notificacion from '../../components/Notificacion';
+import SmartLink from '../../components/SmartLink/SmartLink';
 
 const CrearPlanificacion = () => {
   const { user, loading } = useAuth();
@@ -36,7 +37,7 @@ const CrearPlanificacion = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (formData.diasPorSemana.length === 0) {
       mostrarNotificacion(
         'error',
@@ -93,8 +94,8 @@ const CrearPlanificacion = () => {
     const newDias = formData.diasPorSemana.includes(dia)
       ? formData.diasPorSemana.filter(d => d !== dia)
       : [...formData.diasPorSemana, dia];
-    
-    setFormData({...formData, diasPorSemana: newDias});
+
+    setFormData({ ...formData, diasPorSemana: newDias });
   };
 
   return (
@@ -113,12 +114,12 @@ const CrearPlanificacion = () => {
         {/* Header */}
         <header className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <button
-              onClick={() => navigate('/planes')}
+            <SmartLink
+              to="/planes"
               className="p-2 border-2 border-black dark:border-gray-600 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
             >
               <ArrowLeft className="w-5 h-5" />
-            </button>
+            </SmartLink>
             <div>
               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
                 CREAR PLANIFICACIÓN
@@ -146,7 +147,7 @@ const CrearPlanificacion = () => {
                 name="titulo"
                 type="text"
                 value={formData.titulo}
-                onChange={(e) => setFormData({...formData, titulo: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
                 className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none"
                 placeholder="EJ: PLAN DE HIPERTROFIA AVANZADO"
                 required
@@ -166,7 +167,7 @@ const CrearPlanificacion = () => {
                 id="tipo"
                 name="tipo"
                 value={formData.tipo}
-                onChange={(e) => setFormData({...formData, tipo: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
                 className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none"
                 required
               >
@@ -185,15 +186,15 @@ const CrearPlanificacion = () => {
               </label>
               <select
                 id="categoria"
-                name="categoria" 
+                name="categoria"
                 value={formData.categoria}
-                onChange={(e) => setFormData({...formData, categoria: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
                 className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none"
                 required
               >
                 <option value="basica">BÁSICA</option>
                 <option value="personalizada">PERSONALIZADA</option>
-                </select>
+              </select>
             </div>
 
             <div>
@@ -204,7 +205,7 @@ const CrearPlanificacion = () => {
                 id="descripcion"
                 name="descripcion"
                 value={formData.descripcion}
-                onChange={(e) => setFormData({...formData, descripcion: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
                 className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none"
                 rows="3"
                 placeholder="DESCRIBE LOS OBJETIVOS DE ESTA PLANIFICACIÓN"
@@ -234,7 +235,7 @@ const CrearPlanificacion = () => {
                 max="12"
                 value={formData.cantidadSemanas}
                 onChange={(e) => setFormData({
-                  ...formData, 
+                  ...formData,
                   cantidadSemanas: Math.min(12, Math.max(1, parseInt(e.target.value) || 1))
                 })}
                 className="w-24 p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none"
@@ -247,12 +248,12 @@ const CrearPlanificacion = () => {
               </p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'].map((dia) => (
-                  <label 
+                  <label
                     key={dia}
                     className={`flex items-center p-3 border-2 cursor-pointer transition-all
-                              ${formData.diasPorSemana.includes(dia) 
-                                ? 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
-                                : 'border-black dark:border-gray-600'}`}
+                              ${formData.diasPorSemana.includes(dia)
+                        ? 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
+                        : 'border-black dark:border-gray-600'}`}
                   >
                     <input
                       id={`dia-${dia}`}
@@ -273,19 +274,18 @@ const CrearPlanificacion = () => {
 
           {/* Botones */}
           <div className="flex justify-end gap-4 pt-6">
-            <button
-              type="button"
-              onClick={() => navigate('/gestion/planificaciones')}
-              className="px-6 py-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-black dark:text-white font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+            <SmartLink
+              to="/planes"
+              className="px-6 py-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-black dark:text-white font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all text-center"
             >
               CANCELAR
-            </button>
+            </SmartLink>
             <button
               type="submit"
               disabled={isSubmitting || formData.diasPorSemana.length === 0}
               className={`px-6 py-3 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all
-                        ${(isSubmitting || formData.diasPorSemana.length === 0) 
-                          ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        ${(isSubmitting || formData.diasPorSemana.length === 0)
+                  ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">

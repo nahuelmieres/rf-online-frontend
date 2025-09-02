@@ -13,6 +13,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/browser": "^7.0.2",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
+    "@capacitor/ios": "^7.4.3",
+    "@capacitor/preferences": "^7.0.2",
     "@fontsource/inter": "^5.2.6",
     "@fontsource/roboto-mono": "^5.2.6",
     "@heroicons/react": "^2.2.0",

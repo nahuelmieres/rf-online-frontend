@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ChevronLeft, Check, Dumbbell, Calendar, AlertTriangle, Loader2, Zap, ZapOff, Coffee, MessageSquare, Edit2, Trash2, Send } from 'lucide-react';
 import Notificacion from '../../components/Notificacion';
 import { useAuth } from '../../hooks/useAuth';
+import SmartLink from '../../components/SmartLink/SmartLink';
 
 // Función para formatear fechas
 const formatDate = (dateString) => {
@@ -345,12 +346,12 @@ const DetallePlanificacion = () => {
         return (
             <div className="max-w-4xl mx-auto p-4 text-center">
                 <p>No se encontraron datos de la planificación</p>
-                <Link
+                <SmartLink
                     to="/planes"
                     className="mt-4 inline-block px-4 py-2 bg-black text-white"
                 >
                     <ChevronLeft size={16} className="inline mr-1" /> Volver
-                </Link>
+                </SmartLink>
             </div>
         );
     }
@@ -371,12 +372,12 @@ const DetallePlanificacion = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 border-b-2 border-black dark:border-gray-600 pb-6">
                 <div className="flex items-center gap-4">
-                    <Link
+                    <SmartLink
                         to="/planes"
                         className="flex items-center gap-2 px-4 py-2 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-black dark:text-white font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
                     >
                         <ChevronLeft size={20} className="mr-1" /> VOLVER
-                    </Link>
+                    </SmartLink>
                     <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
                         DETALLE DE PLANIFICACIÓN
                     </h1>
@@ -401,13 +402,13 @@ const DetallePlanificacion = () => {
                             {planificacion.categoria?.toUpperCase() || 'SIN CATEGORÍA'}
                         </span>
                     </div>
-                    <Link
+                    <SmartLink
                         to={`/planificacion/${planificacion._id}/foro`}
                         className="px-4 py-2 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
                         target='_blank'
                     >
                         VER FORO
-                    </Link>
+                    </SmartLink>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

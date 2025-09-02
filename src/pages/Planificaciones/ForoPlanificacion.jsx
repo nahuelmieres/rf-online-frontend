@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Send, Edit, Trash2, X, Check, User, MoreVertical, ChevronLeft } from 'lucide-react';
+import SmartLink from '../../components/SmartLink/SmartLink';
 
 const ForoPlanificacion = () => {
     const { idPlanificacion } = useParams();

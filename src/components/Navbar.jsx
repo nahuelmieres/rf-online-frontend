@@ -1,40 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Sun, Moon, Menu, X, Home, Dumbbell, Users, UserCircle, LogOut, Settings, UserCog, ClipboardList, Calendar, Clock } from 'lucide-react';
+import SmartLink from './SmartLink/SmartLink';
+import NavItem from './NavItem/NavItem'; // Asegúrate de que esta ruta sea correcta
 
 const Navbar = () => {
   const { user, logout, loading } = useAuth();
   const location = useLocation();
   const [menuAbierto, setMenuAbierto] = useState(false);
-  const [darkMode, setDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
-    return savedTheme === 'dark' ||
-      (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches);
-  });
+  const [darkMode, setDarkMode] = useState(false);
   const [submenuGestionAbierto, setSubmenuGestionAbierto] = useState(false);
   const [submenuReservasAbierto, setSubmenuReservasAbierto] = useState(false);
-  const navigate = useNavigate();
 
+  // Carga inicial del tema - SOLO UNA VEZ al montar el componente
   useEffect(() => {
-    if (darkMode) {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    const shouldBeDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
+    
+    setDarkMode(shouldBeDark);
+    if (shouldBeDark) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  // Función para cambiar el tema - SIN useEffect
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
+    
+    if (newDarkMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
     } else {
       document.documentElement.classList.remove('dark');
       localStorage.setItem('theme', 'light');
     }
-  }, [darkMode]);
+  };
 
   useEffect(() => {
     setMenuAbierto(false);
     setSubmenuGestionAbierto(false);
     setSubmenuReservasAbierto(false);
   }, [location]);
-
-  const toggleDarkMode = () => {
-    setDarkMode(prev => !prev);
-  };
 
   const handleLogout = () => {
     logout();
@@ -46,25 +56,6 @@ const Navbar = () => {
   const esAdmin = user?.rol === 'admin';
   const esCoach = user?.rol === 'coach';
   const mostrarGestion = esAdmin || esCoach;
-
-  const NavItem = ({ to, icon, text, onClick, children }) => (
-    <div className="border-b-2 border-black dark:border-gray-600 last:border-0">
-      <Link
-        to={to}
-        onClick={onClick}
-        className="flex items-center gap-4 py-5 px-6 text-xl hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
-      >
-        {icon}
-        <span>{text}</span>
-        {children && <span className="ml-auto">▼</span>}
-      </Link>
-      {children && (
-        <div className="bg-white dark:bg-black">
-          {children}
-        </div>
-      )}
-    </div>
-  );
 
   if (loading) {
     return (
@@ -84,10 +75,10 @@ const Navbar = () => {
     <header className="bg-white dark:bg-black border-b-2 border-black dark:border-gray-600 sticky top-0 z-50">
       <nav className="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
         <h1 className="text-2xl font-extrabold tracking-tight">
-          <Link to="/" className="flex items-center gap-3 hover:text-primary-light dark:hover:text-primary-dark transition-colors">
+          <SmartLink to="/" className="flex items-center gap-3 hover:text-primary-light dark:hover:text-primary-dark transition-colors">
             <Dumbbell className="w-6 h-6" />
             <span>RF ONLINE</span>
-          </Link>
+          </SmartLink>
         </h1>
 
         <div className="flex items-center gap-4">

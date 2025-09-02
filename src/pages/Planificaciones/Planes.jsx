@@ -3,6 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import Loader from '../../components/Loader';
 import Notificacion from '../../components/Notificacion';
 import TarjetaPlan from './TarjetaPlan';
+import SmartLink from '../../components/SmartLink/SmartLink';
 
 const Planes = () => {
   const [planificacionesBasicas, setPlanificacionesBasicas] = useState([]);
@@ -127,15 +128,15 @@ const Planes = () => {
 
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Planificaciones</h1>
-        
+
         {/* Botón para crear planificación (solo visible para coach/admin) */}
         {user && tienePermisosCreacion() && (
-          <a 
-            href="/crear-plan"
+          <SmartLink
+            to="/crear-plan"
             className="px-4 py-2 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
           >
             CREAR PLANIFICACIÓN
-          </a>
+          </SmartLink>
         )}
       </div>
 
@@ -181,12 +182,12 @@ const Planes = () => {
         <div className="text-center py-12">
           <h2 className="text-2xl font-bold mb-4">Acceso restringido</h2>
           <p className="mb-6">Debes iniciar sesión para ver tus planificaciones</p>
-          <a
-            href="/login"
+          <SmartLink
+            to="/login"
             className="px-4 py-2 bg-black text-white font-bold"
           >
             Iniciar sesión
-          </a>
+          </SmartLink>
         </div>
       )}
     </div>
