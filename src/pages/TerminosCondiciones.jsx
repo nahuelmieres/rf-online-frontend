@@ -1,18 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft } from 'lucide-react';
+import SmartLink from '../components/SmartLink/SmartLink';
 
 const TerminosCondiciones = () => {
   return (
     <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8 border-b-2 border-black dark:border-gray-600 pb-6">
-        <Link
+        <SmartLink
           to="/registro"
           className="flex items-center gap-2 px-4 py-2 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-black dark:text-white font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
         >
           <ChevronLeft size={20} className="mr-1" /> VOLVER
-        </Link>
+        </SmartLink>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
           TÉRMINOS Y CONDICIONES DE USO
         </h1>
@@ -111,7 +112,7 @@ const TerminosCondiciones = () => {
           <h2 className="text-xl font-bold mt-6 mb-4">11. Contacto</h2>
           <p>
             Para consultas relacionadas con estos términos, puede comunicarse con nosotros por nuestras redes sociales:
-            <span className="font-bold"><Link to="https://www.instagram.com/real.forceuy/" target="_blank"> REAL FORCE</Link></span>
+            <span className="font-bold"><SmartLink to="https://www.instagram.com/real.forceuy/" target="_blank"> REAL FORCE</SmartLink></span>
           </p>
         </div>
       </div>

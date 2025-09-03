@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { User, Mail, Shield, CreditCard, Loader2, AlertCircle, CheckCircle2, XCircle, Calendar, ArrowLeft } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import SmartLink from "../components/SmartLink/SmartLink";
 
 const Cuenta = () => {
   const [perfil, setPerfil] = useState(null);
@@ -175,12 +176,12 @@ const Cuenta = () => {
           </div>
 
           {(perfil.rol === 'cliente' && (!isActive || subscriptionStatus.message.includes('VENCE EN'))) && (
-            <Link
+            <SmartLink
               to="/suscripcion"
               className="inline-block mt-6 px-6 py-3 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
             >
               {isActive ? 'RENOVAR SUSCRIPCIÓN' : 'ACTIVAR SUSCRIPCIÓN'}
-            </Link>
+            </SmartLink>
           )}
         </div>
       </div>

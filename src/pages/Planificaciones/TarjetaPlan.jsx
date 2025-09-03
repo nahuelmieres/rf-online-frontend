@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Star } from 'lucide-react';
+import SmartLink from '../../components/SmartLink/SmartLink';
 
 const TarjetaPlan = ({ planificacion, esPersonalizada }) => {
   return (
@@ -27,12 +28,12 @@ const TarjetaPlan = ({ planificacion, esPersonalizada }) => {
           </div>
         </div>
         
-        <Link 
+        <SmartLink
           to={`/planificacion/${planificacion._id}`}
           className="px-4 py-2 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
         >
           VER DETALLE
-        </Link>
+        </SmartLink>
       </div>
       
       <div className="mt-4 pt-4 border-t border-black dark:border-gray-600">

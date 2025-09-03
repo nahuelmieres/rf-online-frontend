@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Loader2, Lock, Mail, X, Dumbbell } from 'lucide-react';
 import GoogleButton from '../components/GoogleButton';
+import SmartLink from '../components/SmartLink/SmartLink';
 
 const Login = () => {
   const { login } = useAuth();
@@ -133,9 +134,9 @@ const Login = () => {
 
         <div className="mt-6 text-center text-base">
           <p>¿NO TIENES CUENTA?{' '}
-            <a href="/registro" className="font-bold hover:underline">
+            <SmartLink to="/registro" className="font-bold hover:underline">
               REGISTRATE
-            </a>
+            </SmartLink>
           </p>
         </div>
       </div>

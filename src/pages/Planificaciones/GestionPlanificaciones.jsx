@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Check, X, Loader2, Search } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import Loader from '../../components/Loader';
 import Notificacion from '../../components/Notificacion';
+import SmartLink from '../../components/SmartLink/SmartLink';
 
 const GestionPlanificaciones = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -234,14 +234,14 @@ const GestionPlanificaciones = () => {
                 className="border-b border-black dark:border-gray-600 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
               >
                 <td className="px-4 py-3">
-                  <a
-                    href={`/perfil/${usuario._id}`}
+                  <SmartLink
+                    to={`/perfil/${usuario._id}`}
                     className="font-bold hover:underline"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     {usuario.nombre?.toUpperCase()}
-                  </a>
+                  </SmartLink>
                 </td>
                 <td className="px-4 py-3">{usuario.email}</td>
                 <td className="px-4 py-3">

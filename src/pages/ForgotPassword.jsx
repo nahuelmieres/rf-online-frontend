@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { Mail, Loader2, ArrowLeft, Dumbbell } from "lucide-react";
 import Notificacion from "../components/Notificacion";
+import SmartLink from "../components/SmartLink/SmartLink";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
   const [notificacion, setNotificacion] = useState({
     mostrar: false,
     tipo: "",
@@ -54,12 +53,12 @@ const ForgotPassword = () => {
     <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black p-4">
       <div className="w-full max-w-md mx-auto border-2 border-black dark:border-gray-600 p-6 md:p-8 bg-white dark:bg-black shadow-hard relative">
         {/* Botón volver */}
-        <Link 
+        <SmartLink 
           to="/login" 
           className="absolute top-6 left-6 text-black dark:text-white hover:text-primary-light dark:hover:text-primary-dark"
         >
           <ArrowLeft size={24} />
-        </Link>
+        </SmartLink>
 
         {/* Logo y título */}
         <div className="text-center mb-8">
@@ -116,9 +115,9 @@ const ForgotPassword = () => {
 
         <div className="mt-6 text-center text-base">
           <p>¿NO TIENES CUENTA?{' '}
-            <Link to="/registro" className="font-bold hover:underline">
+            <SmartLink to="/registro" className="font-bold hover:underline">
               REGÍSTRATE
-            </Link>
+            </SmartLink>
           </p>
         </div>
 

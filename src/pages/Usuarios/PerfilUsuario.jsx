@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { ChevronLeft, Dumbbell, Calendar, AlertTriangle, Loader2, Zap, ZapOff, Coffee, MessageSquare, Edit2, Trash2, Send, Check, User } from 'lucide-react';
 import Notificacion from '../../components/Notificacion';
+import SmartLink from '../../components/SmartLink/SmartLink';
 
 // Función para formatear fechas
 const formatDate = (dateString) => {
@@ -385,12 +386,12 @@ const PerfilUsuario = () => {
         return (
             <div className="max-w-4xl mx-auto p-4 text-center">
                 <p>No se encontraron datos del usuario</p>
-                <Link
+                <SmartLink
                     to="/gestion/planificaciones"
                     className="mt-4 inline-block px-4 py-2 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
                 >
                     <ChevronLeft size={16} className="inline mr-1" /> Volver
-                </Link>
+                </SmartLink>
             </div>
         );
     }
@@ -410,12 +411,12 @@ const PerfilUsuario = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8 border-b-2 border-black dark:border-gray-600 pb-6">
                 <div className="flex items-center gap-4">
-                    <Link
+                    <SmartLink
                         to="/gestion/planificaciones"
                         className="flex items-center gap-2 px-4 py-2 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-black dark:text-white font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
                     >
                         <ChevronLeft size={20} className="mr-1" /> VOLVER
-                    </Link>
+                    </SmartLink>
                     <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
                         PERFIL DE USUARIO
                     </h1>
@@ -621,14 +622,14 @@ const PerfilUsuario = () => {
                                                                                     </div>
 
                                                                                     {ejercicio.linkVideo && (
-                                                                                        <a
-                                                                                            href={ejercicio.linkVideo}
+                                                                                        <SmartLink
+                                                                                            to={ejercicio.linkVideo}
                                                                                             target="_blank"
                                                                                             rel="noopener noreferrer"
                                                                                             className="text-xs text-blue-500 hover:underline"
                                                                                         >
                                                                                             Ver video
-                                                                                        </a>
+                                                                                        </SmartLink>
                                                                                     )}
                                                                                 </div>
                                                                             );

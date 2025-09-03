@@ -4,6 +4,7 @@ import { Check } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import Loader from '../../components/Loader';
 import Notificacion from '../../components/Notificacion';
+import SmartLink from '../../components/SmartLink/SmartLink';
 
 const Suscripcion = () => {
   const { user, loading } = useAuth();
@@ -220,12 +221,12 @@ const Suscripcion = () => {
       </div>
 
       <div className="mt-6 text-center">
-        <button
-          onClick={() => navigate('/cuenta')}
+        <SmartLink
+          to="/cuenta"
           className="px-4 py-2 border-2 border-black dark:border-gray-600 font-bold hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5 transition-colors"
         >
           VOLVER A MI PERFIL
-        </button>
+        </SmartLink>
       </div>
     </div>
   </>

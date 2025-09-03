@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Calendar, Dumbbell, User, Clock } from 'lucide-react';
+import SmartLink from '../components/SmartLink/SmartLink';
 
 const Inicio = () => {
   return (
@@ -18,7 +18,7 @@ const Inicio = () => {
       {/* Cards Section - Ahora con 4 columnas en desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4 md:px-0">
         {/* Card Planes */}
-        <Link
+        <SmartLink
           to="/planes"
           className="card p-6 group border-2 border-black dark:border-gray-600 bg-white dark:bg-black hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all shadow-hard"
         >
@@ -37,10 +37,10 @@ const Inicio = () => {
             <span>VER MÁS</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
           </div>
-        </Link>
+        </SmartLink>
 
         {/* Card Entrenadores */}
-        <Link
+        <SmartLink
           to="/entrenadores"
           className="card p-6 group border-2 border-black dark:border-gray-600 bg-white dark:bg-black hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all shadow-hard"
         >
@@ -59,10 +59,10 @@ const Inicio = () => {
             <span>VER MÁS</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
           </div>
-        </Link>
+        </SmartLink>
 
         {/* Card Cuenta */}
-        <Link
+        <SmartLink
           to="/cuenta"
           className="card p-6 group border-2 border-black dark:border-gray-600 bg-white dark:bg-black hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all shadow-hard"
         >
@@ -81,10 +81,10 @@ const Inicio = () => {
             <span>VER MÁS</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
           </div>
-        </Link>
+        </SmartLink>
 
         {/* Card Reservas - Ahora con ícono de reloj y en la misma fila */}
-        <Link
+        <SmartLink
           to="/reservar"
           className="card p-6 group border-2 border-black dark:border-gray-600 bg-white dark:bg-black hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all shadow-hard"
         >
@@ -103,7 +103,7 @@ const Inicio = () => {
             <span>VER MÁS</span>
             <span className="transition-transform group-hover:translate-x-1">→</span>
           </div>
-        </Link>
+        </SmartLink>
       </div>
     </section>
   );

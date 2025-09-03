@@ -4,14 +4,14 @@ import { Capacitor } from '@capacitor/core';
 import { Browser } from '@capacitor/browser';
 import useSecureStorage from '../../hooks/useSecureStorage';
 
-const SmartLink = ({ 
-  to, 
-  children, 
-  className = '', 
-  onClick, 
+const SmartLink = ({
+  to,
+  children,
+  className = '',
+  onClick,
   target,
   rel,
-  ...props 
+  ...props
 }) => {
   const navigate = useNavigate();
   const isNative = Capacitor.isNativePlatform();
@@ -29,7 +29,7 @@ const SmartLink = ({
 
     if (isNative) {
       e.preventDefault();
-      
+
       // Enlaces externos en apps nativas
       if (to.startsWith('http')) {
         await Browser.open({ url: to });
@@ -44,9 +44,9 @@ const SmartLink = ({
   // Para enlaces externos en apps nativas
   if (isNative && to.startsWith('http')) {
     return (
-      <a 
-        href={to} 
-        className={className} 
+      <a
+        href={to}
+        className={className}
         onClick={handleClick}
         target={target}
         rel={rel}
@@ -60,9 +60,9 @@ const SmartLink = ({
   // Para enlaces externos en web con target="_blank"
   if (!isNative && to.startsWith('http') && target === '_blank') {
     return (
-      <a 
-        href={to} 
-        className={className} 
+      <a
+        href={to}
+        className={className}
         onClick={handleClick}
         target={target}
         rel={rel || 'noopener noreferrer'}
@@ -75,9 +75,9 @@ const SmartLink = ({
 
   // Para rutas internas (tanto web como nativo)
   return (
-    <Link 
-      to={to} 
-      className={className} 
+    <Link
+      to={to}
+      className={className}
       onClick={handleClick}
       {...props}
     >

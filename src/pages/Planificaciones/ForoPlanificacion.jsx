@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Send, Edit, Trash2, X, Check, User, MoreVertical, ChevronLeft } from 'lucide-react';
 import SmartLink from '../../components/SmartLink/SmartLink';
 
@@ -167,181 +167,181 @@ const ForoPlanificacion = () => {
                 {/* Encabezado */}
                 <div className="mb-8">
                     <div className="flex items-center justify-center gap-4 mb-4">
-                        <Link
+                        <SmartLink
                             to={`/planificacion/${idPlanificacion}`}
                             className="flex items-center gap-1 px-3 py-1 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-black dark:text-white font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all text-sm"
                         >
                             <ChevronLeft size={16} /> VOLVER
-                        </Link>
-                        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
-                            FORO: {planificacion?.titulo || 'Planificación'}
-                        </h1>
+                        </SmartLink>
                     </div>
+                    <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight">
+                        FORO: {planificacion?.titulo || 'Planificación'}
+                    </h1>
+                </div>
 
-                    <div className="h-1 w-24 bg-black dark:bg-white mx-auto mb-4"></div>
+                <div className="h-1 w-24 bg-black dark:bg-white mx-auto mb-4"></div>
 
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-2 mb-4">
-                        <div className="flex flex-wrap gap-2">
-                            <div className="border-2 border-black dark:border-gray-600 px-3 py-1 bg-white dark:bg-black">
-                                <span className="font-bold">Tipo:</span> {planificacion?.tipo}
-                            </div>
-                            {planificacion?.categoria && (
-                                <div className="border-2 border-black dark:border-gray-600 px-3 py-1 bg-white dark:bg-black">
-                                    <span className="font-bold">Categoría:</span> {planificacion.categoria}
-                                </div>
-                            )}
+                <div className="flex flex-col md:flex-row justify-between items-center gap-2 mb-4">
+                    <div className="flex flex-wrap gap-2">
+                        <div className="border-2 border-black dark:border-gray-600 px-3 py-1 bg-white dark:bg-black">
+                            <span className="font-bold">Tipo:</span> {planificacion?.tipo}
                         </div>
-
-                        {planificacion?.creadoPor && (
-                            <div className="border-2 border-black dark:border-gray-600 px-3 py-1 bg-white dark:bg-black text-sm">
-                                <span className="text-gray-600 dark:text-gray-400">Creada por:</span>{' '}
-                                <span className="font-medium">{planificacion.creadoPor.nombre}</span>
+                        {planificacion?.categoria && (
+                            <div className="border-2 border-black dark:border-gray-600 px-3 py-1 bg-white dark:bg-black">
+                                <span className="font-bold">Categoría:</span> {planificacion.categoria}
                             </div>
                         )}
                     </div>
 
-                    {planificacion?.descripcion && (
-                        <div className="border-2 border-black dark:border-gray-600 p-3 mb-4 bg-white dark:bg-black">
-                            <p className="text-gray-700 dark:text-gray-300">{planificacion.descripcion}</p>
+                    {planificacion?.creadoPor && (
+                        <div className="border-2 border-black dark:border-gray-600 px-3 py-1 bg-white dark:bg-black text-sm">
+                            <span className="text-gray-600 dark:text-gray-400">Creada por:</span>{' '}
+                            <span className="font-medium">{planificacion.creadoPor.nombre}</span>
                         </div>
                     )}
-
-                    <div className="border-t-2 border-black dark:border-gray-600 pt-4">
-                        <h2 className="text-xl font-bold text-center">DISCUSIÓN</h2>
-                    </div>
                 </div>
 
-                {/* Mensajes de error */}
-                {error && (
-                    <div className="mb-6 border-2 border-red-500 bg-red-100 dark:bg-black px-4 py-3 flex items-center gap-3">
-                        <X className="flex-shrink-0 text-red-500" size={20} />
-                        <span className="font-medium">{error}</span>
+                {planificacion?.descripcion && (
+                    <div className="border-2 border-black dark:border-gray-600 p-3 mb-4 bg-white dark:bg-black">
+                        <p className="text-black-700 dark:text-white-300">{planificacion.descripcion}</p>
                     </div>
                 )}
 
-                {/* Formulario para nuevo mensaje */}
-                <div className="mb-10 border-2 border-black dark:border-gray-600 p-4 md:p-6 bg-white dark:bg-black shadow-hard">
-                    <h2 className="text-xl font-bold mb-4">NUEVO MENSAJE</h2>
-                    <div className="flex flex-col md:flex-row gap-4">
-                        <div className="flex-1 relative">
-                            <textarea
-                                value={nuevoMensaje}
-                                onChange={(e) => setNuevoMensaje(e.target.value)}
-                                onKeyDown={handleKeyPress}
-                                placeholder="Escribe tu mensaje aquí..."
-                                className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black min-h-[120px] focus:outline-none resize-none"
-                            />
-                            <div className="absolute bottom-3 right-3 text-xs text-gray-500">
-                                Enter para enviar
-                            </div>
-                        </div>
-                        <button
-                            onClick={enviarMensaje}
-                            disabled={!nuevoMensaje.trim()}
-                            className="h-12 w-12 md:h-auto md:w-auto flex items-center justify-center md:px-4 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50"
-                        >
-                            <Send className="md:mr-2" size={20} />
-                            <span className="hidden md:inline">ENVIAR</span>
-                        </button>
-                    </div>
+                <div className="border-t-2 border-black dark:border-gray-600 pt-4">
+                    <h2 className="text-xl font-bold text-center">DISCUSIÓN</h2>
                 </div>
+            </div>
 
-                {/* Lista de mensajes */}
-                {cargando ? (
-                    <div className="text-center py-10">
-                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black dark:border-white"></div>
-                        <p className="mt-4">Cargando mensajes...</p>
+            {/* Mensajes de error */}
+            {error && (
+                <div className="mb-6 border-2 border-red-500 bg-red-100 dark:bg-black px-4 py-3 flex items-center gap-3">
+                    <X className="flex-shrink-0 text-red-500" size={20} />
+                    <span className="font-medium">{error}</span>
+                </div>
+            )}
+
+            {/* Formulario para nuevo mensaje */}
+            <div className="mb-10 border-2 border-black dark:border-gray-600 p-4 md:p-6 bg-white dark:bg-black shadow-hard">
+                <h2 className="text-xl font-bold mb-4">NUEVO MENSAJE</h2>
+                <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex-1 relative">
+                        <textarea
+                            value={nuevoMensaje}
+                            onChange={(e) => setNuevoMensaje(e.target.value)}
+                            onKeyDown={handleKeyPress}
+                            placeholder="Escribe tu mensaje aquí..."
+                            className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black min-h-[120px] focus:outline-none resize-none"
+                        />
+                        <div className="absolute bottom-3 right-3 text-xs text-gray-500">
+                            Enter para enviar
+                        </div>
                     </div>
-                ) : mensajes.length === 0 ? (
-                    <div className="text-center py-10 border-2 border-black dark:border-gray-600 p-6 bg-white dark:bg-black">
-                        <h3 className="text-xl font-bold mb-2">No hay mensajes aún</h3>
-                        <p className="text-gray-600 dark:text-gray-400">
-                            Sé el primero en compartir tus pensamientos sobre esta planificación
-                        </p>
-                    </div>
-                ) : (
-                    <div className="space-y-6">
-                        {mensajes.map((mensaje) => (
-                            <div
-                                key={mensaje._id}
-                                className="border-2 border-black dark:border-gray-600 p-4 md:p-6 bg-white dark:bg-black shadow-hard"
-                            >
-                                {/* Encabezado del mensaje */}
-                                <div className="flex justify-between items-start mb-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="bg-black dark:bg-white p-2 border-2 border-black dark:border-gray-600">
-                                            <User className="h-5 w-5 text-white dark:text-black" />
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold">{mensaje.autor.nombre}</h3>
-                                            <p className="text-xs text-gray-500">
-                                                {new Date(mensaje.fecha).toLocaleString()}
-                                            </p>
-                                        </div>
+                    <button
+                        onClick={enviarMensaje}
+                        disabled={!nuevoMensaje.trim()}
+                        className="h-12 w-12 md:h-auto md:w-auto flex items-center justify-center md:px-4 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50"
+                    >
+                        <Send className="md:mr-2" size={20} />
+                        <span className="hidden md:inline">ENVIAR</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* Lista de mensajes */}
+            {cargando ? (
+                <div className="text-center py-10">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black dark:border-white"></div>
+                    <p className="mt-4">Cargando mensajes...</p>
+                </div>
+            ) : mensajes.length === 0 ? (
+                <div className="text-center py-10 border-2 border-black dark:border-gray-600 p-6 bg-white dark:bg-black">
+                    <h3 className="text-xl font-bold mb-2">No hay mensajes aún</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                        Sé el primero en compartir tus pensamientos sobre esta planificación
+                    </p>
+                </div>
+            ) : (
+                <div className="space-y-6">
+                    {mensajes.map((mensaje) => (
+                        <div
+                            key={mensaje._id}
+                            className="border-2 border-black dark:border-gray-600 p-4 md:p-6 bg-white dark:bg-black shadow-hard"
+                        >
+                            {/* Encabezado del mensaje */}
+                            <div className="flex justify-between items-start mb-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="bg-black dark:bg-white p-2 border-2 border-black dark:border-gray-600">
+                                        <User className="h-5 w-5 text-white dark:text-black" />
                                     </div>
-
-                                    {/* Menú de acciones (solo para el autor) */}
-                                    {mensaje.autor._id === usuarioActual.id && (
-                                        <div className="relative group">
-                                            <button className="p-1">
-                                                <MoreVertical size={20} />
-                                            </button>
-                                            <div className="absolute right-0 top-full mt-1 w-40 bg-white dark:bg-black border-2 border-black dark:border-gray-600 shadow-hard opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
-                                                <button
-                                                    onClick={() => iniciarEdicion(mensaje)}
-                                                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 flex items-center gap-2"
-                                                >
-                                                    <Edit size={16} />
-                                                    Editar
-                                                </button>
-                                                <button
-                                                    onClick={() => eliminarMensaje(mensaje._id)}
-                                                    className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 flex items-center gap-2 text-red-500"
-                                                >
-                                                    <Trash2 size={16} />
-                                                    Eliminar
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
+                                    <div>
+                                        <h3 className="font-bold">{mensaje.autor.nombre}</h3>
+                                        <p className="text-xs text-gray-500">
+                                            {new Date(mensaje.fecha).toLocaleString()}
+                                        </p>
+                                    </div>
                                 </div>
 
-                                {/* Contenido del mensaje */}
-                                {editando === mensaje._id ? (
-                                    <div className="mt-4">
-                                        <textarea
-                                            value={textoEditado}
-                                            onChange={(e) => setTextoEditado(e.target.value)}
-                                            className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black min-h-[100px] focus:outline-none"
-                                        />
-                                        <div className="flex justify-end gap-2 mt-3">
+                                {/* Menú de acciones (solo para el autor) */}
+                                {mensaje.autor._id === usuarioActual.id && (
+                                    <div className="relative group">
+                                        <button className="p-1">
+                                            <MoreVertical size={20} />
+                                        </button>
+                                        <div className="absolute right-0 top-full mt-1 w-40 bg-white dark:bg-black border-2 border-black dark:border-gray-600 shadow-hard opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-10">
                                             <button
-                                                onClick={cancelarEdicion}
-                                                className="px-4 py-2 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-black dark:text-white font-bold flex items-center gap-2"
+                                                onClick={() => iniciarEdicion(mensaje)}
+                                                className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 flex items-center gap-2"
                                             >
-                                                <X size={16} />
-                                                Cancelar
+                                                <Edit size={16} />
+                                                Editar
                                             </button>
                                             <button
-                                                onClick={() => guardarEdicion(mensaje._id)}
-                                                className="px-4 py-2 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold flex items-center gap-2"
+                                                onClick={() => eliminarMensaje(mensaje._id)}
+                                                className="w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 flex items-center gap-2 text-red-500"
                                             >
-                                                <Check size={16} />
-                                                Guardar
+                                                <Trash2 size={16} />
+                                                Eliminar
                                             </button>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className="mt-2 whitespace-pre-line">
-                                        {mensaje.contenido}
                                     </div>
                                 )}
                             </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div >
+
+                            {/* Contenido del mensaje */}
+                            {editando === mensaje._id ? (
+                                <div className="mt-4">
+                                    <textarea
+                                        value={textoEditado}
+                                        onChange={(e) => setTextoEditado(e.target.value)}
+                                        className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black min-h-[100px] focus:outline-none"
+                                    />
+                                    <div className="flex justify-end gap-2 mt-3">
+                                        <button
+                                            onClick={cancelarEdicion}
+                                            className="px-4 py-2 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-black dark:text-white font-bold flex items-center gap-2"
+                                        >
+                                            <X size={16} />
+                                            Cancelar
+                                        </button>
+                                        <button
+                                            onClick={() => guardarEdicion(mensaje._id)}
+                                            className="px-4 py-2 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black font-bold flex items-center gap-2"
+                                        >
+                                            <Check size={16} />
+                                            Guardar
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="mt-2 whitespace-pre-line">
+                                    {mensaje.contenido}
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
     );
 };
 

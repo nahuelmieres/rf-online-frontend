@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User, ArrowLeft, X, Loader2, Dumbbell } from "lucide-react";
 import GoogleButton from '../components/GoogleButton';
+import SmartLink from '../components/SmartLink/SmartLink';
 
 const Registro = () => {
   const [nombre, setNombre] = useState("");
@@ -18,7 +19,6 @@ const Registro = () => {
     setError(null);
 
     try {
-      console.log("Terminos aceptados:", terminos);
       const response = await fetch(`${import.meta.env.VITE_API_URL}/api/usuarios/registrar`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -54,12 +54,12 @@ const Registro = () => {
     <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black p-4">
       <div className="w-full max-w-md mx-auto border-2 border-black dark:border-gray-600 p-6 md:p-8 bg-white dark:bg-black shadow-hard relative">
         {/* Botón volver */}
-        <Link
+        <SmartLink
           to="/login"
           className="absolute top-6 left-6 text-black dark:text-white hover:text-primary-light dark:hover:text-primary-dark"
         >
           <ArrowLeft size={24} />
-        </Link>
+        </SmartLink>
 
         {/* Logo y título */}
         <div className="text-center mb-8">
@@ -156,7 +156,7 @@ const Registro = () => {
               checked={aceptaTerminos}
             />
             <label htmlFor="terminos" className="text-sm md:text-base">
-              Acepto los <Link to="/terminos" target="_blank" className="text-blue-600 hover:underline">términos y condiciones</Link>
+              Acepto los <SmartLink to="/terminos" target="_blank" className="text-blue-600 hover:underline">términos y condiciones</SmartLink>
             </label>
           </div>
 
@@ -183,9 +183,9 @@ const Registro = () => {
         {/* Enlace a Login */}
         <div className="mt-6 text-center text-base">
           <p>¿YA TIENES UNA CUENTA?{' '}
-            <Link to="/login" className="font-bold hover:underline">
+            <SmartLink to="/login" className="font-bold hover:underline">
               INICIA SESIÓN
-            </Link>
+            </SmartLink>
           </p>
         </div>
       </div>
