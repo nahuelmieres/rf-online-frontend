@@ -20,8 +20,10 @@ import GestionReservas from '../pages/Reservas/GestionReservas';
 import ForgotPassword  from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
 import ForoPlanificacion from '../pages/Planificaciones/ForoPlanificacion';
+import { ChatPage } from '@/features/chat';
 
 const AppRoutes = () => {
+    const user = localStorage.getItem('usuario');
     return (
         <Routes>
             {/* Públicas */}
@@ -42,6 +44,7 @@ const AppRoutes = () => {
                 <Route path="/mis-reservas" element={<MisReservas />} />
                 <Route path="/gestion/reservas" element={<GestionReservas />} />
                 <Route path="/planificacion/:idPlanificacion/foro" element={<ForoPlanificacion />} />
+                <Route path="/chat" element={<ChatPage userId={user.id}/>} />
 
                 {/* Nueva ruta de gestión */}
                 <Route
