@@ -1,36 +1,47 @@
 import React, { useState } from "react";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate, useLocation, Navigate } from "react-router-dom";
 import { Loader2, Lock, Mail, X, Dumbbell } from 'lucide-react';
 import GoogleButton from '../components/GoogleButton';
 import SmartLink from '../components/SmartLink/SmartLink';
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, setAuthState, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingBtn, setLoadingBtn] = useState(false);
+
+  // Si ya está logueado, redirigí
+  if (isAuthenticated) return <Navigate to={from} replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setLoadingBtn(true);
     setError(null);
-
     try {
-      await login(email, password, rememberMe);
+      await login(email, password, rememberMe); // setea token+user en Context
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err.message || "Error al iniciar sesión");
     } finally {
-      setLoading(false);
-      window.location.reload();
+      setLoadingBtn(false);
     }
   };
 
-  const handleGoogleSuccess = (user, token) => {
-    // Aquí puedes manejar el inicio de sesión exitoso con Google
-    //console.log("Usuario autenticado con Google:", user);
-    //console.log("Token JWT:", token);
+  // Si tu GoogleButton te entrega el JWT (credential), podés autenticar directo:
+  const handleGoogleSuccess = async ({ credential }) => {
+    try {
+      await setAuthState(credential, true); // guarda token y setea user
+      navigate(from, { replace: true });
+    } catch (err) {
+      setError("Error con Google Sign-In");
+    }
   };
 
   return (
@@ -70,6 +81,7 @@ const Login = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
+                required
               />
             </div>
           </div>
@@ -90,12 +102,13 @@ const Login = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
+                required
               />
             </div>
           </div>
 
           <div className="flex flex-col xs:flex-row items-center justify-between gap-3">
-            <div className="flex items-center">
+            <label className="flex items-center">
               <input
                 id="remember-me"
                 name="remember-me"
@@ -104,10 +117,8 @@ const Login = () => {
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm md:text-base">
-                RECORDARME
-              </label>
-            </div>
+              <span className="ml-2 block text-sm md:text-base">RECORDARME</span>
+            </label>
 
             <a href="/recuperar-contrasena" className="text-sm md:text-base font-bold hover:underline whitespace-nowrap">
               ¿OLVIDASTE LA CONTRASEÑA?
@@ -117,10 +128,10 @@ const Login = () => {
           <div className="pt-4">
             <button
               type="submit"
-              disabled={loading}
+              disabled={loadingBtn}
               className="w-full flex justify-center items-center py-3 px-4 border-2 border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black text-base md:text-lg font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50"
             >
-              {loading ? (
+              {loadingBtn ? (
                 <>
                   <Loader2 className="animate-spin mr-2" size={20} />
                   INICIANDO...
@@ -129,7 +140,8 @@ const Login = () => {
             </button>
           </div>
         </form>
-        {/* Botón de Google personalizado */}
+
+        {/* Google: pasá el token al setAuthState */}
         <GoogleButton onSuccessLogin={handleGoogleSuccess} />
 
         <div className="mt-6 text-center text-base">

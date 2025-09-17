@@ -1,17 +1,22 @@
 import React from 'react';
 import Navbar from './components/Navbar';
 import AppRoutes from './routes/AppRoutes';
-import { FloatingChatButton } from '@/features/chat'; 
+import { FloatingChatButton } from '@/features/chat';
+import { useAuthContext } from '@/context/AuthContext';
 
 const App = () => {
-  const user = localStorage.getItem('usuario');
+  const { user, isAuthenticated, loading } = useAuthContext();
+
   return (
     <>
       <Navbar />
       <main className="p-4">
         <AppRoutes />
-        {user && <FloatingChatButton userId={user.id} />}
       </main>
+
+      {!loading && isAuthenticated && (
+        <FloatingChatButton userId={user.id} />
+      )}
     </>
   );
 };

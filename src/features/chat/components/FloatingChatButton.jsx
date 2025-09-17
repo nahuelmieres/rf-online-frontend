@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import ChatPage from '../pages/ChatPage';
+import { useAuthContext } from '@/context/AuthContext';
 
-export default function FloatingChatButton({ userId }) {
+export default function FloatingChatButton() {
+  const { isAuthenticated, user } = useAuthContext();
   const [open, setOpen] = useState(false);
+
+  if (!isAuthenticated) return null;
 
   return (
     <>
@@ -20,7 +24,7 @@ export default function FloatingChatButton({ userId }) {
         <div className="fixed bottom-20 right-5 z-50 w-[95vw] md:w-[28rem] h-[70vh]
                         bg-white dark:bg-black border-2 border-black dark:border-gray-600
                         rounded-2xl shadow-hard overflow-hidden">
-          <ChatPage userId={userId} />
+          <ChatPage userId={user.id} userRole={user.rol} />
         </div>
       )}
     </>

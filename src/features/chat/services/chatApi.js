@@ -30,4 +30,17 @@ export const ChatAPI = {
   deleteConversation(conversationId) {
     return api.delete(`/api/chat/conversations/${conversationId}`);
   },
+
+  // listar usuarios según roles (cliente → admin/coach; admin/coach → cliente)
+  async getUsersByRoles(roles = [], page = 1, limit = 50) {
+    const params = new URLSearchParams();
+    roles.forEach(r => params.append('rol', r));
+    params.append('page', page);
+    params.append('limit', limit);
+
+    const { data } = await api.get(`/api/usuarios/clientes?${params.toString()}`);
+    return data?.data?.usuarios || [];
+  },
 };
+
+export { api };

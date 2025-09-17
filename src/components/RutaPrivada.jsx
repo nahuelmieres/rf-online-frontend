@@ -1,22 +1,21 @@
+// src/components/RutaPrivada.jsx
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useAuth } from '@/hooks/useAuth';
 import Loader from './Loader';
 
 const RutaPrivada = ({ rolesPermitidos = [] }) => {
-  const { user, loading } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
-  if (loading) {
-    return <Loader className="h-screen" />;
-  }
+  if (loading) return <Loader className="h-screen" />;
 
-  // Si no está autenticado, redirige al login
-  if (!user) {
+  // No autenticado → login
+  if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Si hay roles definidos y el usuario no tiene uno permitido
+  // Roles
   if (rolesPermitidos.length > 0 && !rolesPermitidos.includes(user.rol)) {
     return (
       <div className="max-w-4xl mx-auto p-6">
@@ -32,7 +31,6 @@ const RutaPrivada = ({ rolesPermitidos = [] }) => {
     );
   }
 
-  // Si pasa todas las validaciones
   return <Outlet />;
 };
 
