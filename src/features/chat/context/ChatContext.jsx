@@ -15,23 +15,62 @@ function reducer(state, action) {
     case 'SET_MESSAGES':
       return { ...state, messages: { ...state.messages, [action.conversationId]: action.items } };
     case 'PUSH_MESSAGE': {
-      const prev = state.messages[action.conversationId] || [];
-      const next = [...prev, action.message];
-      const updated = state.conversations
-        .map(c =>
-          c._id === action.conversationId
-            ? ({
-                ...c,
-                lastMessage: {
-                  text: action.message.text,
-                  senderId: action.message.senderId,
-                  timestamp: action.message.createdAt || new Date().toISOString(),
-                },
-              })
-            : c
-        )
-        .sort((a, b) => (b.lastMessage?.timestamp || '').localeCompare(a.lastMessage?.timestamp || ''));
-      return { ...state, messages: { ...state.messages, [action.conversationId]: next }, conversations: updated };
+      const { conversationId, message } = action;
+      const prev = state.messages[conversationId] || [];
+      const next = [...prev, message];
+
+      const isMine = String(message.senderId) === String(state.userId);
+      const isActive = state.activeId === conversationId;
+
+      // ¿la conversación existe en memoria?
+      const exists = state.conversations.some(c => c._id === conversationId);
+
+      let list = state.conversations.map(c => {
+        if (c._id !== conversationId) return c;
+
+        const newUnread = isMine || isActive
+          ? 0
+          : (c.unreadCount || 0) + 1;
+
+        return {
+          ...c,
+          lastMessage: {
+            text: message.text,
+            senderId: message.senderId,
+            timestamp: message.createdAt || new Date().toISOString(),
+          },
+          unreadCount: newUnread,
+        };
+      });
+
+      // si no existía (p. ej. primer mensaje o lista aún no cargada), la insertamos
+      if (!exists) {
+        list = [
+          {
+            _id: conversationId,
+            participants: [],
+            isActive: true,
+            unreadCount: isMine ? 0 : 1,
+            lastMessage: {
+              text: message.text,
+              senderId: message.senderId,
+              timestamp: message.createdAt || new Date().toISOString(),
+            },
+          },
+          ...list,
+        ];
+      }
+
+      // ordenar por última actividad
+      list.sort((a, b) =>
+        (b.lastMessage?.timestamp || '').localeCompare(a.lastMessage?.timestamp || '')
+      );
+
+      return {
+        ...state,
+        messages: { ...state.messages, [conversationId]: next },
+        conversations: list,
+      };
     }
     case 'UPSERT_CONVERSATION': {
       const exists = state.conversations.some(c => c._id === action.conversation._id);
@@ -83,9 +122,22 @@ export function ChatProvider({ userId, children }) {
 
     const onConnect = () => dispatch({ type: 'SET_CONNECTED', value: true });
     const onDisconnect = () => dispatch({ type: 'SET_CONNECTED', value: false });
-    const onNewMessage = (msg) => {
-      // console.log('[socket:new-message]', msg);
+
+    const onNewMessage = async (msg) => {
+      // push al estado (esto ya mueve la conversación arriba y maneja unreadCount)
       dispatch({ type: 'PUSH_MESSAGE', conversationId: msg.conversationId, message: msg });
+
+      // si estoy viendo esa conversación y el mensaje es del otro, lo marco leído de una
+      const isActive = String(msg.conversationId) === String(state.activeId);
+      const isMine = String(msg.senderId) === String(state.userId);
+      if (isActive && !isMine) {
+        try {
+          await ChatAPI.markRead(msg.conversationId, state.userId);
+          dispatch({ type: 'MARK_READ', conversationId: msg.conversationId });
+        } catch (e) {
+          console.warn('[socket] markRead failed:', e?.response?.data || e);
+        }
+      }
     };
 
     socket.on('connect', onConnect);
@@ -98,7 +150,8 @@ export function ChatProvider({ userId, children }) {
       socket.off('disconnect', onDisconnect);
       socket.off('new-message', onNewMessage);
     };
-  }, [socket, userId]);
+  }, [socket, userId, state.activeId, state.userId]);
+
 
   // cuando cambia la conversación activa, unirse a la sala
   useEffect(() => {
@@ -184,7 +237,7 @@ export function ChatProvider({ userId, children }) {
     const normalized = { unreadCount: 0, isActive: true, ...(convDoc || {}), _id: convId };
     dispatch({ type: 'UPSERT_CONVERSATION', conversation: normalized });
     dispatch({ type: 'SET_ACTIVE', id: convId });
-    try { await loadMessages(convId); } catch {}
+    try { await loadMessages(convId); } catch { }
     return normalized;
   }
 

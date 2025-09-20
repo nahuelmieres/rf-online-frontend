@@ -12,7 +12,6 @@ export default function ChatWindow() {
   // DEBUG: ver si tenemos conversación activa
   useEffect(() => {
     // eslint-disable-next-line no-console
-    console.log('[ChatWindow] activeId=', state.activeId, 'msgs=', msgs.length);
   }, [state.activeId, msgs.length]);
 
   useEffect(() => {

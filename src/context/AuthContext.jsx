@@ -2,18 +2,26 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import useSecureStorage from '@/hooks/useSecureStorage';
 import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const { getItem, setItem, removeItem } = useSecureStorage();
-  const [user, setUser] = useState(null);     // { id, email, rol, nombre, planPersonalizado }
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const isNative = Capacitor.isNativePlatform();
 
   const buildUserFromToken = (token) => {
     try {
       const payload = jwtDecode(token);
-      if (payload?.exp && payload.exp * 1000 < Date.now()) return null;
+      
+      // Verificar expiración
+      if (payload?.exp && payload.exp * 1000 < Date.now()) {
+        console.log('Token expirado');
+        return null;
+      }
+      
       return {
         id: payload.id || payload._id || payload.sub || payload.userId,
         email: payload.email,
@@ -21,7 +29,8 @@ export function AuthProvider({ children }) {
         nombre: payload.nombre,
         planPersonalizado: payload.planPersonalizado || null,
       };
-    } catch {
+    } catch (error) {
+      console.error('Error decodificando token:', error);
       return null;
     }
   };
@@ -29,13 +38,23 @@ export function AuthProvider({ children }) {
   const initializeAuth = async () => {
     setLoading(true);
     try {
-      const token = await getItem('token');          // string puro
-      // Fuente de verdad: si hay token válido, hay user.
+      const token = await getItem('token');
+      
       if (token) {
-        setUser(buildUserFromToken(token));
+        const userData = buildUserFromToken(token);
+        
+        if (userData) {
+          setUser(userData);
+        } else {
+          // Token inválido o expirado - limpiar
+          await logout();
+        }
       } else {
         setUser(null);
       }
+    } catch (error) {
+      console.error('Error initializing auth:', error);
+      setUser(null);
     } finally {
       setLoading(false);
     }
@@ -44,35 +63,49 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     initializeAuth();
 
-    // addListener retorna Promise<PluginListenerHandle>
     let appStateListener;
-    (async () => {
-      try {
-        appStateListener = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-          if (isActive) initializeAuth();
-        });
-      } catch {
-        // noop
-      }
-    })();
+    
+    // Configurar listener de estado de la app (solo nativo)
+    if (isNative) {
+      (async () => {
+        try {
+          appStateListener = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+            if (isActive) {
+              console.log('App became active, refreshing auth...');
+              initializeAuth();
+            }
+          });
+        } catch (error) {
+          console.error('Error setting up app state listener:', error);
+        }
+      })();
+    }
 
-    const onStorage = (e) => {
-      if (['token', 'rememberMe', 'usuario'].includes(e.key)) {
-        initializeAuth();
-      }
-    };
-    window.addEventListener('storage', onStorage);
+    // Configurar listener de storage (solo web)
+    let storageListener = null;
+    if (!isNative && typeof window !== 'undefined') {
+      const onStorage = (e) => {
+        if (['token', 'rememberMe', 'usuario'].includes(e.key)) {
+          console.log('Storage changed, refreshing auth...');
+          initializeAuth();
+        }
+      };
+      window.addEventListener('storage', onStorage);
+      storageListener = onStorage;
+    }
 
     return () => {
+      // Cleanup listeners
       if (appStateListener && typeof appStateListener.remove === 'function') {
         appStateListener.remove();
       }
-      window.removeEventListener('storage', onStorage);
+      
+      if (storageListener && !isNative && typeof window !== 'undefined') {
+        window.removeEventListener('storage', storageListener);
+      }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isNative]);
 
-  // --- acciones ---
   const login = async (email, password, remember = false) => {
     setLoading(true);
     try {
@@ -81,31 +114,43 @@ export function AuthProvider({ children }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, rememberMe: remember }),
       });
+      
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.mensaje || 'Error en el login');
       }
+      
       const data = await res.json();
-
-      await setItem('token', data.token);          // ← string puro
+      await setItem('token', data.token);
       await setItem('rememberMe', !!remember);
       await setItem('usuario', data.usuario || null);
 
       const u = buildUserFromToken(data.token);
       setUser(u);
       return u;
+    } catch (error) {
+      console.error('Login error:', error);
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  // para flujos donde ya tenés un token (SSO, Google, etc.)
   const setAuthState = async (token, remember = true) => {
     setLoading(true);
     try {
       await setItem('token', token);
       await setItem('rememberMe', !!remember);
-      setUser(buildUserFromToken(token));
+      
+      const userData = buildUserFromToken(token);
+      if (!userData) {
+        throw new Error('Token inválido');
+      }
+      
+      setUser(userData);
+    } catch (error) {
+      console.error('setAuthState error:', error);
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -118,6 +163,8 @@ export function AuthProvider({ children }) {
       await removeItem('rememberMe');
       await removeItem('usuario');
       setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
     } finally {
       setLoading(false);
     }
