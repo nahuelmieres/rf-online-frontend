@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useReducer } from 'react';
-import { ChatAPI } from '../services/chatApi';
+import ChatAPI from '../services/chatApi';
 import { getSocket } from '../services/chatSocket';
-import { notifyNewMessage } from '../services/notifications';
 
 const ChatCtx = createContext(null);
 
@@ -19,33 +18,56 @@ function reducer(state, action) {
       const prev = state.messages[action.conversationId] || [];
       const next = [...prev, action.message];
       const updated = state.conversations
-        .map(c => c._id === action.conversationId
-          ? ({
-              ...c,
-              lastMessage: {
-                text: action.message.text,
-                senderId: action.message.senderId,
-                timestamp: action.message.createdAt || new Date().toISOString()
-              }
-            })
-          : c)
+        .map(c =>
+          c._id === action.conversationId
+            ? ({
+                ...c,
+                lastMessage: {
+                  text: action.message.text,
+                  senderId: action.message.senderId,
+                  timestamp: action.message.createdAt || new Date().toISOString(),
+                },
+              })
+            : c
+        )
         .sort((a, b) => (b.lastMessage?.timestamp || '').localeCompare(a.lastMessage?.timestamp || ''));
       return { ...state, messages: { ...state.messages, [action.conversationId]: next }, conversations: updated };
+    }
+    case 'UPSERT_CONVERSATION': {
+      const exists = state.conversations.some(c => c._id === action.conversation._id);
+      const list = exists
+        ? state.conversations.map(c => (c._id === action.conversation._id ? { ...c, ...action.conversation } : c))
+        : [action.conversation, ...state.conversations];
+      list.sort((a, b) => (b.lastMessage?.timestamp || '').localeCompare(a.lastMessage?.timestamp || ''));
+      return { ...state, conversations: list };
     }
     case 'SET_CONNECTED':
       return { ...state, connected: action.value };
     case 'MARK_READ':
       return {
         ...state,
-        conversations: state.conversations.map(c => c._id === action.conversationId ? ({ ...c, unreadCount: 0 }) : c)
+        conversations: state.conversations.map(c =>
+          c._id === action.conversationId ? { ...c, unreadCount: 0 } : c
+        ),
       };
     default:
       return state;
   }
 }
 
+// helper: extrae la conversación del shape que devuelva tu API
+function extractConversation(resp) {
+  // puede venir como Document plano
+  if (resp && resp._id) return resp;
+  // o envuelto
+  if (resp?.data?.conversation?._id) return resp.data.conversation;
+  if (resp?.data?._id) return resp.data;
+  if (resp?.conversation?._id) return resp.conversation;
+  return null;
+}
+
 export function ChatProvider({ userId, children }) {
-  const [state, dispatch] = useReducer(reducer, {
+  const [state, dispatch] = React.useReducer(reducer, {
     userId,
     conversations: [],
     activeId: null,
@@ -55,28 +77,20 @@ export function ChatProvider({ userId, children }) {
 
   const socket = useMemo(() => getSocket(), []);
 
+  // conexión socket + eventos
   useEffect(() => {
     dispatch({ type: 'INIT', userId });
 
     const onConnect = () => dispatch({ type: 'SET_CONNECTED', value: true });
     const onDisconnect = () => dispatch({ type: 'SET_CONNECTED', value: false });
-    const onNewMessage = async (msg) => {
+    const onNewMessage = (msg) => {
+      // console.log('[socket:new-message]', msg);
       dispatch({ type: 'PUSH_MESSAGE', conversationId: msg.conversationId, message: msg });
-
-      // notificación si no es la conversación activa o está en background
-      if (typeof document !== 'undefined') {
-        const inactive = state.activeId !== msg.conversationId || document.hidden;
-        const fromOther = msg.senderId !== state.userId;
-        if (inactive && fromOther) {
-          await notifyNewMessage({ body: msg.text });
-        }
-      }
     };
 
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('new-message', onNewMessage);
-
     if (!socket.connected) socket.connect();
 
     return () => {
@@ -84,8 +98,18 @@ export function ChatProvider({ userId, children }) {
       socket.off('disconnect', onDisconnect);
       socket.off('new-message', onNewMessage);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [socket, userId, state.activeId, state.userId]);
+  }, [socket, userId]);
+
+  // cuando cambia la conversación activa, unirse a la sala
+  useEffect(() => {
+    if (!state.activeId) return;
+    try {
+      socket.emit('join-conversation', { conversationId: state.activeId });
+      // console.log('[socket] joined room', state.activeId);
+    } catch (e) {
+      console.warn('[socket] join-conversation error:', e);
+    }
+  }, [socket, state.activeId]);
 
   async function reloadConversations() {
     if (!state.userId) return;
@@ -110,24 +134,72 @@ export function ChatProvider({ userId, children }) {
       readBy: [],
     };
     dispatch({ type: 'PUSH_MESSAGE', conversationId: id, message: temp });
-    await ChatAPI.sendMessage(id, text);
+    await ChatAPI.sendMessage(id, text, state.userId); // back exige senderId
   }
 
   async function markRead(id) {
-    await ChatAPI.markRead(id);
+    await ChatAPI.markRead(id, state.userId); // back exige userId
     dispatch({ type: 'MARK_READ', conversationId: id });
   }
 
-  // join a sala al cambiar la conversación activa
-  useEffect(() => {
-    const id = state.activeId;
-    if (!id) return;
-    const s = getSocket();
-    s.emit('join-conversation', { conversationId: id });
-  }, [state.activeId]);
+  // robusto: crea/obtiene conv, extrae id, y si falla, cae al plan B
+  async function startConversationWith(otherUserId) {
+    const myId = String(state.userId || '').trim();
+    const target = String(otherUserId || '').trim();
+
+    if (!myId || !target || myId === target) {
+      throw new Error('IDs inválidos para iniciar conversación');
+    }
+
+    // 1) intento directo a la API
+    let convDoc = null;
+    try {
+      const raw = await ChatAPI.createOrGetConversation(myId, target);
+      convDoc = extractConversation(raw) || raw;
+      // console.log('[createOrGetConversation] raw=', raw, 'convDoc=', convDoc);
+    } catch (e) {
+      console.error('[startConversationWith] createOrGetConversation error:', e?.response?.data || e);
+    }
+
+    // 2) si no pude sacar _id, plan B: buscarla en todas las conversaciones
+    let convId = convDoc?._id;
+    if (!convId) {
+      try {
+        const all = await ChatAPI.getUserConversations(myId);
+        const found = (all || []).find(c =>
+          Array.isArray(c.participants) &&
+          c.participants.some(p => String(p.userId?._id || p.userId) === target)
+        );
+        if (found) convId = found._id;
+        // console.log('[fallback] found=', found);
+      } catch (e) {
+        console.error('[startConversationWith] fallback getUserConversations error:', e?.response?.data || e);
+      }
+    }
+
+    if (!convId) {
+      throw new Error('No se pudo obtener/crear la conversación');
+    }
+
+    const normalized = { unreadCount: 0, isActive: true, ...(convDoc || {}), _id: convId };
+    dispatch({ type: 'UPSERT_CONVERSATION', conversation: normalized });
+    dispatch({ type: 'SET_ACTIVE', id: convId });
+    try { await loadMessages(convId); } catch {}
+    return normalized;
+  }
 
   return (
-    <ChatCtx.Provider value={{ state, dispatch, reloadConversations, loadMessages, send, markRead }}>
+    <ChatCtx.Provider
+      value={{
+        state,
+        dispatch,
+        reloadConversations,
+        loadMessages,
+        send,
+        markRead,
+        startConversationWith,
+      }}
+    >
       {children}
     </ChatCtx.Provider>
   );

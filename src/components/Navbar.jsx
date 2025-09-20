@@ -116,9 +116,6 @@ const Navbar = () => {
               <span className="ml-auto">▼</span>
             </div>
 
-            {/* Nuevo item para chat */}
-            <NavItem to="/chat" icon={<Users size={24} />} text="CHAT" onClick={() => setMenuAbierto(false)} />
-
             {submenuReservasAbierto && (
               <div className="bg-gray-100 dark:bg-gray-900">
                 <NavItem
@@ -143,6 +140,9 @@ const Navbar = () => {
                 )}
               </div>
             )}
+
+            {/* Nuevo item para chat */}
+            <NavItem to="/chat" icon={<Users size={24} />} text="CHAT" onClick={() => setMenuAbierto(false)} />
 
             <NavItem to="/entrenadores" icon={<Users size={24} />} text="ENTRENADORES" onClick={() => setMenuAbierto(false)} />
 

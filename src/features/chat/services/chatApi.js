@@ -3,7 +3,8 @@ import axios from 'axios';
 const api = axios.create({ baseURL: import.meta.env.VITE_API_URL });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  let token = localStorage.getItem('token');
+  try { token = token ? JSON.parse(token) : token; } catch { }
   if (token) {
     config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
@@ -11,36 +12,35 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-export const ChatAPI = {
+const ChatAPI = {
   getUserConversations(userId) {
     return api.get(`/api/chat/conversations/user/${userId}`).then(r => r.data);
   },
   getMessages(conversationId) {
-    return api.get(`/api/chat/conversations/${conversationId}/messages`).then(r => r.data);
+    return api.get(`/api/chat/conversations/${conversationId}/messages`)
+      .then(r => r.data);
   },
-  sendMessage(conversationId, text) {
-    return api.post(`/api/chat/messages`, { conversationId, text }).then(r => r.data);
+  sendMessage(conversationId, text, senderId) {
+    return api.post(`/api/chat/messages`, { conversationId, senderId, text }).then(r => r.data);
   },
-  markRead(conversationId) {
-    return api.post(`/api/chat/conversations/${conversationId}/read`, {});
+  markRead(conversationId, userId) {
+    return api.post(`/api/chat/conversations/${conversationId}/read`, { conversationId, userId }).then(r => r.data);
   },
-  createOrGetConversation(participantId) {
-    return api.post(`/api/chat/conversations`, { participantId }).then(r => r.data);
+  createOrGetConversation(userId1, userId2) {
+    return api.post(`/api/chat/conversations`, { userId1, userId2 }).then(r => r.data);
   },
   deleteConversation(conversationId) {
     return api.delete(`/api/chat/conversations/${conversationId}`);
   },
-
-  // listar usuarios según roles (cliente → admin/coach; admin/coach → cliente)
   async getUsersByRoles(roles = [], page = 1, limit = 50) {
     const params = new URLSearchParams();
     roles.forEach(r => params.append('rol', r));
     params.append('page', page);
     params.append('limit', limit);
-
     const { data } = await api.get(`/api/usuarios/clientes?${params.toString()}`);
     return data?.data?.usuarios || [];
   },
 };
 
-export { api };
+export default ChatAPI;
+export { ChatAPI };

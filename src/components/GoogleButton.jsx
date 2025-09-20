@@ -1,12 +1,13 @@
-import React, { use } from 'react';
-// Importamos GoogleLogin en lugar de useGoogleLogin
+// src/components/GoogleButton.jsx
+import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import Notificacion from '../components/Notificacion';
-import useAuth from '../hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 
 const GoogleButton = ({ onSuccessLogin }) => {
     const API_URL = import.meta.env.VITE_API_URL;
-    const setAuthState = useAuth().setAuthState;
+    const { setAuthState } = useAuth();
+
     const [notificacion, setNotificacion] = React.useState({
         mostrar: false,
         tipo: '',
@@ -15,10 +16,12 @@ const GoogleButton = ({ onSuccessLogin }) => {
 
     const handleSuccess = async (credentialResponse) => {
         try {
-            const idToken = credentialResponse.credential;
-            if (!idToken) {
-                throw new Error('No se recibió el token de Google');
-            }
+            const idToken = credentialResponse?.credential;
+            if (!idToken) throw new Error('No se recibió el token de Google');
+
+            // DEBUG aud:
+            const dbg = JSON.parse(atob(idToken.split('.')[1]));
+            console.log('[GSI] aud=', dbg.aud, 'iss=', dbg.iss);
 
             const res = await fetch(`${API_URL}/api/auth/google`, {
                 method: 'POST',
@@ -26,26 +29,17 @@ const GoogleButton = ({ onSuccessLogin }) => {
                 body: JSON.stringify({ idToken })
             });
 
-            const json = await res.json();
+            const json = await res.json().catch(() => null);
+            if (!res.ok) throw new Error(json?.mensaje || 'No se pudo iniciar sesión con Google');
 
-            if (!res.ok) {
-                throw new Error(json?.mensaje || 'No se pudo iniciar sesión con Google');
-            }
+            const { token, usuario } = json || {};
+            if (!token) throw new Error('El servidor no devolvió un token');
 
-            // Usamos setAuthState para actualizar el estado de autenticación
-            setAuthState(json.usuario, json.token);
-
-            if (onSuccessLogin) {
-                onSuccessLogin(json.usuario, json.token);
-            }
-
+            await setAuthState(token, true);
+            onSuccessLogin?.(usuario, token);
         } catch (error) {
             console.error('Google auth error:', error);
-            setNotificacion({
-                mostrar: true,
-                tipo: 'error',
-                mensaje: error.message || 'Error al autenticar con Google'
-            });
+            setNotificacion({ mostrar: true, tipo: 'error', mensaje: error.message || 'Error al autenticar con Google' });
         }
     };
 
@@ -61,7 +55,6 @@ const GoogleButton = ({ onSuccessLogin }) => {
 
     return (
         <div className="w-full">
-            {/* Notificación de error */}
             {notificacion.mostrar && (
                 <Notificacion
                     tipo={notificacion.tipo}
@@ -71,7 +64,6 @@ const GoogleButton = ({ onSuccessLogin }) => {
                 />
             )}
 
-            {/* Divisor estilizado */}
             <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t-2 border-black dark:border-gray-600"></div>
@@ -83,12 +75,11 @@ const GoogleButton = ({ onSuccessLogin }) => {
                 </div>
             </div>
 
-            {/* Usamos el componente GoogleLogin */}
             <div className="flex justify-center">
                 <GoogleLogin
                     onSuccess={handleSuccess}
                     onError={handleError}
-                    useOneTap={false} // Opcional, para una mejor experiencia de usuario
+                    useOneTap={false}
                     theme="outline"
                     shape="rectangular"
                     logo_alignment="center"

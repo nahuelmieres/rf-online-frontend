@@ -9,10 +9,23 @@ export default function ChatWindow() {
   const msgs = state.activeId ? (state.messages[state.activeId] || []) : [];
   const endRef = useAutoScroll([state.activeId, msgs.length]);
 
+  // DEBUG: ver si tenemos conversación activa
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('[ChatWindow] activeId=', state.activeId, 'msgs=', msgs.length);
+  }, [state.activeId, msgs.length]);
+
   useEffect(() => {
     const id = state.activeId;
     if (!id) return;
-    loadMessages(id).then(() => markRead(id));
+    (async () => {
+      try {
+        await loadMessages(id);
+        await markRead(id);
+      } catch (e) {
+        console.error('[ChatWindow] loadMessages/markRead error:', e);
+      }
+    })();
   }, [state.activeId]);
 
   if (!state.activeId) {
@@ -23,12 +36,17 @@ export default function ChatWindow() {
     );
   }
 
-  function onSend(e) {
+  async function onSend(e) {
     e.preventDefault();
     const id = state.activeId;
-    if (!id || !text.trim()) return;
-    send(id, text.trim());
-    setText('');
+    const value = text.trim();
+    if (!id || !value) return;
+    try {
+      await send(id, value);
+      setText('');
+    } catch (e) {
+      console.error('[ChatWindow] send error:', e);
+    }
   }
 
   return (
