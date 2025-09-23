@@ -34,15 +34,15 @@ const Login = () => {
     }
   };
 
-  // Si tu GoogleButton te entrega el JWT (credential), podés autenticar directo:
-  const handleGoogleSuccess = async ({ credential }) => {
+  const handleGoogleSuccess = async ({ token, usuario }) => {
     try {
-      await setAuthState(credential, true); // guarda token y setea user
+      // setAuthState ya lo hizo GoogleButton
       navigate(from, { replace: true });
     } catch (err) {
       setError("Error con Google Sign-In");
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black p-4">

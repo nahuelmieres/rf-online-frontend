@@ -1,4 +1,3 @@
-// src/components/GoogleButton.jsx
 import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import Notificacion from '../components/Notificacion';
@@ -19,30 +18,49 @@ const GoogleButton = ({ onSuccessLogin }) => {
             const idToken = credentialResponse?.credential;
             if (!idToken) throw new Error('No se recibió el token de Google');
 
-            // DEBUG aud:
-            const dbg = JSON.parse(atob(idToken.split('.')[1]));
-            console.log('[GSI] aud=', dbg.aud, 'iss=', dbg.iss);
-
             const res = await fetch(`${API_URL}/api/auth/google`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ idToken })
             });
 
-            const json = await res.json().catch(() => null);
-            if (!res.ok) throw new Error(json?.mensaje || 'No se pudo iniciar sesión con Google');
+            const responseText = await res.text();
 
-            const { token, usuario } = json || {};
-            if (!token) throw new Error('El servidor no devolvió un token');
+            let json;
+            try {
+                json = JSON.parse(responseText);
+            } catch (e) {
+                console.error('❌ [Frontend] Error parseando JSON:', e);
+                throw new Error('Respuesta inválida del servidor');
+            }
+
+            if (!res.ok) {
+                throw new Error(json?.mensaje || `Error ${res.status}`);
+            }
+
+            const { token, usuario } = json;
+
+            if (!token) {
+                console.error('❌ [Frontend] Token es undefined/null:', token);
+                throw new Error('El servidor no devolvió un token válido');
+            }
+
+            if (typeof token !== 'string') {
+                console.error('❌ [Frontend] Token no es string:', typeof token, token);
+                throw new Error('Token recibido no es válido');
+            }
 
             await setAuthState(token, true);
             onSuccessLogin?.(usuario, token);
         } catch (error) {
-            console.error('Google auth error:', error);
-            setNotificacion({ mostrar: true, tipo: 'error', mensaje: error.message || 'Error al autenticar con Google' });
+            console.error('❌ Google auth error:', error);
+            setNotificacion({
+                mostrar: true,
+                tipo: 'error',
+                mensaje: error.message || 'Error al autenticar con Google'
+            });
         }
     };
-
 
     const handleError = (error) => {
         console.error('Google login error:', error);

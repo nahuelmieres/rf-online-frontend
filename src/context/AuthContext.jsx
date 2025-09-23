@@ -14,14 +14,19 @@ export function AuthProvider({ children }) {
 
   const buildUserFromToken = (token) => {
     try {
-      const payload = jwtDecode(token);
-      
-      // Verificar expiración
-      if (payload?.exp && payload.exp * 1000 < Date.now()) {
-        console.log('Token expirado');
+      // Verificar si es un token válido
+      if (!token || typeof token !== 'string' || token.split('.').length !== 3) {
+        console.error('Token inválido:', token);
         return null;
       }
-      
+
+      const payload = jwtDecode(token);
+
+      // Verificar expiración
+      if (payload?.exp && payload.exp * 1000 < Date.now()) {
+        return null;
+      }
+
       return {
         id: payload.id || payload._id || payload.sub || payload.userId,
         email: payload.email,
@@ -30,7 +35,7 @@ export function AuthProvider({ children }) {
         planPersonalizado: payload.planPersonalizado || null,
       };
     } catch (error) {
-      console.error('Error decodificando token:', error);
+      console.error('Error decodificando token:', error, 'Token:', token);
       return null;
     }
   };
@@ -39,10 +44,10 @@ export function AuthProvider({ children }) {
     setLoading(true);
     try {
       const token = await getItem('token');
-      
+
       if (token) {
         const userData = buildUserFromToken(token);
-        
+
         if (userData) {
           setUser(userData);
         } else {
@@ -64,14 +69,13 @@ export function AuthProvider({ children }) {
     initializeAuth();
 
     let appStateListener;
-    
+
     // Configurar listener de estado de la app (solo nativo)
     if (isNative) {
       (async () => {
         try {
           appStateListener = await CapacitorApp.addListener('appStateChange', ({ isActive }) => {
             if (isActive) {
-              console.log('App became active, refreshing auth...');
               initializeAuth();
             }
           });
@@ -86,7 +90,6 @@ export function AuthProvider({ children }) {
     if (!isNative && typeof window !== 'undefined') {
       const onStorage = (e) => {
         if (['token', 'rememberMe', 'usuario'].includes(e.key)) {
-          console.log('Storage changed, refreshing auth...');
           initializeAuth();
         }
       };
@@ -99,7 +102,7 @@ export function AuthProvider({ children }) {
       if (appStateListener && typeof appStateListener.remove === 'function') {
         appStateListener.remove();
       }
-      
+
       if (storageListener && !isNative && typeof window !== 'undefined') {
         window.removeEventListener('storage', storageListener);
       }
@@ -114,12 +117,12 @@ export function AuthProvider({ children }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, rememberMe: remember }),
       });
-      
+
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.mensaje || 'Error en el login');
       }
-      
+
       const data = await res.json();
       await setItem('token', data.token);
       await setItem('rememberMe', !!remember);
@@ -139,22 +142,39 @@ export function AuthProvider({ children }) {
   const setAuthState = async (token, remember = true) => {
     setLoading(true);
     try {
+      // Validación robusta del token
+      if (!token) {
+        throw new Error('Token es null o undefined');
+      }
+
+      if (typeof token !== 'string') {
+        throw new Error(`Token debe ser string, recibido: ${typeof token}`);
+      }
+
+      if (token.length < 10) {
+        throw new Error(`Token demasiado corto: ${token.length} caracteres`);
+      }
+
       await setItem('token', token);
       await setItem('rememberMe', !!remember);
-      
+
       const userData = buildUserFromToken(token);
       if (!userData) {
-        throw new Error('Token inválido');
+        throw new Error('Token inválido o expirado');
       }
-      
+
       setUser(userData);
     } catch (error) {
-      console.error('setAuthState error:', error);
+      console.error('❌ setAuthState error:', error);
+      // Limpiar token inválido
+      await removeItem('token');
+      await removeItem('rememberMe');
       throw error;
     } finally {
       setLoading(false);
     }
   };
+
 
   const logout = async () => {
     setLoading(true);
