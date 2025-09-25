@@ -1,12 +1,12 @@
-import React, { use } from 'react';
-// Importamos GoogleLogin en lugar de useGoogleLogin
+import React from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import Notificacion from '../components/Notificacion';
-import useAuth from '../hooks/useAuth';
+import useAuth from '@/hooks/useAuth';
 
 const GoogleButton = ({ onSuccessLogin }) => {
     const API_URL = import.meta.env.VITE_API_URL;
-    const setAuthState = useAuth().setAuthState;
+    const { setAuthState } = useAuth();
+
     const [notificacion, setNotificacion] = React.useState({
         mostrar: false,
         tipo: '',
@@ -15,10 +15,8 @@ const GoogleButton = ({ onSuccessLogin }) => {
 
     const handleSuccess = async (credentialResponse) => {
         try {
-            const idToken = credentialResponse.credential;
-            if (!idToken) {
-                throw new Error('No se recibió el token de Google');
-            }
+            const idToken = credentialResponse?.credential;
+            if (!idToken) throw new Error('No se recibió el token de Google');
 
             const res = await fetch(`${API_URL}/api/auth/google`, {
                 method: 'POST',
@@ -26,21 +24,36 @@ const GoogleButton = ({ onSuccessLogin }) => {
                 body: JSON.stringify({ idToken })
             });
 
-            const json = await res.json();
+            const responseText = await res.text();
+
+            let json;
+            try {
+                json = JSON.parse(responseText);
+            } catch (e) {
+                console.error('❌ [Frontend] Error parseando JSON:', e);
+                throw new Error('Respuesta inválida del servidor');
+            }
 
             if (!res.ok) {
-                throw new Error(json?.mensaje || 'No se pudo iniciar sesión con Google');
+                throw new Error(json?.mensaje || `Error ${res.status}`);
             }
 
-            // Usamos setAuthState para actualizar el estado de autenticación
-            setAuthState(json.usuario, json.token);
+            const { token, usuario } = json;
 
-            if (onSuccessLogin) {
-                onSuccessLogin(json.usuario, json.token);
+            if (!token) {
+                console.error('❌ [Frontend] Token es undefined/null:', token);
+                throw new Error('El servidor no devolvió un token válido');
             }
 
+            if (typeof token !== 'string') {
+                console.error('❌ [Frontend] Token no es string:', typeof token, token);
+                throw new Error('Token recibido no es válido');
+            }
+
+            await setAuthState(token, true);
+            onSuccessLogin?.(usuario, token);
         } catch (error) {
-            console.error('Google auth error:', error);
+            console.error('❌ Google auth error:', error);
             setNotificacion({
                 mostrar: true,
                 tipo: 'error',
@@ -48,7 +61,6 @@ const GoogleButton = ({ onSuccessLogin }) => {
             });
         }
     };
-
 
     const handleError = (error) => {
         console.error('Google login error:', error);
@@ -61,7 +73,6 @@ const GoogleButton = ({ onSuccessLogin }) => {
 
     return (
         <div className="w-full">
-            {/* Notificación de error */}
             {notificacion.mostrar && (
                 <Notificacion
                     tipo={notificacion.tipo}
@@ -71,7 +82,6 @@ const GoogleButton = ({ onSuccessLogin }) => {
                 />
             )}
 
-            {/* Divisor estilizado */}
             <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t-2 border-black dark:border-gray-600"></div>
@@ -83,12 +93,11 @@ const GoogleButton = ({ onSuccessLogin }) => {
                 </div>
             </div>
 
-            {/* Usamos el componente GoogleLogin */}
             <div className="flex justify-center">
                 <GoogleLogin
                     onSuccess={handleSuccess}
                     onError={handleError}
-                    useOneTap={false} // Opcional, para una mejor experiencia de usuario
+                    useOneTap={false}
                     theme="outline"
                     shape="rectangular"
                     logo_alignment="center"

@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Sun, Moon, Menu, X, Home, Dumbbell, Users, UserCircle, LogOut, Settings, UserCog, ClipboardList, Calendar, Clock } from 'lucide-react';
 import SmartLink from './SmartLink/SmartLink';
-import NavItem from './NavItem/NavItem'; // Asegúrate de que esta ruta sea correcta
+import NavItem from './NavItem/NavItem';
 
 const Navbar = () => {
   const { user, logout, loading } = useAuth();
@@ -17,9 +17,9 @@ const Navbar = () => {
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
+
     const shouldBeDark = savedTheme === 'dark' || (!savedTheme && prefersDark);
-    
+
     setDarkMode(shouldBeDark);
     if (shouldBeDark) {
       document.documentElement.classList.add('dark');
@@ -30,7 +30,7 @@ const Navbar = () => {
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode;
     setDarkMode(newDarkMode);
-    
+
     if (newDarkMode) {
       document.documentElement.classList.add('dark');
       localStorage.setItem('theme', 'dark');
@@ -140,6 +140,9 @@ const Navbar = () => {
                 )}
               </div>
             )}
+
+            {/* Nuevo item para chat */}
+            <NavItem to="/chat" icon={<Users size={24} />} text="CHAT" onClick={() => setMenuAbierto(false)} />
 
             <NavItem to="/entrenadores" icon={<Users size={24} />} text="ENTRENADORES" onClick={() => setMenuAbierto(false)} />
 

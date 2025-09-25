@@ -1,5 +1,6 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import useAuth from '@/hooks/useAuth';
 import Inicio from '../pages/Inicio';
 import Login from "../pages/Login";
 import Planes from '../pages/Planificaciones/Planes';
@@ -20,59 +21,55 @@ import GestionReservas from '../pages/Reservas/GestionReservas';
 import ForgotPassword  from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
 import ForoPlanificacion from '../pages/Planificaciones/ForoPlanificacion';
+import { ChatPage } from '@/features/chat';
 
 const AppRoutes = () => {
-    return (
-        <Routes>
-            {/* Públicas */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/registro" element={<Registro />} />
-            <Route path="/terminos" element={<TerminosCondiciones />} />
-            <Route path="/recuperar-contrasena" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
+  const { user, isAuthenticated, loading } = useAuth();
 
-            {/* Privadas */}
-            <Route element={<RutaPrivada />}>
-                <Route path="/" element={<Inicio />} />
-                <Route path="/planes" element={<Planes />} />
-                <Route path="/planificacion/:id" element={<Planificacion />} />
-                <Route path="/entrenadores" element={<Entrenadores />} />
-                <Route path="/cuenta" element={<Cuenta />} />
-                <Route path="/reservar" element={<ReservaForm />} />
-                <Route path="/mis-reservas" element={<MisReservas />} />
-                <Route path="/gestion/reservas" element={<GestionReservas />} />
-                <Route path="/planificacion/:idPlanificacion/foro" element={<ForoPlanificacion />} />
+  if (loading) return null; // puedo poner un spinner
 
-                {/* Nueva ruta de gestión */}
-                <Route
-                    path="/gestion/usuarios"
-                    element={
-                        <GestionUsuarios />
-                    }
-                />
-                <Route
-                    path="/gestion/planificaciones"
-                    element={
-                        <GestionPlanificaciones />
-                    }
-                />
-                <Route
-                    path="/crear-plan"
-                    element={
-                        <CrearPlanificacion />
-                    }
-                />
-                <Route
-                    path="/suscripcion"
-                    element={
-                        <Suscripcion />
-                    }
-                />
-                {/* Nueva ruta dinámica para perfiles */}
-                <Route path="/perfil/:userId" element={<PerfilUsuario />} />
-            </Route>
-        </Routes>
-    );
+  return (
+    <Routes>
+      {/* Públicas */}
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
+      />
+      <Route path="/registro" element={<Registro />} />
+      <Route path="/terminos" element={<TerminosCondiciones />} />
+      <Route path="/recuperar-contrasena" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* Privadas */}
+      <Route element={<RutaPrivada />}>
+        <Route path="/" element={<Inicio />} />
+        <Route path="/planes" element={<Planes />} />
+        <Route path="/planificacion/:id" element={<Planificacion />} />
+        <Route path="/entrenadores" element={<Entrenadores />} />
+        <Route path="/cuenta" element={<Cuenta />} />
+        <Route path="/reservar" element={<ReservaForm />} />
+        <Route path="/mis-reservas" element={<MisReservas />} />
+        <Route path="/gestion/reservas" element={<GestionReservas />} />
+        <Route path="/planificacion/:idPlanificacion/foro" element={<ForoPlanificacion />} />
+
+        {/* Chat */}
+        <Route
+          path="/chat"
+          element={<ChatPage userId={user?.id} userRole={user?.rol} />}
+        />
+
+        {/* Gestión */}
+        <Route path="/gestion/usuarios" element={<GestionUsuarios />} />
+        <Route path="/gestion/planificaciones" element={<GestionPlanificaciones />} />
+        <Route path="/crear-plan" element={<CrearPlanificacion />} />
+        <Route path="/suscripcion" element={<Suscripcion />} />
+        <Route path="/perfil/:userId" element={<PerfilUsuario />} />
+      </Route>
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />} />
+    </Routes>
+  );
 };
 
 export default AppRoutes;
