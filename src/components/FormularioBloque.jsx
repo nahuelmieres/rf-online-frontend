@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Plus, X } from 'lucide-react';
-import Notificacion from './Notificacion'; // ← ajustá la ruta si cambia
+import Notificacion from './Notificacion';
 
 const urlEsYouTube = (v) => {
   if (!v) return true;

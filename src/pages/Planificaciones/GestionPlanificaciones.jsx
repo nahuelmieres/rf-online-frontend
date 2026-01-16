@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Check, X, Loader2, Search } from 'lucide-react';
+import { Check, X, Loader2, Search, AlertTriangle, UserCheck } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import Notificacion from '../../components/Notificacion';
 import SmartLink from '../../components/SmartLink/SmartLink';
+import ModalVerSolicitud from '../../components/ModalVerSolicitud'; // Importamos el modal
 
 const GestionPlanificaciones = () => {
   const [usuarios, setUsuarios] = useState([]);
@@ -13,6 +14,14 @@ const GestionPlanificaciones = () => {
   const [asignando, setAsignando] = useState(false);
   const [notificacion, setNotificacion] = useState(null);
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
+  const [filtroEstado, setFiltroEstado] = useState('todos');
+  
+  // Estados para el modal
+  const [modalSolicitudAbierto, setModalSolicitudAbierto] = useState(false);
+  const [solicitudSeleccionada, setSolicitudSeleccionada] = useState(null);
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
+  const [cargandoSolicitud, setCargandoSolicitud] = useState(false);
+  
   const { usuario } = useAuth();
 
   const obtenerDatos = async () => {
@@ -43,10 +52,17 @@ const GestionPlanificaciones = () => {
       const dataUsuarios = await resUsuarios.json();
       const dataPlanes = await resPlanes.json();
 
-      // Ordenar usuarios: primero los sin planificación
+      // Ordenar usuarios: primero los que tienen planRequest y NO tienen planPersonalizado
       const usuariosOrdenados = (dataUsuarios.data?.usuarios || []).sort((a, b) => {
+        const aPendiente = a.planRequest && !a.planPersonalizado;
+        const bPendiente = b.planRequest && !b.planPersonalizado;
+        
+        if (aPendiente && !bPendiente) return -1;
+        if (!aPendiente && bPendiente) return 1;
+        
         if (!a.planPersonalizado && b.planPersonalizado) return -1;
         if (a.planPersonalizado && !b.planPersonalizado) return 1;
+        
         return 0;
       });
 
@@ -58,6 +74,35 @@ const GestionPlanificaciones = () => {
       mostrarNotificacion('error', e.message || 'Error al cargar los datos');
     } finally {
       setCargando(false);
+    }
+  };
+
+  // Función para abrir el modal con la solicitud
+  const abrirModalSolicitud = async (usuario) => {
+    try {
+      setCargandoSolicitud(true);
+      
+      const res = await fetch(`/api/usuarios/plan-requests/${usuario._id}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!res.ok) {
+        throw new Error('Error al cargar la solicitud');
+      }
+
+      const data = await res.json();
+      
+      setSolicitudSeleccionada(data.planRequest);
+      setUsuarioSeleccionado(usuario);
+      setModalSolicitudAbierto(true);
+    } catch (error) {
+      console.error('Error al cargar solicitud:', error);
+      mostrarNotificacion('error', 'No se pudo cargar la solicitud');
+    } finally {
+      setCargandoSolicitud(false);
     }
   };
 
@@ -106,15 +151,66 @@ const GestionPlanificaciones = () => {
     return plan?.titulo?.toUpperCase() || 'PLANIFICACIÓN DESCONOCIDA';
   };
 
-  // Filtrar usuarios según el término de búsqueda
+  const obtenerEstadoUsuario = (user) => {
+    if (user.planRequest && !user.planPersonalizado) {
+      return 'pendiente';
+    } else if (user.planPersonalizado) {
+      return 'completado';
+    } else {
+      return 'sin-solicitud';
+    }
+  };
+
   const usuariosFiltrados = usuarios.filter(user => {
     const searchTerm = terminoBusqueda.toLowerCase();
+    const estado = obtenerEstadoUsuario(user);
+    
+    if (filtroEstado === 'pendientes' && estado !== 'pendiente') return false;
+    if (filtroEstado === 'completados' && estado !== 'completado') return false;
+    if (filtroEstado === 'sin-solicitud' && estado !== 'sin-solicitud') return false;
+    
     return (
-      user.nombre.toLowerCase().includes(searchTerm) ||
-      user.email.toLowerCase().includes(searchTerm) ||
+      user.nombre?.toLowerCase().includes(searchTerm) ||
+      user.email?.toLowerCase().includes(searchTerm) ||
       obtenerNombrePlanificacion(user.planPersonalizado).toLowerCase().includes(searchTerm)
     );
   });
+
+  const contadores = {
+    todos: usuarios.length,
+    pendientes: usuarios.filter(user => obtenerEstadoUsuario(user) === 'pendiente').length,
+    completados: usuarios.filter(user => obtenerEstadoUsuario(user) === 'completado').length,
+    'sin-solicitud': usuarios.filter(user => obtenerEstadoUsuario(user) === 'sin-solicitud').length
+  };
+
+  const getRowStyles = (user) => {
+    const estado = obtenerEstadoUsuario(user);
+    switch (estado) {
+      case 'pendiente': return 'bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-l-yellow-500 font-bold';
+      case 'completado': return 'bg-green-50 dark:bg-green-900/20 border-l-4 border-l-green-500';
+      case 'sin-solicitud': return 'bg-gray-50 dark:bg-gray-900/20 border-l-4 border-l-gray-300';
+      default: return '';
+    }
+  };
+
+  const getEstadoIcon = (user) => {
+    const estado = obtenerEstadoUsuario(user);
+    switch (estado) {
+      case 'pendiente': return <AlertTriangle className="text-yellow-600 dark:text-yellow-400" size={16} />;
+      case 'completado': return <UserCheck className="text-green-600 dark:text-green-400" size={16} />;
+      default: return null;
+    }
+  };
+
+  const getEstadoText = (user) => {
+    const estado = obtenerEstadoUsuario(user);
+    switch (estado) {
+      case 'pendiente': return 'SOLICITUD PENDIENTE';
+      case 'completado': return 'PLAN ASIGNADO';
+      case 'sin-solicitud': return 'SIN SOLICITUD';
+      default: return '';
+    }
+  };
 
   useEffect(() => {
     obtenerDatos();
@@ -151,7 +247,7 @@ const GestionPlanificaciones = () => {
         <Notificacion
           tipo={notificacion.tipo}
           mensaje={notificacion.mensaje}
-          onCerrar={() => setNotificacion(null)}
+          onClose={() => setNotificacion(null)}
         />
       )}
 
@@ -169,8 +265,8 @@ const GestionPlanificaciones = () => {
         </div>
       </div>
 
-      {/* Barra de búsqueda */}
-      <div className="mb-8 relative">
+      {/* Barra de búsqueda y filtros */}
+      <div className="mb-8 space-y-4">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-black dark:text-white" />
@@ -191,6 +287,49 @@ const GestionPlanificaciones = () => {
             </button>
           )}
         </div>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFiltroEstado('todos')}
+            className={`px-4 py-2 border-2 font-bold text-sm shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
+              filtroEstado === 'todos'
+                ? 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
+                : 'border-gray-400 text-gray-600 dark:text-gray-400 bg-white dark:bg-black'
+            }`}
+          >
+            TODOS ({contadores.todos})
+          </button>
+          <button
+            onClick={() => setFiltroEstado('pendientes')}
+            className={`px-4 py-2 border-2 font-bold text-sm shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
+              filtroEstado === 'pendientes'
+                ? 'border-yellow-600 bg-yellow-600 text-white'
+                : 'border-yellow-500 text-yellow-600 dark:text-yellow-500 bg-white dark:bg-black'
+            }`}
+          >
+            PENDIENTES ({contadores.pendientes})
+          </button>
+          <button
+            onClick={() => setFiltroEstado('completados')}
+            className={`px-4 py-2 border-2 font-bold text-sm shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
+              filtroEstado === 'completados'
+                ? 'border-green-600 bg-green-600 text-white'
+                : 'border-green-500 text-green-600 dark:text-green-500 bg-white dark:bg-black'
+            }`}
+          >
+            COMPLETADOS ({contadores.completados})
+          </button>
+          <button
+            onClick={() => setFiltroEstado('sin-solicitud')}
+            className={`px-4 py-2 border-2 font-bold text-sm shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
+              filtroEstado === 'sin-solicitud'
+                ? 'border-gray-600 bg-gray-600 text-white'
+                : 'border-gray-500 text-gray-600 dark:text-gray-500 bg-white dark:bg-black'
+            }`}
+          >
+            SIN SOLICITUD ({contadores['sin-solicitud']})
+          </button>
+        </div>
       </div>
 
       {/* Selector de planificación */}
@@ -201,15 +340,11 @@ const GestionPlanificaciones = () => {
         <select
           value={planSeleccionada}
           onChange={(e) => setPlanSeleccionada(e.target.value)}
-          className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none"
+          className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-lg focus:outline-none shadow-hard"
         >
           <option value="">-- SELECCIONÁ UNA PLANIFICACIÓN --</option>
           {planificaciones.map(plan => (
-            <option
-              key={plan._id}
-              value={plan._id}
-              className="bg-white dark:bg-black"
-            >
+            <option key={plan._id} value={plan._id} className="bg-white dark:bg-black">
               {plan.titulo?.toUpperCase()} ({plan.tipo?.toUpperCase()})
             </option>
           ))}
@@ -223,6 +358,7 @@ const GestionPlanificaciones = () => {
             <tr className="border-b-2 border-black dark:border-gray-600">
               <th className="px-4 py-3 text-left text-lg font-bold">USUARIO</th>
               <th className="px-4 py-3 text-left text-lg font-bold">EMAIL</th>
+              <th className="px-4 py-3 text-left text-lg font-bold">ESTADO</th>
               <th className="px-4 py-3 text-left text-lg font-bold">PLANIFICACIÓN ACTUAL</th>
               <th className="px-4 py-3 text-left text-lg font-bold">ASIGNAR</th>
             </tr>
@@ -231,39 +367,56 @@ const GestionPlanificaciones = () => {
             {usuariosFiltrados.map(usuario => (
               <tr
                 key={usuario._id}
-                className="border-b border-black dark:border-gray-600 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
+                className={`border-b border-black dark:border-gray-600 hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5 transition-colors ${getRowStyles(usuario)}`}
               >
                 <td className="px-4 py-3">
-                  <SmartLink
-                    to={`/perfil/${usuario._id}`}
-                    className="font-bold hover:underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {usuario.nombre?.toUpperCase()}
-                  </SmartLink>
+                  <div className="flex items-center gap-2">
+                    <SmartLink
+                      to={`/perfil/${usuario._id}`}
+                      className="font-bold hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {usuario.nombre?.toUpperCase()}
+                    </SmartLink>
+                    {usuario.planRequest && (
+                      <button
+                        onClick={() => abrirModalSolicitud(usuario)}
+                        disabled={cargandoSolicitud}
+                        className="text-xs border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-black dark:text-white px-2 py-1 font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {cargandoSolicitud ? 'CARGANDO...' : 'VER SOLICITUD'}
+                      </button>
+                    )}
+                  </div>
                 </td>
                 <td className="px-4 py-3">{usuario.email}</td>
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    {getEstadoIcon(usuario)}
+                    <span className="font-medium">{getEstadoText(usuario)}</span>
+                  </div>
+                </td>
                 <td className="px-4 py-3">
                   {usuario.planPersonalizado ? (
                     <span className="inline-flex items-center gap-1">
                       <Check className="text-green-500" size={16} />
-                      <span>
-                        {obtenerNombrePlanificacion(usuario.planPersonalizado)}
-                      </span>
+                      <span>{obtenerNombrePlanificacion(usuario.planPersonalizado)}</span>
                     </span>
                   ) : (
-                    <span>SIN PLANIFICACIÓN PERSONALIZADA</span>
+                    <span className="text-red-500 dark:text-red-400 font-medium">
+                      SIN PLANIFICACIÓN PERSONALIZADA
+                    </span>
                   )}
                 </td>
                 <td className="px-4 py-3">
                   <button
                     onClick={() => asignarPlanificacion(usuario._id)}
-                    disabled={asignando || !planSeleccionada}
+                    disabled={asignando || !planSeleccionada || usuario.planPersonalizado}
                     className={`px-4 py-2 border-2 font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all ${
-                      asignando || !planSeleccionada
+                      asignando || !planSeleccionada || usuario.planPersonalizado
                         ? 'border-gray-400 text-gray-400 cursor-not-allowed'
-                        : 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black'
+                        : 'border-black dark:border-gray-600 bg-black dark:bg-white text-white dark:text-black hover:bg-green-600 hover:border-green-600 hover:text-white'
                     }`}
                   >
                     {asignando ? (
@@ -271,6 +424,8 @@ const GestionPlanificaciones = () => {
                         <Loader2 className="animate-spin" size={16} />
                         ASIGNANDO...
                       </span>
+                    ) : usuario.planPersonalizado ? (
+                      'YA ASIGNADO'
                     ) : (
                       'ASIGNAR'
                     )}
@@ -280,7 +435,31 @@ const GestionPlanificaciones = () => {
             ))}
           </tbody>
         </table>
+
+        {usuariosFiltrados.length === 0 && (
+          <div className="text-center py-8 border-2 border-black dark:border-gray-600 border-t-0">
+            <p className="text-lg font-medium">
+              {terminoBusqueda || filtroEstado !== 'todos' 
+                ? 'NO SE ENCONTRARON USUARIOS CON LOS FILTROS APLICADOS'
+                : 'NO HAY USUARIOS PARA MOSTRAR'
+              }
+            </p>
+          </div>
+        )}
       </div>
+
+      {/* Modal para ver solicitud */}
+      <ModalVerSolicitud
+        isOpen={modalSolicitudAbierto}
+        onClose={() => {
+          setModalSolicitudAbierto(false);
+          setSolicitudSeleccionada(null);
+          setUsuarioSeleccionado(null);
+        }}
+        planRequest={solicitudSeleccionada}
+        usuario={usuarioSeleccionado}
+        onAsignarPlanificacion={asignarPlanificacion}
+      />
     </div>
   );
 };

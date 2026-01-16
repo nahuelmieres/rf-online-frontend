@@ -4,6 +4,7 @@ import Loader from '../../components/Loader';
 import Notificacion from '../../components/Notificacion';
 import TarjetaPlan from './TarjetaPlan';
 import SmartLink from '../../components/SmartLink/SmartLink';
+import ModalCuestionario from '../../components/ModalCuestionario';
 
 const Planes = () => {
   const [planificacionesBasicas, setPlanificacionesBasicas] = useState([]);
@@ -13,6 +14,7 @@ const Planes = () => {
   const [error, setError] = useState(null);
   const [notificacion, setNotificacion] = useState(null);
   const { user } = useAuth();
+  const [modalAbierto, setModalAbierto] = useState(false);
 
   useEffect(() => {
     const obtenerPlanificaciones = async () => {
@@ -156,9 +158,16 @@ const Planes = () => {
             <div className="mb-8 p-6 border-2 border-black dark:border-gray-600 bg-white dark:bg-black text-center">
               <h2 className="text-xl font-bold mb-2">¿QUERES UN PLAN PERSONALIZADO?</h2>
               <p className="mb-4">Contrata una planificación personalizada adaptada 100% a tus necesidades</p>
-              <button className="px-4 py-2 bg-orange-600 text-white font-bold">
+              <button
+                onClick={() => setModalAbierto(true)}
+                className="px-4 py-2 bg-orange-600 text-white font-bold shadow-hard hover:shadow-none hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+              >
                 SOLICITAR PERSONALIZADO
               </button>
+              <ModalCuestionario
+                isOpen={modalAbierto}
+                onClose={() => setModalAbierto(false)}
+              />
             </div>
           )}
 

@@ -15,8 +15,8 @@ const Inicio = () => {
         </p>
       </div>
 
-      {/* Cards Section - Ahora con 4 columnas en desktop */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4 md:px-0">
+      {/* Cards Section - 1 columna hasta 768px, 2 columnas hasta 1280px, 4 columnas en 1280px+ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 px-4 md:px-0">
         {/* Card Planes */}
         <SmartLink
           to="/planes"
@@ -83,7 +83,7 @@ const Inicio = () => {
           </div>
         </SmartLink>
 
-        {/* Card Reservas - Ahora con ícono de reloj y en la misma fila */}
+        {/* Card Reservas */}
         <SmartLink
           to="/reservar"
           className="card p-6 group border-2 border-black dark:border-gray-600 bg-white dark:bg-black hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all shadow-hard"
