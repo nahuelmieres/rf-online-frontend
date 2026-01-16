@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  Plus, Dumbbell, AlertCircle, Trash2, Check, Search, Loader2, Edit2
+  Plus, Dumbbell, AlertCircle, Trash2, Check, Search, Loader2, Edit2, Copy
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
@@ -150,7 +150,7 @@ const EntrenadoresAdminCoach = () => {
     setSeleccionados(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   }, []);
 
-  // --- Crear/Actualizar/Eliminar ---
+  // --- Crear/Actualizar/Eliminar/Duplicar ---
   const crearBloque = async (bloqueData) => {
     try {
       setCreandoBloque(true);
@@ -291,6 +291,70 @@ const EntrenadoresAdminCoach = () => {
     }
   };
 
+  // NUEVA FUNCIÓN: Duplicar bloque
+  const duplicarBloque = async (bloqueOriginal) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        mostrarNotificacion('error', 'Error de autenticación', 'Necesitas iniciar sesión para realizar esta acción', 8000);
+        return;
+      }
+
+      mostrarNotificacion('info', 'Duplicando', 'Creando copia del bloque...', 0);
+
+      // Preparo los datos del bloque duplicado
+      const bloqueDuplicado = {
+        titulo: `${bloqueOriginal.titulo} (COPIA)`,
+        tipo: bloqueOriginal.tipo,
+        creadoPor: user.id,
+        etiquetas: Array.isArray(bloqueOriginal.etiquetas) ? [...bloqueOriginal.etiquetas] : [],
+        ...(bloqueOriginal.tipo === 'texto' && {
+          contenidoTexto: bloqueOriginal.contenidoTexto || '',
+        }),
+        ...(bloqueOriginal.tipo === 'ejercicios' && {
+          ejercicios: Array.isArray(bloqueOriginal.ejercicios)
+            ? bloqueOriginal.ejercicios.map(e => ({
+                nombre: e.nombre || 'Ejercicio sin nombre',
+                series: e.series || 0,
+                repeticiones: e.repeticiones?.toString() || '0',
+                ...(e.escala ? { escala: e.escala.toString().toUpperCase() } : {}),
+                ...(e.esfuerzoPercibido !== undefined && e.esfuerzoPercibido !== null && e.esfuerzoPercibido !== ''
+                  ? { esfuerzoPercibido: Number(e.esfuerzoPercibido) }
+                  : {}),
+                ...(e.linkVideo && { linkVideo: e.linkVideo.toString() })
+              }))
+            : [],
+        })
+      };
+
+      const res = await fetch(`${API_URL}/api/bloques`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify(bloqueDuplicado)
+      });
+
+      const responseText = await res.text();
+      let data;
+      try {
+        data = responseText ? JSON.parse(responseText) : {};
+      } catch {
+        throw new Error('Formato de respuesta inválido del servidor');
+      }
+
+      if (!res.ok) {
+        throw new Error(data.mensaje || data.message || `Error ${res.status} al duplicar bloque`);
+      }
+
+      // Refresco la lista de bloques
+      const bloquesActualizados = await obtenerBloques();
+      setBloques(bloquesActualizados);
+
+      mostrarNotificacion('success', 'Bloque duplicado', `"${bloqueDuplicado.titulo}" fue creado exitosamente`);
+    } catch (err) {
+      console.error('Error al duplicar bloque:', err);
+      mostrarNotificacion('error', 'Error al duplicar', err.message || 'No puedo duplicar el bloque', 8000);
+    }
+  };
 
   // DELETE real (sin confirm)
   const eliminarBloqueRequest = async (id) => {
@@ -550,6 +614,16 @@ const EntrenadoresAdminCoach = () => {
                             title="Editar bloque"
                           >
                             <Edit2 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              duplicarBloque(bloque);
+                            }}
+                            className="p-1 border-2 border-black dark:border-gray-600 hover:bg-green-500 hover:bg-opacity-20"
+                            title="Duplicar bloque"
+                          >
+                            <Copy className="w-4 h-4" />
                           </button>
                           <button
                             onClick={(e) => {
