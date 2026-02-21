@@ -97,7 +97,7 @@ const PerfilUsuario = () => {
             // Agrupar por semana-día
             data.forEach(comentario => {
                 const key = `${comentario.semana}-${comentario.dia}`;
-                
+
                 if (!historialOrganizado[key]) {
                     historialOrganizado[key] = [];
                 }
@@ -106,10 +106,10 @@ const PerfilUsuario = () => {
 
             // Ordenar historial del más antiguo al más nuevo
             Object.keys(historialOrganizado).forEach(key => {
-                historialOrganizado[key].sort((a, b) => 
+                historialOrganizado[key].sort((a, b) =>
                     new Date(a.creadoEn) - new Date(b.creadoEn)
                 );
-                
+
                 // El comentario a mostrar es el más reciente (último del array ordenado)
                 comentariosOrganizados[key] = historialOrganizado[key][historialOrganizado[key].length - 1];
             });
@@ -171,7 +171,7 @@ const PerfilUsuario = () => {
 
     const eliminarBloqueDeDia = async () => {
         const { bloqueId, bloqueTitulo, diaNombre, semanaNumero } = confirmarEliminar;
-        
+
         try {
             setEliminando(true);
             const token = localStorage.getItem('token');
@@ -206,7 +206,7 @@ const PerfilUsuario = () => {
                 setPlanificacion(data.data);
                 mostrarNotificacion('success', 'Bloque eliminado', `"${bloqueTitulo}" fue eliminado de ${diaNombre}`);
             }
-            
+
             cancelarEliminar();
         } catch (err) {
             console.error('Error al eliminar bloque:', err);
@@ -311,19 +311,19 @@ const PerfilUsuario = () => {
 
                 if (res.ok) {
                     const { data } = await res.json();
-                    
+
                     // Actualizar comentario actual
                     setComentarios(prev => ({
                         ...prev,
                         [key]: data
                     }));
-                    
+
                     // Actualizar historial
                     setHistorialComentarios(prev => ({
                         ...prev,
                         [key]: [...(prev[key] || []), data]
                     }));
-                    
+
                     setNuevosComentarios(prev => {
                         const nuevos = { ...prev };
                         delete nuevos[key];
@@ -357,18 +357,18 @@ const PerfilUsuario = () => {
             if (res.ok) {
                 const { data } = await res.json();
                 const key = `${data.semana}-${data.dia}`;
-                
+
                 setComentarios(prev => ({
                     ...prev,
                     [key]: data
                 }));
-                
+
                 // Actualizar en el historial
                 setHistorialComentarios(prev => ({
                     ...prev,
                     [key]: prev[key].map(c => c._id === data._id ? data : c)
                 }));
-                
+
                 setEditandoComentario(null);
                 setEditandoTexto('');
                 mostrarNotificacion('success', 'Comentario actualizado', 'El comentario fue modificado exitosamente');
@@ -398,13 +398,13 @@ const PerfilUsuario = () => {
                     delete nuevos[key];
                     return nuevos;
                 });
-                
+
                 // Eliminar del historial
                 setHistorialComentarios(prev => ({
                     ...prev,
                     [key]: (prev[key] || []).filter(c => c._id !== comentarioId)
                 }));
-                
+
                 mostrarNotificacion('success', 'Comentario eliminado', 'El comentario fue eliminado exitosamente');
             }
         } catch (err) {
@@ -750,7 +750,7 @@ const PerfilUsuario = () => {
                                                                             {bloque.titulo || 'Bloque sin título'}
                                                                         </h4>
                                                                     </div>
-                                                                    
+
                                                                     {esEntrenador && (
                                                                         <button
                                                                             onClick={() => pedirConfirmacionEliminar(
@@ -838,9 +838,49 @@ const PerfilUsuario = () => {
                                                                         })}
                                                                     </div>
                                                                 ) : (
-                                                                    <p className="text-sm whitespace-pre-line">
-                                                                        {bloque.contenidoTexto || 'Sin contenido'}
-                                                                    </p>
+                                                                    <div className="space-y-3">
+                                                                        <p className="text-sm whitespace-pre-line">
+                                                                            {bloque.contenidoTexto || 'Sin contenido'}
+                                                                        </p>
+
+                                                                        {/* Videos en bloques de texto */}
+                                                                        {bloque.videos && bloque.videos.length > 0 && (
+                                                                            <div className="space-y-3 mt-4">
+                                                                                {bloque.videos.map((video, videoIndex) => {
+                                                                                    const videoKey = `texto-${bloqueIndex}-video-${videoIndex}`;
+                                                                                    const videoExpandido = videosExpandidos[videoKey];
+                                                                                    const { id, isShort } = getYouTubeId(video.url);
+
+                                                                                    return (
+                                                                                        <div key={videoIndex}>
+                                                                                            <button
+                                                                                                onClick={() => toggleVideoExpandido(videoKey)}
+                                                                                                className="flex items-center gap-2 mb-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                                                                                            >
+                                                                                                <svg className="w-4 h-4 text-red-600" viewBox="0 0 24 24">
+                                                                                                    <path fill="currentColor" d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                                                                                                </svg>
+                                                                                                <span>{videoExpandido ? 'Ocultar' : 'Ver'} {video.titulo || 'video'} {isShort ? '(Short)' : ''}</span>
+                                                                                                {videoExpandido ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                                                                            </button>
+
+                                                                                            {videoExpandido && (
+                                                                                                <div className={`relative ${isShort ? 'aspect-[9/16] w-full max-w-[280px]' : 'aspect-video max-w-md'} bg-black rounded`}>
+                                                                                                    <iframe
+                                                                                                        className="w-full h-full rounded"
+                                                                                                        src={`https://www.youtube.com/embed/${id}?autoplay=1${isShort ? '&controls=0&modestbranding=1' : '&rel=0&modestbranding=1'}`}
+                                                                                                        title={video.titulo || 'Video'}
+                                                                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                                        allowFullScreen
+                                                                                                    />
+                                                                                                </div>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
                                                                 )}
 
                                                             </div>

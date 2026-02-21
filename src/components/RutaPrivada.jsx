@@ -1,21 +1,18 @@
-// src/components/RutaPrivada.jsx
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import Loader from './Loader';
 
-const RutaPrivada = ({ rolesPermitidos = [] }) => {
-  const { user, isAuthenticated, loading } = useAuth();
+const RutaPrivada = ({ rolesPermitidos = [], requireSubscription = true }) => { // Cambiar default a true
+  const { user, isAuthenticated, hasActiveSubscription, loading } = useAuth();
   const location = useLocation();
 
   if (loading) return <Loader className="h-screen" />;
 
-  // No autenticado → login
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Roles
   if (rolesPermitidos.length > 0 && !rolesPermitidos.includes(user.rol)) {
     return (
       <div className="max-w-4xl mx-auto p-6">
@@ -29,6 +26,16 @@ const RutaPrivada = ({ rolesPermitidos = [] }) => {
         </div>
       </div>
     );
+  }
+
+  // Verificar suscripción (solo para clientes, no para admin/coach)
+  if (
+    requireSubscription && // Solo si la ruta requiere suscripción
+    user.rol === 'cliente' && 
+    !hasActiveSubscription && 
+    location.pathname !== '/suscripcion'
+  ) {
+    return <Navigate to="/suscripcion" replace />;
   }
 
   return <Outlet />;

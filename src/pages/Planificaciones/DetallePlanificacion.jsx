@@ -726,9 +726,49 @@ const DetallePlanificacion = () => {
                                                             })}
                                                         </div>
                                                     ) : (
-                                                        <p className="text-sm whitespace-pre-line">
-                                                            {bloque.contenidoTexto || 'Sin contenido'}
-                                                        </p>
+                                                        <div className="space-y-3">
+                                                            <p className="text-sm whitespace-pre-line">
+                                                                {bloque.contenidoTexto || 'Sin contenido'}
+                                                            </p>
+
+                                                            {/* Videos en bloques de texto */}
+                                                            {bloque.videos && bloque.videos.length > 0 && (
+                                                                <div className="space-y-3 mt-4">
+                                                                    {bloque.videos.map((video, videoIndex) => {
+                                                                        const videoKey = `texto-${bloqueIndex}-video-${videoIndex}`;
+                                                                        const videoExpandido = videosExpandidos[videoKey];
+                                                                        const { id, isShort } = getYouTubeId(video.url);
+
+                                                                        return (
+                                                                            <div key={videoIndex}>
+                                                                                <button
+                                                                                    onClick={() => toggleVideoExpandido(videoKey)}
+                                                                                    className="flex items-center gap-2 mb-2 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                                                                                >
+                                                                                    <svg className="w-4 h-4 text-red-600" viewBox="0 0 24 24">
+                                                                                        <path fill="currentColor" d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+                                                                                    </svg>
+                                                                                    <span>{videoExpandido ? 'Ocultar' : 'Ver'} {video.titulo || 'video'} {isShort ? '(Short)' : ''}</span>
+                                                                                    {videoExpandido ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                                                                </button>
+
+                                                                                {videoExpandido && (
+                                                                                    <div className={`relative ${isShort ? 'aspect-[9/16] w-full max-w-[280px]' : 'aspect-video max-w-md'} bg-black rounded`}>
+                                                                                        <iframe
+                                                                                            className="w-full h-full rounded"
+                                                                                            src={`https://www.youtube.com/embed/${id}?autoplay=1${isShort ? '&controls=0&modestbranding=1' : '&rel=0&modestbranding=1'}`}
+                                                                                            title={video.titulo || 'Video'}
+                                                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                                                            allowFullScreen
+                                                                                        />
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     )}
 
                                                 </div>

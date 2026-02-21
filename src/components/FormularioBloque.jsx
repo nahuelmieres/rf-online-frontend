@@ -18,6 +18,7 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
   const [inputTagValue, setInputTagValue] = useState('');
   const [tipo, setTipo] = useState('ejercicios');
   const [contenidoTexto, setContenidoTexto] = useState('');
+  const [videos, setVideos] = useState([]); // NUEVO
   const [ejercicios, setEjercicios] = useState([
     { nombre: '', series: 3, repeticiones: '8-10', escala: '', esfuerzoPercibido: '', linkVideo: '' }
   ]);
@@ -35,6 +36,7 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
       setTipo(bloque.tipo || 'ejercicios');
       if (bloque.tipo === 'texto') {
         setContenidoTexto(bloque.contenidoTexto || '');
+        setVideos(bloque.videos || []); // NUEVO
       } else {
         setEjercicios(
           (bloque.ejercicios || []).map(e => ({
@@ -79,6 +81,23 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
     setEjercicios(newEjercicios);
   };
 
+  // NUEVO: Funciones para manejar videos en bloques de texto
+  const handleVideoChange = (index, field, value) => {
+    const newVideos = [...videos];
+    newVideos[index][field] = value;
+    setVideos(newVideos);
+  };
+
+  const agregarVideo = () => {
+    setVideos([...videos, { titulo: '', url: '' }]);
+  };
+
+  const eliminarVideo = (index) => {
+    const newVideos = [...videos];
+    newVideos.splice(index, 1);
+    setVideos(newVideos);
+  };
+
   const handleTagKeyDown = (e) => {
     if (e.key === 'Enter' && inputTagValue.trim()) {
       e.preventDefault();
@@ -120,6 +139,16 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
     return null;
   };
 
+  // NUEVO: Validar videos
+  const validarVideos = () => {
+    for (let i = 0; i < videos.length; i++) {
+      const v = videos[i];
+      if (!v.url.trim()) return `Video #${i + 1}: la URL es requerida`;
+      if (!urlEsYouTube(v.url)) return `Video #${i + 1}: debe ser un link de YouTube`;
+    }
+    return null;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -130,6 +159,11 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
     if (tipo === 'texto') {
       if (!contenidoTexto.trim()) {
         return notify('El contenido es requerido para bloques de texto.');
+      }
+      // NUEVO: Validar videos si hay
+      if (videos.length > 0) {
+        const error = validarVideos();
+        if (error) return notify(error);
       }
     } else {
       if (!ejercicios.length) {
@@ -143,6 +177,10 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
       titulo: titulo.trim(),
       tipo,
       contenidoTexto: tipo === 'texto' ? contenidoTexto.trim() : '',
+      videos: tipo === 'texto' ? videos.filter(v => v.url.trim()).map(v => ({
+        titulo: v.titulo.trim() || 'Video',
+        url: v.url.trim()
+      })) : [], // NUEVO
       ejercicios:
         tipo === 'ejercicios'
           ? ejercicios.map(e => ({
@@ -235,15 +273,70 @@ const FormularioBloque = ({ bloque, onSubmit, onCancel, onDelete }) => {
 
         {/* Contenido según tipo */}
         {tipo === 'texto' ? (
-          <div>
-            <label className="block text-lg font-bold mb-2">CONTENIDO</label>
-            <textarea
-              value={contenidoTexto}
-              onChange={(e) => setContenidoTexto(e.target.value)}
-              rows={6}
-              className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black focus:outline-none focus:border-orange-500"
-            />
-          </div>
+          <>
+            <div>
+              <label className="block text-lg font-bold mb-2">CONTENIDO</label>
+              <textarea
+                value={contenidoTexto}
+                onChange={(e) => setContenidoTexto(e.target.value)}
+                rows={6}
+                className="w-full p-3 border-2 border-black dark:border-gray-600 bg-white dark:bg-black focus:outline-none focus:border-orange-500"
+              />
+            </div>
+
+            {/* NUEVO: Sección de videos para bloques de texto */}
+            <div className="space-y-4">
+              <label className="block text-lg font-bold">VIDEOS (OPCIONAL)</label>
+
+              {videos.map((video, index) => (
+                <div key={index} className="p-4 border-2 border-black dark:border-gray-600">
+                  <div className="flex justify-between items-center mb-3">
+                    <h4 className="font-bold">VIDEO {index + 1}</h4>
+                    <button
+                      type="button"
+                      onClick={() => eliminarVideo(index)}
+                      className="p-1 border-2 border-black dark:border-gray-600 hover:bg-red-500 hover:bg-opacity-20"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-bold mb-1">TÍTULO DEL VIDEO (OPCIONAL)</label>
+                      <input
+                        type="text"
+                        value={video.titulo}
+                        onChange={(e) => handleVideoChange(index, 'titulo', e.target.value)}
+                        placeholder="ej: Técnica correcta"
+                        className="w-full p-2 border-2 border-black dark:border-gray-600 bg-white dark:bg-black focus:outline-none focus:border-orange-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-bold mb-1">URL DE YOUTUBE</label>
+                      <input
+                        type="url"
+                        value={video.url}
+                        onChange={(e) => handleVideoChange(index, 'url', e.target.value)}
+                        placeholder="https://youtube.com/..."
+                        className="w-full p-2 border-2 border-black dark:border-gray-600 bg-white dark:bg-black focus:outline-none focus:border-orange-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={agregarVideo}
+                className="flex items-center gap-2 px-4 py-2 border-2 border-black dark:border-gray-600 font-bold hover:bg-black hover:bg-opacity-5 dark:hover:bg-white dark:hover:bg-opacity-5"
+              >
+                <Plus size={16} />
+                AGREGAR VIDEO
+              </button>
+            </div>
+          </>
         ) : (
           <div className="space-y-4">
             <label className="block text-lg font-bold">EJERCICIOS</label>

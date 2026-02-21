@@ -18,56 +18,81 @@ import TerminosCondiciones from '../pages/TerminosCondiciones';
 import ReservaForm from '../pages/Reservas/ReservaForm';
 import MisReservas from '../pages/Reservas/MisReservas';
 import GestionReservas from '../pages/Reservas/GestionReservas';
-import ForgotPassword  from '../pages/ForgotPassword';
+import ForgotPassword from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
 import ForoPlanificacion from '../pages/Planificaciones/ForoPlanificacion';
 import { ChatPage } from '@/features/chat';
+import Loader from '@/components/Loader';
 
 const AppRoutes = () => {
   const { user, isAuthenticated, loading } = useAuth();
 
-  if (loading) return null; // puedo poner un spinner
+  if (loading) return <Loader className="h-screen" />;
 
   return (
     <Routes>
-      {/* Públicas */}
+      {/* ============================================ */}
+      {/* RUTAS PÚBLICAS */}
+      {/* ============================================ */}
       <Route
         path="/login"
         element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
       />
-      <Route path="/registro" element={<Registro />} />
+      <Route 
+        path="/registro" 
+        element={isAuthenticated ? <Navigate to="/" replace /> : <Registro />}
+      />
       <Route path="/terminos" element={<TerminosCondiciones />} />
       <Route path="/recuperar-contrasena" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
-      {/* Privadas */}
+      {/* ============================================ */}
+      {/* RUTAS PRIVADAS - NO REQUIEREN SUSCRIPCIÓN */}
+      {/* ============================================ */}
+      <Route element={<RutaPrivada requireSubscription={false} />}>
+        <Route path="/cuenta" element={<Cuenta />} />
+        <Route path="/suscripcion" element={<Suscripcion />} />
+      </Route>
+
+      {/* ============================================ */}
+      {/* RUTAS PRIVADAS - REQUIEREN SUSCRIPCIÓN */}
+      {/* (Clientes sin suscripción activa serán redirigidos a /suscripcion) */}
+      {/* ============================================ */}
       <Route element={<RutaPrivada />}>
         <Route path="/" element={<Inicio />} />
         <Route path="/planes" element={<Planes />} />
         <Route path="/planificacion/:id" element={<Planificacion />} />
+        <Route path="/planificacion/:idPlanificacion/foro" element={<ForoPlanificacion />} />
         <Route path="/entrenadores" element={<Entrenadores />} />
-        <Route path="/cuenta" element={<Cuenta />} />
         <Route path="/reservar" element={<ReservaForm />} />
         <Route path="/mis-reservas" element={<MisReservas />} />
-        <Route path="/gestion/reservas" element={<GestionReservas />} />
-        <Route path="/planificacion/:idPlanificacion/foro" element={<ForoPlanificacion />} />
-
+        
         {/* Chat */}
         <Route
           path="/chat"
           element={<ChatPage userId={user?.id} userRole={user?.rol} />}
         />
+      </Route>
 
-        {/* Gestión */}
+      {/* ============================================ */}
+      {/* RUTAS DE ADMINISTRACIÓN */}
+      {/* (Solo Admin y Coach) */}
+      {/* ============================================ */}
+      <Route element={<RutaPrivada rolesPermitidos={['admin', 'coach']} />}>
         <Route path="/gestion/usuarios" element={<GestionUsuarios />} />
         <Route path="/gestion/planificaciones" element={<GestionPlanificaciones />} />
+        <Route path="/gestion/reservas" element={<GestionReservas />} />
         <Route path="/crear-plan" element={<CrearPlanificacion />} />
-        <Route path="/suscripcion" element={<Suscripcion />} />
         <Route path="/perfil/:userId" element={<PerfilUsuario />} />
       </Route>
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />} />
+      {/* ============================================ */}
+      {/* FALLBACK */}
+      {/* ============================================ */}
+      <Route 
+        path="*" 
+        element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />} 
+      />
     </Routes>
   );
 };
