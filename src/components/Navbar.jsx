@@ -13,7 +13,6 @@ const Navbar = () => {
   const [submenuGestionAbierto, setSubmenuGestionAbierto] = useState(false);
   const [submenuReservasAbierto, setSubmenuReservasAbierto] = useState(false);
 
-  // Carga inicial del tema - SOLO UNA VEZ al montar el componente
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -26,7 +25,6 @@ const Navbar = () => {
     }
   }, []);
 
-  // Función para cambiar el tema - SIN useEffect
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode;
     setDarkMode(newDarkMode);
@@ -55,6 +53,7 @@ const Navbar = () => {
 
   const esAdmin = user?.rol === 'admin';
   const esCoach = user?.rol === 'coach';
+  const esReservas = user?.rol === 'reservas'; // NUEVO
   const mostrarGestion = esAdmin || esCoach;
 
   if (loading) {
@@ -75,9 +74,12 @@ const Navbar = () => {
     <header className="bg-white dark:bg-black border-b-2 border-black dark:border-gray-600 sticky top-0 z-50">
       <nav className="max-w-7xl mx-auto px-6 h-16 flex justify-between items-center">
         <h1 className="text-2xl font-extrabold tracking-tight">
-          <SmartLink to="/" className="flex items-center gap-3 hover:text-primary-light dark:hover:text-primary-dark transition-colors">
+          <SmartLink 
+            to={esReservas ? "/reservar" : "/"} 
+            className="flex items-center gap-3 hover:text-primary-light dark:hover:text-primary-dark transition-colors"
+          >
             <Dumbbell className="w-6 h-6" />
-            <span>RF ONLINE</span>
+            <span>RF PROGRAMS</span>
           </SmartLink>
         </h1>
 
@@ -103,83 +105,127 @@ const Navbar = () => {
       {menuAbierto && user && (
         <div className="fixed inset-0 bg-white dark:bg-black z-40 pt-16 overflow-y-auto">
           <div className="max-w-7xl mx-auto px-6 pb-10">
-            <NavItem to="/" icon={<Home size={24} />} text="INICIO" onClick={() => setMenuAbierto(false)} />
-            <NavItem to="/planes" icon={<Dumbbell size={24} />} text="PLANIFICACIONES" onClick={() => setMenuAbierto(false)} />
-
-            {/* Nuevo submenú de reservas */}
-            <div
-              className="border-b-2 border-black dark:border-gray-600 py-5 px-6 flex items-center gap-4 cursor-pointer text-xl"
-              onClick={() => setSubmenuReservasAbierto(!submenuReservasAbierto)}
-            >
-              <Calendar size={24} />
-              <span>RESERVAS</span>
-              <span className="ml-auto">▼</span>
-            </div>
-
-            {submenuReservasAbierto && (
-              <div className="bg-gray-100 dark:bg-gray-900">
-                <NavItem
-                  to="/reservar"
-                  icon={<Clock size={20} />}
-                  text="NUEVA RESERVA"
-                  onClick={() => setMenuAbierto(false)}
-                />
-                <NavItem
-                  to="/mis-reservas"
-                  icon={<ClipboardList size={20} />}
-                  text="MIS RESERVAS"
-                  onClick={() => setMenuAbierto(false)}
-                />
-                {(esAdmin || esCoach) && (
-                  <NavItem
-                    to="/gestion/reservas"
-                    icon={<ClipboardList size={20} />}
-                    text="TODAS LAS RESERVAS"
-                    onClick={() => setMenuAbierto(false)}
-                  />
-                )}
-              </div>
-            )}
-
-            {/* Nuevo item para chat */}
-            <NavItem to="/chat" icon={<Users size={24} />} text="CHAT" onClick={() => setMenuAbierto(false)} />
-
-            <NavItem to="/entrenadores" icon={<Users size={24} />} text="ENTRENADORES" onClick={() => setMenuAbierto(false)} />
-
-            {mostrarGestion && (
+            {/* NUEVO: Mostrar diferentes menús según el rol */}
+            {esReservas ? (
+              /* MENÚ SIMPLIFICADO PARA USUARIOS DE SOLO RESERVAS */
               <>
                 <div
                   className="border-b-2 border-black dark:border-gray-600 py-5 px-6 flex items-center gap-4 cursor-pointer text-xl"
-                  onClick={() => setSubmenuGestionAbierto(!submenuGestionAbierto)}
+                  onClick={() => setSubmenuReservasAbierto(!submenuReservasAbierto)}
                 >
-                  <Settings size={24} />
-                  <span>GESTIÓN</span>
+                  <Calendar size={24} />
+                  <span>RESERVAS</span>
                   <span className="ml-auto">▼</span>
                 </div>
 
-                {submenuGestionAbierto && (
+                {submenuReservasAbierto && (
                   <div className="bg-gray-100 dark:bg-gray-900">
-                    {esAdmin && (
-                      <NavItem
-                        to="/gestion/usuarios"
-                        icon={<UserCog size={20} />}
-                        text="ADMINISTRAR USUARIOS"
-                        onClick={() => setMenuAbierto(false)}
-                      />
-                    )}
                     <NavItem
-                      to="/gestion/planificaciones"
+                      to="/reservar"
+                      icon={<Clock size={20} />}
+                      text="NUEVA RESERVA"
+                      onClick={() => setMenuAbierto(false)}
+                    />
+                    <NavItem
+                      to="/mis-reservas"
                       icon={<ClipboardList size={20} />}
-                      text="ASIGNAR PLANIFICACIONES"
+                      text="MIS RESERVAS"
                       onClick={() => setMenuAbierto(false)}
                     />
                   </div>
                 )}
+
+                <NavItem 
+                  to="/cuenta" 
+                  icon={<UserCircle size={24} />} 
+                  text="MI CUENTA" 
+                  onClick={() => setMenuAbierto(false)} 
+                />
+              </>
+            ) : (
+              /* MENÚ COMPLETO PARA CLIENTES, COACHES Y ADMINS */
+              <>
+                <NavItem to="/" icon={<Home size={24} />} text="INICIO" onClick={() => setMenuAbierto(false)} />
+                <NavItem to="/planes" icon={<Dumbbell size={24} />} text="PLANIFICACIONES" onClick={() => setMenuAbierto(false)} />
+
+                {/* Submenú de reservas */}
+                <div
+                  className="border-b-2 border-black dark:border-gray-600 py-5 px-6 flex items-center gap-4 cursor-pointer text-xl"
+                  onClick={() => setSubmenuReservasAbierto(!submenuReservasAbierto)}
+                >
+                  <Calendar size={24} />
+                  <span>RESERVAS</span>
+                  <span className="ml-auto">▼</span>
+                </div>
+
+                {submenuReservasAbierto && (
+                  <div className="bg-gray-100 dark:bg-gray-900">
+                    <NavItem
+                      to="/reservar"
+                      icon={<Clock size={20} />}
+                      text="NUEVA RESERVA"
+                      onClick={() => setMenuAbierto(false)}
+                    />
+                    <NavItem
+                      to="/mis-reservas"
+                      icon={<ClipboardList size={20} />}
+                      text="MIS RESERVAS"
+                      onClick={() => setMenuAbierto(false)}
+                    />
+                    {(esAdmin || esCoach) && (
+                      <NavItem
+                        to="/gestion/reservas"
+                        icon={<ClipboardList size={20} />}
+                        text="TODAS LAS RESERVAS"
+                        onClick={() => setMenuAbierto(false)}
+                      />
+                    )}
+                  </div>
+                )}
+
+                {/* Chat */}
+                <NavItem to="/chat" icon={<Users size={24} />} text="CHAT" onClick={() => setMenuAbierto(false)} />
+
+                <NavItem to="/entrenadores" icon={<Users size={24} />} text="ENTRENADORES" onClick={() => setMenuAbierto(false)} />
+
+                {/* Gestión (solo admin/coach) */}
+                {mostrarGestion && (
+                  <>
+                    <div
+                      className="border-b-2 border-black dark:border-gray-600 py-5 px-6 flex items-center gap-4 cursor-pointer text-xl"
+                      onClick={() => setSubmenuGestionAbierto(!submenuGestionAbierto)}
+                    >
+                      <Settings size={24} />
+                      <span>GESTIÓN</span>
+                      <span className="ml-auto">▼</span>
+                    </div>
+
+                    {submenuGestionAbierto && (
+                      <div className="bg-gray-100 dark:bg-gray-900">
+                        {esAdmin && (
+                          <NavItem
+                            to="/gestion/usuarios"
+                            icon={<UserCog size={20} />}
+                            text="ADMINISTRAR USUARIOS"
+                            onClick={() => setMenuAbierto(false)}
+                          />
+                        )}
+                        <NavItem
+                          to="/gestion/planificaciones"
+                          icon={<ClipboardList size={20} />}
+                          text="ASIGNAR PLANIFICACIONES"
+                          onClick={() => setMenuAbierto(false)}
+                        />
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <NavItem to="/cuenta" icon={<UserCircle size={24} />} text="MI CUENTA" onClick={() => setMenuAbierto(false)} />
               </>
             )}
 
-            <NavItem to="/cuenta" icon={<UserCircle size={24} />} text="MI CUENTA" onClick={() => setMenuAbierto(false)} />
-
+            {/* Botón cerrar sesión (común para todos) */}
             <div className="mt-8 px-6">
               <button
                 onClick={handleLogout}

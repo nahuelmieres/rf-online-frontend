@@ -3,7 +3,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import Loader from './Loader';
 
-const RutaPrivada = ({ rolesPermitidos = [], requireSubscription = true }) => { // Cambiar default a true
+const RutaPrivada = ({ rolesPermitidos = [], requireSubscription = true }) => {
   const { user, isAuthenticated, hasActiveSubscription, loading } = useAuth();
   const location = useLocation();
 
@@ -28,9 +28,17 @@ const RutaPrivada = ({ rolesPermitidos = [], requireSubscription = true }) => { 
     );
   }
 
-  // Verificar suscripción (solo para clientes, no para admin/coach)
+  // NUEVO: Usuarios de solo reservas solo pueden acceder a rutas de reservas
+  if (user.rol === 'reservas') {
+    const rutasPermitidas = ['/cuenta', '/reservar', '/mis-reservas'];
+    if (!rutasPermitidas.includes(location.pathname)) {
+      return <Navigate to="/reservar" replace />;
+    }
+  }
+
+  // Verificar suscripción (solo para clientes normales, no para reservas)
   if (
-    requireSubscription && // Solo si la ruta requiere suscripción
+    requireSubscription &&
     user.rol === 'cliente' && 
     !hasActiveSubscription && 
     location.pathname !== '/suscripcion'

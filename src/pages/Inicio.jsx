@@ -8,7 +8,7 @@ const Inicio = () => {
       {/* Hero Section */}
       <div className="text-center mb-16 px-4">
         <h2 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight">
-          REAL FORCE <span className="text-primary-light dark:text-primary-dark">ONLINE</span>
+          REAL FORCE <span className="text-primary-light dark:text-primary-dark">PROGRAMS</span>
         </h2>
         <p className="text-xl md:text-2xl max-w-3xl mx-auto font-medium">
           TU ENTRENAMIENTO COMIENZA ACÁ. ACCEDÉ A TUS RUTINAS, CONECTÁ CON ENTRENADORES Y GESTIONÁ TU PROGRESO.

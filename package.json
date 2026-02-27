@@ -1,7 +1,7 @@
 {
   "name": "rf-online-frontend",
   "version": "1.0.0",
-  "description": "RF Online es una plataforma digital que funciona como un servicio a distancia del gimnasio, orientada a personas que no pueden asistir presencialmente. Con una única suscripción, los usuarios podrán acceder a distintos planes de entrenamiento divididos por enfoques: Fuerza/Hipertrofia, Running, Híbrido, Crossfit, GAP/Pump.",
+  "description": "RF PROGRAMS es una plataforma digital que funciona como un servicio a distancia del gimnasio, orientada a personas que no pueden asistir presencialmente. Con una única suscripción, los usuarios podrán acceder a distintos planes de entrenamiento divididos por enfoques: Fuerza/Hipertrofia, Running, Híbrido, Crossfit, GAP/Pump.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

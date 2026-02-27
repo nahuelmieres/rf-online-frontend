@@ -26,12 +26,12 @@ const TerminosCondiciones = () => {
 
           <h2 className="text-xl font-bold mt-6 mb-4">1. Aceptación de los Términos</h2>
           <p>
-            Al crear una cuenta y utilizar la plataforma RF Online, usted acepta quedar sujeto a estos Términos y Condiciones. Si no está de acuerdo con alguno de estos términos, por favor no utilice el servicio.
+            Al crear una cuenta y utilizar la plataforma RF PROGRAMS, usted acepta quedar sujeto a estos Términos y Condiciones. Si no está de acuerdo con alguno de estos términos, por favor no utilice el servicio.
           </p>
 
           <h2 className="text-xl font-bold mt-6 mb-4">2. Descripción del Servicio</h2>
           <p>
-            RF Online es una plataforma digital que permite a los usuarios acceder a planes de entrenamiento personalizados o generales, asignados por entrenadores certificados. La plataforma ofrece:
+            RF PROGRAMS es una plataforma digital que permite a los usuarios acceder a planes de entrenamiento personalizados o generales, asignados por entrenadores certificados. La plataforma ofrece:
           </p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Acceso a planes de entrenamiento (generales y personalizados)</li>
@@ -41,7 +41,7 @@ const TerminosCondiciones = () => {
 
           <h2 className="text-xl font-bold mt-6 mb-4">3. Registro y Cuentas</h2>
           <p>
-            Para utilizar RF Online, debe registrarse con un correo electrónico válido y completar el proceso de verificación. Usted es responsable de mantener la confidencialidad de su cuenta y contraseña.
+            Para utilizar RF PROGRAMS, debe registrarse con un correo electrónico válido y completar el proceso de verificación. Usted es responsable de mantener la confidencialidad de su cuenta y contraseña.
           </p>
           <p className="mt-2">
             Existen tres tipos de cuentas:
@@ -70,7 +70,7 @@ const TerminosCondiciones = () => {
 
           <h2 className="text-xl font-bold mt-6 mb-4">6. Uso Aceptable</h2>
           <p>
-            Al usar RF Online, usted se compromete a:
+            Al usar RF PROGRAMS, usted se compromete a:
           </p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Usar la app de manera ética y legal</li>
@@ -83,12 +83,12 @@ const TerminosCondiciones = () => {
 
           <h2 className="text-xl font-bold mt-6 mb-4">7. Propiedad Intelectual</h2>
           <p>
-            Todo el contenido de RF Online (incluyendo textos, rutinas, diseño, imágenes, código fuente, etc.) es propiedad de RF Online o de sus respectivos creadores y no puede ser copiado, modificado ni distribuido sin autorización expresa.
+            Todo el contenido de RF PROGRAMS (incluyendo textos, rutinas, diseño, imágenes, código fuente, etc.) es propiedad de RF PROGRAMS o de sus respectivos creadores y no puede ser copiado, modificado ni distribuido sin autorización expresa.
           </p>
 
           <h2 className="text-xl font-bold mt-6 mb-4">8. Exención de Responsabilidad</h2>
           <p>
-            RF Online no se hace responsable por:
+            RF PROGRAMS no se hace responsable por:
           </p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Lesiones, accidentes o complicaciones derivadas de la ejecución de ejercicios físicos incluidos en las planificaciones</li>
@@ -101,7 +101,7 @@ const TerminosCondiciones = () => {
 
           <h2 className="text-xl font-bold mt-6 mb-4">9. Disponibilidad del Servicio</h2>
           <p>
-            RF Online trabaja para garantizar un funcionamiento continuo de la plataforma, pero no garantiza que el servicio esté libre de errores, caídas o interrupciones. Nos reservamos el derecho de modificar o discontinuar el servicio en cualquier momento, con o sin previo aviso.
+            RF PROGRAMS trabaja para garantizar un funcionamiento continuo de la plataforma, pero no garantiza que el servicio esté libre de errores, caídas o interrupciones. Nos reservamos el derecho de modificar o discontinuar el servicio en cualquier momento, con o sin previo aviso.
           </p>
 
           <h2 className="text-xl font-bold mt-6 mb-4">10. Modificaciones</h2>

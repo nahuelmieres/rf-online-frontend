@@ -21,6 +21,7 @@ import GestionReservas from '../pages/Reservas/GestionReservas';
 import ForgotPassword from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
 import ForoPlanificacion from '../pages/Planificaciones/ForoPlanificacion';
+import CambiarPasswordInicial from '../pages/CambiarPasswordInicial';
 import { ChatPage } from '@/features/chat';
 import Loader from '@/components/Loader';
 
@@ -45,6 +46,7 @@ const AppRoutes = () => {
       <Route path="/terminos" element={<TerminosCondiciones />} />
       <Route path="/recuperar-contrasena" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/cambiar-password-inicial" element={<CambiarPasswordInicial />} /> {/* NUEVO */}
 
       {/* ============================================ */}
       {/* RUTAS PRIVADAS - NO REQUIEREN SUSCRIPCIÓN */}
@@ -52,6 +54,15 @@ const AppRoutes = () => {
       <Route element={<RutaPrivada requireSubscription={false} />}>
         <Route path="/cuenta" element={<Cuenta />} />
         <Route path="/suscripcion" element={<Suscripcion />} />
+      </Route>
+
+      {/* ============================================ */}
+      {/* RUTAS PARA USUARIOS DE SOLO RESERVAS */}
+      {/* (Pago manual - sin acceso a planificaciones) */}
+      {/* ============================================ */}
+      <Route element={<RutaPrivada rolesPermitidos={['reservas', 'cliente', 'admin', 'coach']} requireSubscription={false} />}>
+        <Route path="/reservar" element={<ReservaForm />} />
+        <Route path="/mis-reservas" element={<MisReservas />} />
       </Route>
 
       {/* ============================================ */}
@@ -64,8 +75,6 @@ const AppRoutes = () => {
         <Route path="/planificacion/:id" element={<Planificacion />} />
         <Route path="/planificacion/:idPlanificacion/foro" element={<ForoPlanificacion />} />
         <Route path="/entrenadores" element={<Entrenadores />} />
-        <Route path="/reservar" element={<ReservaForm />} />
-        <Route path="/mis-reservas" element={<MisReservas />} />
         
         {/* Chat */}
         <Route
